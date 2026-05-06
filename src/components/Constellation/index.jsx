@@ -33,6 +33,15 @@ function SceneInner({
   const onBrainEnter = useCallback(() => { brainHoveredRef.current = true; setBrainHovered(true) }, [])
   const onBrainLeave = useCallback(() => { brainHoveredRef.current = false; setBrainHovered(false) }, [])
 
+  // When a node is selected, force-clear brain hover (pointer events don't always fire onLeave
+  // when clicking a node that's inside the brain detection sphere)
+  useEffect(() => {
+    if (selectedId) {
+      brainHoveredRef.current = false
+      setBrainHovered(false)
+    }
+  }, [selectedId])
+
   return (
     <>
       <fog attach="fog" args={['#0a0a0f', 26, 70]} />
@@ -44,11 +53,13 @@ function SceneInner({
 
       <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
 
-      {/* Invisible hit-detection sphere for brain hover — 8×8 is enough for raycasting */}
-      <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
-        <sphereGeometry args={[8, 8, 8]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
+      {/* Invisible hit-detection sphere — unmounted during node selection to prevent stuck hover state */}
+      {!selectedId && (
+        <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
+          <sphereGeometry args={[8, 8, 8]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      )}
 
       <Stars radius={120} depth={80} count={700} factor={2} saturation={0.1} fade speed={0.3} />
 
@@ -57,6 +68,7 @@ function SceneInner({
         positions={positions}
         showConnections={showConnections}
         selectedId={selectedId}
+        groupBy={groupBy}
       />
 
       {projects.map((p, i) => (
