@@ -270,12 +270,12 @@ export function ArchetypeLegend({ open, onClose }) {
 export function BackChip({ onClick }) {
   return (
     <motion.button
-      initial={{ y: -10, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      exit={{ y: -10, opacity: 0 }}
+      initial={{ x: '-50%', y: -10, opacity: 0 }}
+      animate={{ x: '-50%', y: 0, opacity: 1 }}
+      exit={{ x: '-50%', y: -10, opacity: 0 }}
       transition={{ type: 'spring', stiffness: 220, damping: 24 }}
       onClick={onClick}
-      className="fixed top-4 left-1/2 -translate-x-1/2 rounded-2xl px-4 py-2 text-xs flex items-center gap-2 z-30"
+      className="fixed top-4 left-1/2 rounded-2xl px-4 py-2 text-xs flex items-center gap-2 z-30"
       style={{
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
