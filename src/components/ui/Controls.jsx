@@ -8,12 +8,13 @@ export function BottomControls({ projects, open, setOpen, showConnections, setSh
   if (!open) return null
   return (
     <motion.div
-      initial={{ y: 20, opacity: 0, scale: 0.96 }}
-      animate={{ y: 0, opacity: 1, scale: 1 }}
-      exit={{ y: 20, opacity: 0, scale: 0.96 }}
+      initial={{ x: '-50%', y: 20, opacity: 0, scale: 0.96 }}
+      animate={{ x: '-50%', y: 0, opacity: 1, scale: 1 }}
+      exit={{ x: '-50%', y: 20, opacity: 0, scale: 0.96 }}
       transition={{ type: 'spring', stiffness: 320, damping: 26 }}
-      className="fixed bottom-5 left-1/2 -translate-x-1/2 rounded-2xl p-1.5 flex items-center gap-1 z-30"
+      className="fixed bottom-6 rounded-2xl p-1.5 flex items-center gap-1 z-20"
       style={{
+        left: '50%',
         backdropFilter: 'blur(20px)',
         WebkitBackdropFilter: 'blur(20px)',
         background: 'rgba(255,255,255,0.04)',

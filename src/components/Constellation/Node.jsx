@@ -1,103 +1,118 @@
-import { useRef, useMemo } from 'react'
+import { useRef, useMemo, memo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { nodeMatProps } from './utils'
-import { fmtMXN, sroiColor } from '../../lib/sroi'
+import { fmtMXN } from '../../lib/sroi'
 
+// Imperative geometry — never reconciled on re-render
 function SelectionRing({ radius }) {
   const ringRef = useRef()
   const scaleRef = useRef(0)
-  useFrame((state, delta) => {
-    if (ringRef.current) {
-      scaleRef.current = THREE.MathUtils.lerp(scaleRef.current, 1, 0.12)
-      ringRef.current.scale.setScalar(scaleRef.current)
-      ringRef.current.rotation.z += delta * 0.4
-    }
-  })
-  return (
-    <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
-      <torusGeometry args={[radius * 1.8, 0.02, 16, 100]} />
-      <meshBasicMaterial color="#FFFFFF" transparent opacity={0.4} toneMapped={false} />
-    </mesh>
+  const geometry = useMemo(() => new THREE.TorusGeometry(radius * 1.8, 0.02, 8, 48), [radius])
+  const material = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.4, toneMapped: false }),
+    []
   )
+  useFrame((_, delta) => {
+    if (!ringRef.current) return
+    scaleRef.current = THREE.MathUtils.lerp(scaleRef.current, 1, 0.12)
+    ringRef.current.scale.setScalar(scaleRef.current)
+    ringRef.current.rotation.z += delta * 0.4
+  })
+  return <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]} geometry={geometry} material={material} />
 }
 
-export default function NodeMesh({
+const NodeMesh = memo(function NodeMesh({
   project, position, radius, hovered, selected, dimmed,
-  brainHovered, dispersionRef, onHover, onUnhover, onClick, recentChange,
+  brainHoveredRef, dispersionRef, onHover, onUnhover, onClick, recentChange,
 }) {
+  const groupRef = useRef()
   const meshRef = useRef()
-  const matRef = useRef()
-  const lightRef = useRef()
+
   const phase = useMemo(() => Math.random() * Math.PI * 2, [])
   const idHash = useMemo(
     () => (project.id.charCodeAt(1) + project.id.charCodeAt(2)) * 0.1,
     [project.id]
   )
-  const mp = nodeMatProps(project.sroi)
-  const { color, emi: baseEmissive } = mp
+  const { color, emi: baseEmissive } = useMemo(() => nodeMatProps(project.sroi), [project.sroi])
 
-  useFrame((state) => {
+  // Imperative geometry and material — created once, no JSX reconciliation,
+  // no conflict between initial JSX props and useFrame mutations
+  const geometry = useMemo(() => new THREE.SphereGeometry(radius, 32, 32), [radius])
+  const material = useMemo(() => new THREE.MeshPhysicalMaterial({
+    color,
+    emissive: new THREE.Color(color),
+    emissiveIntensity: baseEmissive * 2.5,
+    transparent: true,
+    opacity: 0.7,
+    roughness: 0.15,
+    metalness: 0.05,
+    clearcoat: 0.9,
+    clearcoatRoughness: 0.05,
+    toneMapped: false,
+    side: THREE.FrontSide,
+  }), [color, baseEmissive])
+
+  // Current world position — smooth lerp toward target when groupBy changes
+  const posVec = useRef(new THREE.Vector3(...position))
+  const targetVec = useMemo(
+    () => new THREE.Vector3(...position),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [position[0], position[1], position[2]]
+  )
+
+  useFrame((state, delta) => {
+    // Position lerp (always — smooth groupBy transitions)
+    if (groupRef.current) {
+      posVec.current.lerp(targetVec, Math.min(1, delta * 2.5))
+      groupRef.current.position.copy(posVec.current)
+    }
+
     if (!meshRef.current) return
     const t = state.clock.elapsedTime
-    const breathe = 1 + Math.sin(t * 0.3 + phase) * 0.02
-    let target = breathe
-    if (hovered || selected) target = 1.3 * breathe
 
+    // Dimmed nodes: minimal work — just scale back to neutral
+    if (dimmed) {
+      const cur = meshRef.current.scale.x
+      if (Math.abs(cur - 1) > 0.001)
+        meshRef.current.scale.setScalar(THREE.MathUtils.lerp(cur, 1, 0.1))
+      return
+    }
+
+    // Scale (breathe + hover/select + pulse on data change)
+    const breathe = 1 + Math.sin(t * 0.3 + phase) * 0.02
+    let targetScale = (hovered || selected) ? 1.3 * breathe : breathe
     let pulseMul = 1
     if (recentChange && (recentChange.id === project.id || recentChange.id === 'ALL')) {
       const age = t - recentChange.t
       if (age < 2.4)
         pulseMul = 1 + Math.abs(Math.sin(age * Math.PI * 2)) * 0.45 * Math.max(0, 1 - age / 2.4)
     }
+    const curScale = meshRef.current.scale.x
+    meshRef.current.scale.setScalar(THREE.MathUtils.lerp(curScale, targetScale * pulseMul, 0.12))
 
-    const cur = meshRef.current.scale.x
-    const next = THREE.MathUtils.lerp(cur, target * pulseMul, 0.12)
-    meshRef.current.scale.set(next, next, next)
-
-    if (matRef.current) {
-      const liveMul = 1 + Math.sin(t * 0.4 + idHash) * 0.12
-      const stateMul = brainHovered ? 0.7 : 2.5
-      const focusBoost = hovered || selected ? 1.5 : 1.0
-      const dimMul = dimmed ? 0.4 : 1.0
-      matRef.current.emissiveIntensity = baseEmissive * stateMul * liveMul * focusBoost * dimMul
-      const d = dispersionRef?.current ?? 0
-      matRef.current.opacity = THREE.MathUtils.lerp(0.55, 0.92, d)
-      matRef.current.transmission = THREE.MathUtils.lerp(0.4, 0.05, d)
-      matRef.current.roughness = THREE.MathUtils.lerp(0.4, 0.15, d)
-    }
-    if (lightRef.current) {
-      lightRef.current.intensity = brainHovered ? 0.3 : 1.2
-      lightRef.current.distance = brainHovered ? 3 : 8
-    }
+    // Material animation — read brainHovered from ref (no re-render needed when brain is hovered)
+    const brainHovered = brainHoveredRef?.current ?? false
+    const liveMul = 1 + Math.sin(t * 0.4 + idHash) * 0.12
+    const stateMul = brainHovered ? 0.7 : 2.5
+    const focusBoost = (hovered || selected) ? 1.5 : 1.0
+    material.emissiveIntensity = baseEmissive * stateMul * liveMul * focusBoost
+    const d = dispersionRef?.current ?? 0
+    material.opacity = THREE.MathUtils.lerp(0.55, 0.92, d)
+    material.roughness = THREE.MathUtils.lerp(0.25, 0.15, d)
   })
 
   return (
-    <group position={position}>
+    <group ref={groupRef}>
       <mesh
         ref={meshRef}
-        onPointerOver={(e) => { e.stopPropagation(); onHover(); document.body.style.cursor = 'pointer' }}
-        onPointerOut={() => { onUnhover(); document.body.style.cursor = 'auto' }}
-        onClick={(e) => { e.stopPropagation(); onClick() }}
-      >
-        <sphereGeometry args={[radius, 64, 64]} />
-        <meshPhysicalMaterial
-          ref={matRef}
-          color={color}
-          emissive={color}
-          emissiveIntensity={baseEmissive * 2.5}
-          transparent
-          opacity={0.7}
-          roughness={0.15}
-          metalness={0.05}
-          clearcoat={0.9}
-          clearcoatRoughness={0.05}
-          toneMapped={false}
-          side={THREE.FrontSide}
-        />
-      </mesh>
-      <pointLight ref={lightRef} color={color} intensity={1.2} distance={8} decay={2} />
+        geometry={geometry}
+        material={material}
+        onPointerOver={(e) => { e.stopPropagation(); onHover(project.id); document.body.style.cursor = 'pointer' }}
+        onPointerOut={() => { onUnhover(project.id); document.body.style.cursor = 'auto' }}
+        onClick={(e) => { e.stopPropagation(); onClick(project.id) }}
+      />
 
       {selected && <SelectionRing radius={radius} />}
 
@@ -115,4 +130,6 @@ export default function NodeMesh({
       )}
     </group>
   )
-}
+})
+
+export default NodeMesh

@@ -1,5 +1,9 @@
 import * as THREE from 'three'
 
+// Stable seed from project id — no Math.random(), same result every call
+const seed = (p) => (p.id.charCodeAt(1) * 13 + p.id.charCodeAt(2) * 7) % 100
+const seed2 = (p) => (p.id.charCodeAt(1) * 7 + p.id.charCodeAt(2) * 17) % 100
+
 export const projectPosition = (p) => {
   let R
   if (p.sroi > 2) R = 1.2
@@ -8,15 +12,60 @@ export const projectPosition = (p) => {
 
   const archIdx = 'ABCDE'.indexOf(p.archetype)
   const sliceCenter = (archIdx / 5) * Math.PI * 2
-  const seed = (p.id.charCodeAt(1) * 13 + p.id.charCodeAt(2) * 7) % 100
-  const theta = sliceCenter + ((seed / 100) - 0.5) * 0.9
-  const phi = Math.PI * (0.25 + ((seed * 1.7) % 100) / 100 * 0.5)
+  const s = seed(p)
+  const theta = sliceCenter + ((s / 100) - 0.5) * 0.9
+  const phi = Math.PI * (0.25 + ((s * 1.7) % 100) / 100 * 0.5)
 
   return [
     R * Math.sin(phi) * Math.cos(theta),
     R * Math.cos(phi) * 0.85,
     R * Math.sin(phi) * Math.sin(theta),
   ]
+}
+
+// Positions for all modes — deterministic (seed only from project id)
+export const computePositions = (projects, groupBy) => {
+  if (groupBy === 'arquetipo') {
+    const arcAngles = { A: 0, B: Math.PI * 0.4, C: Math.PI, D: Math.PI * 1.4, E: Math.PI * 1.75 }
+    const idxByArch = {}
+    const countByArch = {}
+    projects.forEach((p) => { countByArch[p.archetype] = (countByArch[p.archetype] || 0) + 1 })
+    return projects.map((p) => {
+      const base = arcAngles[p.archetype] ?? 0
+      const idx = idxByArch[p.archetype] = (idxByArch[p.archetype] ?? -1) + 1
+      const total = countByArch[p.archetype]
+      const spread = 0.65
+      const angle = base + ((total > 1 ? idx / (total - 1) : 0.5) - 0.5) * spread
+      const R = 4.2 + (seed(p) / 100) * 1.2
+      const y = (seed2(p) / 100 - 0.5) * 3.5
+      return [Math.cos(angle) * R, y, Math.sin(angle) * R]
+    })
+  }
+
+  if (groupBy === 'inversión') {
+    const maxInv = Math.max(...projects.map((p) => p.investment))
+    return projects.map((p) => {
+      const norm = p.investment / maxInv
+      const R = 2 + (1 - norm) * 6
+      const angle = (seed(p) / 100) * Math.PI * 2
+      const y = (seed2(p) / 100 - 0.5) * 3
+      return [Math.cos(angle) * R, y, Math.sin(angle) * R]
+    })
+  }
+
+  // 'sroi' — concentric rings by category (default)
+  const radiusMap = { ALTO: 1.8, MEDIO: 4.5, BAJO: 7.5 }
+  const idxByCat = {}
+  const countByCat = {}
+  projects.forEach((p) => { countByCat[p.category] = (countByCat[p.category] || 0) + 1 })
+  return projects.map((p) => {
+    const R = radiusMap[p.category] ?? 5
+    const idx = idxByCat[p.category] = (idxByCat[p.category] ?? -1) + 1
+    const total = countByCat[p.category]
+    const angle = (idx / Math.max(1, total)) * Math.PI * 2
+    const y = (seed(p) / 100 - 0.5) * 2.5
+    return [Math.cos(angle) * R, y, Math.sin(angle) * R]
+  })
 }
 
 export const projectRadius = (p) => {

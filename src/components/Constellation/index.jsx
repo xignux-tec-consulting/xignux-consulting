@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
@@ -8,7 +8,7 @@ import BrainHalo from './BrainHalo'
 import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
 import { CameraRig, BrainHoverCamera, NodeProjector } from './CameraRig'
-import { projectPosition } from './utils'
+import { computePositions } from './utils'
 
 function SceneBackground({ darkMode }) {
   const { gl, scene } = useThree()
@@ -23,11 +23,27 @@ function SceneBackground({ darkMode }) {
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
-  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, darkMode,
+  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
 }) {
-  const positions = useMemo(() => projects.map((p) => projectPosition(p)), [projects])
+  const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
+  // Pre-compute radii once — stable unless projects change
+  const radii = useMemo(
+    () => projects.map((p) => 0.3 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.4),
+    [projects]
+  )
+
   const [brainHovered, setBrainHovered] = useState(false)
+  // brainHoveredRef lets NodeMesh read the value in useFrame without triggering re-renders
+  const brainHoveredRef = useRef(false)
   const dispersionRef = useRef(0)
+
+  // Stable handlers — created once, no new references on SceneInner re-renders
+  // NodeMesh (React.memo'd) won't re-render just because SceneInner re-renders
+  const handleHover = useCallback((id) => { setHoveredId(id) }, [setHoveredId])
+  const handleUnhover = useCallback((id) => { setHoveredId((h) => (h === id ? null : h)) }, [setHoveredId])
+  const handleSelect = useCallback((id) => { onSelect(id) }, [onSelect])
+  const onBrainEnter = useCallback(() => { brainHoveredRef.current = true; setBrainHovered(true) }, [])
+  const onBrainLeave = useCallback(() => { brainHoveredRef.current = false; setBrainHovered(false) }, [])
 
   return (
     <>
@@ -38,16 +54,15 @@ function SceneInner({
       <directionalLight position={[-10, -5, -10]} intensity={darkMode ? 0.2 : 0.3} color="#F59E0B" />
       <pointLight position={[0, 0, 5]} intensity={darkMode ? 0.4 : 0.7} color="#FFFFFF" distance={30} />
 
-      <BrainHalo count={3000} isHovered={brainHovered} dispersionRef={dispersionRef} darkMode={darkMode} />
-      <mesh
-        onPointerEnter={() => setBrainHovered(true)}
-        onPointerLeave={() => setBrainHovered(false)}
-      >
-        <sphereGeometry args={[8, 32, 32]} />
+      <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
+
+      {/* Invisible hit-detection sphere for brain hover — 8×8 is enough for raycasting */}
+      <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
+        <sphereGeometry args={[8, 8, 8]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      <Stars radius={120} depth={80} count={darkMode ? 1500 : 800} factor={2} saturation={darkMode ? 0.1 : 0.3} fade speed={0.3} />
+      <Stars radius={120} depth={80} count={700} factor={2} saturation={0.1} fade speed={0.3} />
 
       <ConnectionsLayer
         projects={projects}
@@ -62,15 +77,15 @@ function SceneInner({
           key={p.id}
           project={p}
           position={positions[i]}
-          radius={0.3 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.4}
+          radius={radii[i]}
           hovered={hoveredId === p.id}
           selected={selectedId === p.id}
           dimmed={!!selectedId && selectedId !== p.id}
-          brainHovered={brainHovered}
+          brainHoveredRef={brainHoveredRef}
           dispersionRef={dispersionRef}
-          onHover={() => setHoveredId(p.id)}
-          onUnhover={() => setHoveredId((h) => (h === p.id ? null : h))}
-          onClick={() => onSelect(p.id)}
+          onHover={handleHover}
+          onUnhover={handleUnhover}
+          onClick={handleSelect}
           recentChange={recentChange}
         />
       ))}
@@ -106,16 +121,16 @@ function SceneInner({
         maxDistance={50}
       />
 
-      <EffectComposer multisampling={4}>
+      <EffectComposer multisampling={0}>
         <Bloom
-          intensity={0.7}
+          intensity={0.65}
           luminanceThreshold={0.25}
           luminanceSmoothing={0.7}
-          kernelSize={KernelSize.MEDIUM}
+          kernelSize={KernelSize.SMALL}
           mipmapBlur
         />
         <Vignette offset={0.3} darkness={0.55} eskil={false} blendFunction={BlendFunction.NORMAL} />
-        <Noise opacity={0.025} blendFunction={BlendFunction.OVERLAY} />
+        <Noise opacity={0.02} blendFunction={BlendFunction.OVERLAY} />
       </EffectComposer>
     </>
   )
@@ -123,13 +138,14 @@ function SceneInner({
 
 export default function Constellation({
   projects, selectedId, onSelect, onDeselect,
-  showConnections = true, recentChange, cameraTarget, onProjectAnchor, darkMode = true,
+  showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor,
 }) {
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
   const controlsRef = useRef()
   const idleTimer = useRef(null)
 
+  // [] — OrbitControls ref is populated by the time this effect runs (after R3F commit)
   useEffect(() => {
     const ctrl = controlsRef.current
     if (!ctrl) return
@@ -141,16 +157,16 @@ export default function Constellation({
     ctrl.addEventListener('start', onStart)
     ctrl.addEventListener('end', onEnd)
     return () => { ctrl.removeEventListener('start', onStart); ctrl.removeEventListener('end', onEnd) }
-  }, [controlsRef.current])
+  }, [])
 
   const bgColor = darkMode ? '#0A0E1A' : '#0d1422'
 
   return (
     <Canvas
       camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
-      gl={{ antialias: true, powerPreference: 'high-performance', alpha: false, clearColor: bgColor }}
-      dpr={[1, 2]}
-      style={{ background: bgColor, transition: 'background 0.3s' }}
+      gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
+      dpr={[1, 1.5]}
+      style={{ background: 'transparent' }}
     >
       {onProjectAnchor && (
         <NodeProjector
@@ -171,7 +187,7 @@ export default function Constellation({
         controlsRef={controlsRef}
         recentChange={recentChange}
         cameraTarget={cameraTarget}
-        darkMode={darkMode}
+        groupBy={groupBy}
       />
     </Canvas>
   )
