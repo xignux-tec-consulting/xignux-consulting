@@ -45,9 +45,9 @@ export function BrainHoverCamera({ brainHovered, cameraTarget, controlsRef }) {
     const lerpAmt = Math.min(1, delta * 1.2)
     camera.position.lerp(targetPos.current, lerpAmt)
     camera.lookAt(0, 0, 0)
+    // Sync target reference only — no controls.update() to avoid double-update conflict
     if (controlsRef?.current) {
       controlsRef.current.target.lerp(zeroVec.current, lerpAmt)
-      controlsRef.current.update()
     }
   })
   return null
@@ -74,10 +74,12 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
 
     const speed = Math.min(1, delta * 1.8)
     camera.position.lerp(camTarget.current, speed)
+    // Directly orient camera — no controls.update() which would override the lerp
+    camera.lookAt(nodePos.current)
 
+    // Keep target in sync for when OrbitControls re-enables on deselect
     if (controlsRef?.current) {
-      controlsRef.current.target.lerp(nodePos.current, speed)
-      controlsRef.current.update()
+      controlsRef.current.target.copy(nodePos.current)
     }
   })
   return null
