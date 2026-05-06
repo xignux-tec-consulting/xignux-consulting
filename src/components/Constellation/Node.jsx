@@ -80,6 +80,11 @@ const NodeMesh = memo(function NodeMesh({
     if (!meshRef.current) return
     const t = state.clock.elapsedTime
 
+    // Color lerp runs every frame regardless of dimmed state — ensures deselected nodes revert
+    const colorSpeed = Math.min(1, delta * 4)
+    material.color.lerp(selected ? cyanColor : baseColor, colorSpeed)
+    material.emissive.lerp(selected ? cyanColor : baseColor, colorSpeed)
+
     // Dimmed nodes: attenuate opacity + scale back — focus mode
     if (dimmed) {
       meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, 0.9, Math.min(1, delta * 4)))
@@ -112,11 +117,6 @@ const NodeMesh = memo(function NodeMesh({
     const liveMul = 1 + Math.sin(t * 0.4 + idHash) * 0.12
     const stateMul = brainHovered ? 0.7 : 2.5
     const focusBoost = (hovered || selected) ? 1.5 : 1.0
-
-    // Color lerp: cyan when selected, base color otherwise
-    const colorSpeed = Math.min(1, delta * 4)
-    material.color.lerp(selected ? cyanColor : baseColor, colorSpeed)
-    material.emissive.lerp(selected ? cyanColor : baseColor, colorSpeed)
 
     material.emissiveIntensity = THREE.MathUtils.lerp(
       material.emissiveIntensity,
