@@ -3,11 +3,23 @@ import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
+import * as THREE from 'three'
 import BrainHalo from './BrainHalo'
 import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
 import { CameraRig, BrainHoverCamera, NodeProjector } from './CameraRig'
 import { computePositions } from './utils'
+
+function SceneBackground({ darkMode }) {
+  const { gl, scene } = useThree()
+  useEffect(() => {
+    const color = darkMode ? '#0A0E1A' : '#0d1422'
+    gl.setClearColor(color, 1)
+    scene.background = new THREE.Color(color)
+    scene.fog = new THREE.Fog(darkMode ? '#0a0a0f' : '#0d1422', 26, 70)
+  }, [darkMode, gl, scene])
+  return null
+}
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
@@ -35,12 +47,12 @@ function SceneInner({
 
   return (
     <>
-      <fog attach="fog" args={['#0a0a0f', 26, 70]} />
+      <SceneBackground darkMode={darkMode} />
 
-      <ambientLight intensity={0.15} color="#1E293B" />
-      <directionalLight position={[10, 10, 15]} intensity={0.5} color="#E0E7FF" />
-      <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
-      <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
+      <ambientLight intensity={darkMode ? 0.15 : 0.45} color={darkMode ? '#1E293B' : '#E0ECFF'} />
+      <directionalLight position={[10, 10, 15]} intensity={darkMode ? 0.5 : 0.8} color="#E0E7FF" />
+      <directionalLight position={[-10, -5, -10]} intensity={darkMode ? 0.2 : 0.3} color="#F59E0B" />
+      <pointLight position={[0, 0, 5]} intensity={darkMode ? 0.4 : 0.7} color="#FFFFFF" distance={30} />
 
       <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
 
@@ -57,6 +69,7 @@ function SceneInner({
         positions={positions}
         showConnections={showConnections}
         selectedId={selectedId}
+        darkMode={darkMode}
       />
 
       {projects.map((p, i) => (
@@ -145,6 +158,8 @@ export default function Constellation({
     ctrl.addEventListener('end', onEnd)
     return () => { ctrl.removeEventListener('start', onStart); ctrl.removeEventListener('end', onEnd) }
   }, [])
+
+  const bgColor = darkMode ? '#0A0E1A' : '#0d1422'
 
   return (
     <Canvas

@@ -2,15 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Dark theme (default) ───────────────────── */
 :root {
   --bg-0: #0A0E1A;
   --bg-1: #0F1628;
   --bg-2: #131929;
-  --border: rgba(255, 255, 255, 0.08);
+  --bg-card: rgba(15,20,35,0.85);
+  --bg-card-hover: rgba(20,28,50,0.9);
+  --border: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.14);
   --text-primary: #F5F7FA;
   --text-secondary: #94A3B8;
+  --text-muted: #64748b;
   --accent: #2E75B6;
   --accent-light: #5B9BD5;
+  --glass-bg: rgba(255,255,255,0.04);
+  --glass-bg-active: rgba(255,255,255,0.12);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-border-active: rgba(255,255,255,0.22);
+  --tooltip-bg: rgba(0,0,0,0.6);
+  --scrollbar-thumb: rgba(255,255,255,0.12);
+  --scrollbar-thumb-hover: rgba(255,255,255,0.22);
+  --recharts-bg: #0f1423;
+  --recharts-border: #1e293b;
+  --tab-active-bg: rgba(46,117,182,0.25);
+  --tab-active-border: rgba(46,117,182,0.6);
+}
+
+/* ── Light theme ────────────────────────────── */
+.light {
+  --bg-0: #F0F4FA;
+  --bg-1: #E8EEF8;
+  --bg-2: #DDE5F2;
+  --bg-card: rgba(255,255,255,0.88);
+  --bg-card-hover: rgba(255,255,255,0.96);
+  --border: rgba(0,0,0,0.08);
+  --border-strong: rgba(0,0,0,0.14);
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-muted: #94A3B8;
+  --accent: #2E75B6;
+  --accent-light: #1D5A96;
+  --glass-bg: rgba(255,255,255,0.55);
+  --glass-bg-active: rgba(255,255,255,0.82);
+  --glass-border: rgba(0,0,0,0.09);
+  --glass-border-active: rgba(46,117,182,0.4);
+  --tooltip-bg: rgba(240,244,250,0.95);
+  --scrollbar-thumb: rgba(0,0,0,0.12);
+  --scrollbar-thumb-hover: rgba(0,0,0,0.22);
+  --recharts-bg: #ffffff;
+  --recharts-border: #e2e8f0;
+  --tab-active-bg: rgba(46,117,182,0.12);
+  --tab-active-border: rgba(46,117,182,0.5);
 }
 
 * {
@@ -31,13 +74,14 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background 0.3s, color 0.3s;
 }
 
 /* ── Scrollbar ──────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-thumb-hover); }
 
 /* ── Typography ─────────────────────────────── */
 .mono {
@@ -48,20 +92,20 @@ body {
 .glass {
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
 }
 
 .glass-strong {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  background: rgba(19, 25, 41, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
 }
 
 /* ── Hairline border ────────────────────────── */
 .hairline {
-  border-color: rgba(255, 255, 255, 0.08);
+  border-color: var(--border);
 }
 
 /* ── Gradient border card ───────────────────── */

@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { getSoftParticleTexture, generateBrainPositions } from './utils'
 
-export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
+export default function BrainHalo({ count = 3000, isHovered, dispersionRef, darkMode = true }) {
   const groupRef = useRef()
   const pointsRef = useRef()
   const localDispersion = useRef(0)
