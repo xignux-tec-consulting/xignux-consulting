@@ -16,7 +16,7 @@ function SceneInner({
   const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
   // Pre-compute radii once — stable unless projects change
   const radii = useMemo(
-    () => projects.map((p) => 0.3 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.4),
+    () => projects.map((p) => 0.2 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.3),
     [projects]
   )
 
@@ -104,8 +104,8 @@ function SceneInner({
         zoomSpeed={0.6}
         enableDamping
         dampingFactor={0.05}
-        minDistance={12}
-        maxDistance={50}
+        minDistance={10}
+        maxDistance={35}
       />
 
       <EffectComposer multisampling={0}>
@@ -148,7 +148,7 @@ export default function Constellation({
 
   return (
     <Canvas
-      camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
+      camera={{ position: [0, 1, 18], fov: 45, near: 0.1, far: 200 }}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
       dpr={[1, 1.5]}
       style={{ background: 'transparent' }}
