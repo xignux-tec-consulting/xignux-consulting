@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Read(//c/Users/emizg/**)",
+      "Bash(claude plugin *)",
+      "Bash(echo \"EXIT_CODE: $?\")",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(Start-Process -NoNewWindow -PassThru npm -ArgumentList \"run\",\"dev\")",
+      "Bash(Start-Sleep 4)",
+      "Bash(Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing -TimeoutSec 5)",
+      "Bash(Select-Object -ExpandProperty StatusCode)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\emizg\\\\GithHub\\\\xignux-consulting\"; $proc = Start-Process -NoNewWindow -PassThru -FilePath \"npm\" -ArgumentList \"run\",\"dev\"; Start-Sleep 5; try { $r = Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing -TimeoutSec 5; \"HTTP $\\($r.StatusCode\\)\" } catch { \"Error: $_\" }; Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue)"
+    ]
+  }
+}

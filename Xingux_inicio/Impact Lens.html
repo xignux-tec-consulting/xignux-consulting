@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Impact Lens — Portfolio Constellation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg-0:#0A0E1A;
+    --bg-1:#131929;
+    --bg-2:#1a2236;
+    --border:#1F2937;
+    --fg:#F5F7FA;
+    --fg-dim:#94A3B8;
+    --brand-blue:#2E75B6;
+    --brand-orange:#ED7D31;
+    --ok:#10B981;
+    --warn:#F59E0B;
+    --bad:#EF4444;
+  }
+  html,body,#root{height:100%;}
+  body{
+    margin:0;
+    background:radial-gradient(1200px 800px at 50% 40%, #131929 0%, #0A0E1A 70%);
+    color:var(--fg);
+    font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;}
+  /* scrollbar */
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:#243049;border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  /* glass */
+  .glass{
+    background:rgba(19,25,41,0.66);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .glass-strong{
+    background:rgba(19,25,41,0.86);
+    backdrop-filter: blur(14px) saturate(140%);
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .hairline{ border-color: rgba(255,255,255,0.07); }
+  .grad-border{
+    position:relative;
+  }
+  .grad-border::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:inherit;
+    padding:1px;
+    background:linear-gradient(140deg, rgba(46,117,182,0.5), rgba(255,255,255,0.04) 40%, rgba(237,125,49,0.25));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events:none;
+  }
+  .pulse-dot{
+    position:relative;
+  }
+  .pulse-dot::after{
+    content:""; position:absolute; inset:-4px; border-radius:9999px;
+    box-shadow:0 0 0 0 rgba(16,185,129,0.6);
+    animation: pulseDot 1.8s ease-out infinite;
+  }
+  @keyframes pulseDot{
+    0%{box-shadow:0 0 0 0 rgba(16,185,129,0.5);}
+    70%{box-shadow:0 0 0 8px rgba(16,185,129,0);}
+    100%{box-shadow:0 0 0 0 rgba(16,185,129,0);}
+  }
+  .typing-dot{
+    width:5px;height:5px;border-radius:9999px;background:#94A3B8;
+    animation: bouncey 1.2s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(2){ animation-delay:.15s; }
+  .typing-dot:nth-child(3){ animation-delay:.3s; }
+  @keyframes bouncey{
+    0%,80%,100%{ transform: translateY(0); opacity:.4;}
+    40%{ transform: translateY(-4px); opacity:1;}
+  }
+  .focus-ring:focus-visible{ outline:2px solid #2E75B6; outline-offset:2px; }
+  .node-label{
+    background: rgba(19,25,41,0.92);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    color:#F5F7FA;
+    font-size:11px;
+    padding:4px 8px;
+    border-radius:6px;
+    white-space:nowrap;
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:.02em;
+    box-shadow:0 4px 16px rgba(0,0,0,0.4);
+    transform: translate(-50%, -150%);
+    pointer-events:none;
+  }
+  .node-tooltip{
+    background: rgba(15,18,28,0.96);
+    border:1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(12px);
+    color:#F5F7FA;
+    padding:8px 11px;
+    border-radius:8px;
+    white-space:nowrap;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    transform: translate(-50%, -160%);
+    pointer-events:none;
+    min-width: 160px;
+  }
+  .node-tooltip-name{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.005em;
+    margin-bottom: 3px;
+    color:#F5F7FA;
+  }
+  .node-tooltip-meta{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    color:#94A3B8;
+  }
+  .chip-link{
+    text-decoration: underline;
+    text-decoration-color: rgba(46,117,182,0.5);
+    text-underline-offset: 3px;
+    cursor: pointer;
+    transition: color .15s;
+  }
+  .chip-link:hover{ color:#5B9BD5; text-decoration-color:#5B9BD5; }
+  /* skeleton */
+  .skeleton{
+    background: linear-gradient(90deg, #1a2236 0%, #243049 40%, #1a2236 80%);
+    background-size: 200% 100%;
+    animation: skel 1.4s ease infinite;
+  }
+  @keyframes skel{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- React from UMD will be replaced by esm.sh-loaded version inside the importmap bridge to avoid duplicate copies -->
+<script src="https://unpkg.com/@babel/standalone@7.22.5/babel.min.js"></script>
+
+<!-- Importmap so ESM libs resolve react/three peers consistently -->
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+    "three": "https://esm.sh/three@0.160.0"
+  }
+}
+</script>
+
+<!-- Bridge: load ESM libs and attach to window so Babel non-module scripts can use them -->
+<script type="module">
+  import React from "react";
+  import * as ReactDOM from "react-dom";
+  import * as RD from "react-dom/client";
+  import * as THREE from "three";
+  import * as R3F from "https://esm.sh/@react-three/fiber@8.15.19?deps=react@18.3.1,react-dom@18.3.1,three@0.160.0";
+  import * as DREI from "https://esm.sh/@react-three/drei@9.99.0?deps=react@18.3.1,react-dom@18.3.1,three@0.160.0,@react-three/fiber@8.15.19";
+  import * as PP from "https://esm.sh/@react-three/postprocessing@2.16.2?deps=react@18.3.1,react-dom@18.3.1,three@0.160.0,@react-three/fiber@8.15.19";
+  import * as PPCore from "https://esm.sh/postprocessing@6.35.3?deps=three@0.160.0";
+  import * as FM from "https://esm.sh/framer-motion@11.0.8?deps=react@18.3.1,react-dom@18.3.1";
+  import * as LR from "https://esm.sh/lucide-react@0.344.0?deps=react@18.3.1";
+  import * as RC from "https://esm.sh/recharts@2.12.2?deps=react@18.3.1,react-dom@18.3.1";
+
+  window.React = React;
+  window.ReactDOM = ReactDOM;
+  window.THREE = THREE;
+  window.R3F = R3F;
+  window.DREI = DREI;
+  window.FM = FM;
+  window.LR = LR;
+  window.RC = RC;
+  window.ReactDOMClient = RD;
+  window.PP = PP;
+  window.PPCore = PPCore;
+
+  // Signal ready
+  window.__libsReady = true;
+  window.dispatchEvent(new Event("libs-ready"));
+</script>
+
+<!-- Globals shared across non-module Babel scripts -->
+<script>
+  window.installAppGlobals = function() {
+    var R = window.React;
+    window.useState = R.useState; window.useEffect = R.useEffect;
+    window.useRef = R.useRef; window.useMemo = R.useMemo;
+    window.useCallback = R.useCallback;
+    window.motion = window.FM.motion; window.AnimatePresence = window.FM.AnimatePresence;
+    window.createRoot = window.ReactDOMClient.createRoot;
+    var d = window.DREI;
+    window.OrbitControls = d.OrbitControls; window.Stars = d.Stars;
+    window.Html = d.Html; window.Line = d.Line;
+    var f = window.R3F;
+    window.Canvas = f.Canvas; window.useFrame = f.useFrame; window.useThree = f.useThree;
+    window.THREE_NS = window.THREE;
+    // Selectively expose only icons we use (to avoid clobbering window.Infinity etc.)
+    var L = window.LR;
+    ["Brain","Send","Network","LayoutDashboard","Database","TrendingUp","Target","Settings",
+     "X","ChevronRight","ChevronLeft","ChevronsRight","ArrowLeft","Sparkles","RotateCcw",
+     "Eye","EyeOff","ArrowUpDown","Filter","Layers","SlidersHorizontal"].forEach(function(k){ window[k] = L[k]; });
+    window.DLine = d.Line;
+    var pp = window.PP;
+    window.EffectComposer = pp.EffectComposer; window.Bloom = pp.Bloom;
+    window.DepthOfField = pp.DepthOfField; window.Vignette = pp.Vignette;
+    window.Noise = pp.Noise;
+    window.BlendFunction = window.PPCore.BlendFunction;
+    window.KernelSize = window.PPCore.KernelSize;
+    var rc = window.RC;
+    window.ResponsiveContainer = rc.ResponsiveContainer;
+    window.AreaChart = rc.AreaChart; window.Area = rc.Area;
+    window.LineChart = rc.LineChart; window.RLine = rc.Line;
+    window.BarChart = rc.BarChart; window.Bar = rc.Bar;
+    window.PieChart = rc.PieChart; window.Pie = rc.Pie;
+    window.Cell = rc.Cell; window.Treemap = rc.Treemap;
+    window.XAxis = rc.XAxis; window.YAxis = rc.YAxis;
+    window.CartesianGrid = rc.CartesianGrid; window.Tooltip = rc.Tooltip; window.Legend = rc.Legend;
+  };
+</script>
+
+<!-- App scripts: wait for libs, fetch and Babel-transform once -->
+<script>
+  async function loadAppScripts() {
+    window.installAppGlobals();
+    const files = [
+      "./app/data.js",
+      "./app/Constellation.js",
+      "./app/Panels.js",
+      "./app/Dashboard.js",
+      "./app/main.js",
+    ];
+    try {
+      const sources = await Promise.all(files.map(f => fetch(f).then(r => r.text())));
+      // Concatenate so all share scope
+      const combined = sources.join("\n;\n");
+      const transformed = Babel.transform(combined, { presets: ["react"] }).code;
+      // Run in global scope via Function
+      const fn = new Function(transformed);
+      fn();
+    } catch (e) {
+      console.error("App load failed:", e);
+      document.body.innerHTML = '<pre style="color:#EF4444;padding:20px;font-family:monospace;font-size:12px;white-space:pre-wrap;">' + (e.stack || e.message) + '</pre>';
+    }
+  }
+  if (window.__libsReady) loadAppScripts();
+  else window.addEventListener("libs-ready", loadAppScripts);
+</script>
+</body>
+</html>

@@ -1,0 +1,2758 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Impact Lens — Portfolio Constellation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg-0:#0A0E1A;
+    --bg-1:#131929;
+    --bg-2:#1a2236;
+    --border:#1F2937;
+    --fg:#F5F7FA;
+    --fg-dim:#94A3B8;
+    --brand-blue:#2E75B6;
+    --brand-orange:#ED7D31;
+    --ok:#10B981;
+    --warn:#F59E0B;
+    --bad:#EF4444;
+  }
+  html,body,#root{height:100%;}
+  body{
+    margin:0;
+    background:radial-gradient(1200px 800px at 50% 40%, #131929 0%, #0A0E1A 70%);
+    color:var(--fg);
+    font-family:'Inter',ui-sans-serif,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  .mono{font-family:'JetBrains Mono',ui-monospace,monospace;}
+  /* scrollbar */
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:#243049;border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  /* glass */
+  .glass{
+    background:rgba(19,25,41,0.66);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+    border:1px solid rgba(255,255,255,0.06);
+  }
+  .glass-strong{
+    background:rgba(19,25,41,0.86);
+    backdrop-filter: blur(14px) saturate(140%);
+    border:1px solid rgba(255,255,255,0.08);
+  }
+  .hairline{ border-color: rgba(255,255,255,0.07); }
+  .grad-border{
+    position:relative;
+  }
+  .grad-border::before{
+    content:"";
+    position:absolute; inset:0;
+    border-radius:inherit;
+    padding:1px;
+    background:linear-gradient(140deg, rgba(46,117,182,0.5), rgba(255,255,255,0.04) 40%, rgba(237,125,49,0.25));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events:none;
+  }
+  .pulse-dot{
+    position:relative;
+  }
+  .pulse-dot::after{
+    content:""; position:absolute; inset:-4px; border-radius:9999px;
+    box-shadow:0 0 0 0 rgba(16,185,129,0.6);
+    animation: pulseDot 1.8s ease-out infinite;
+  }
+  @keyframes pulseDot{
+    0%{box-shadow:0 0 0 0 rgba(16,185,129,0.5);}
+    70%{box-shadow:0 0 0 8px rgba(16,185,129,0);}
+    100%{box-shadow:0 0 0 0 rgba(16,185,129,0);}
+  }
+  .typing-dot{
+    width:5px;height:5px;border-radius:9999px;background:#94A3B8;
+    animation: bouncey 1.2s infinite ease-in-out;
+  }
+  .typing-dot:nth-child(2){ animation-delay:.15s; }
+  .typing-dot:nth-child(3){ animation-delay:.3s; }
+  @keyframes bouncey{
+    0%,80%,100%{ transform: translateY(0); opacity:.4;}
+    40%{ transform: translateY(-4px); opacity:1;}
+  }
+  .focus-ring:focus-visible{ outline:2px solid #2E75B6; outline-offset:2px; }
+  .node-label{
+    background: rgba(19,25,41,0.92);
+    border:1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(8px);
+    color:#F5F7FA;
+    font-size:11px;
+    padding:4px 8px;
+    border-radius:6px;
+    white-space:nowrap;
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:.02em;
+    box-shadow:0 4px 16px rgba(0,0,0,0.4);
+    transform: translate(-50%, -150%);
+    pointer-events:none;
+  }
+  .node-tooltip{
+    background: rgba(15,18,28,0.96);
+    border:1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(12px);
+    color:#F5F7FA;
+    padding:8px 11px;
+    border-radius:8px;
+    white-space:nowrap;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.04) inset;
+    transform: translate(-50%, -160%);
+    pointer-events:none;
+    min-width: 160px;
+  }
+  .node-tooltip-name{
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.005em;
+    margin-bottom: 3px;
+    color:#F5F7FA;
+  }
+  .node-tooltip-meta{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-size:11px;
+    color:#94A3B8;
+  }
+  .chip-link{
+    text-decoration: underline;
+    text-decoration-color: rgba(46,117,182,0.5);
+    text-underline-offset: 3px;
+    cursor: pointer;
+    transition: color .15s;
+  }
+  .chip-link:hover{ color:#5B9BD5; text-decoration-color:#5B9BD5; }
+  /* skeleton */
+  .skeleton{
+    background: linear-gradient(90deg, #1a2236 0%, #243049 40%, #1a2236 80%);
+    background-size: 200% 100%;
+    animation: skel 1.4s ease infinite;
+  }
+  @keyframes skel{ 0%{background-position:200% 0;} 100%{background-position:-200% 0;} }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<!-- React from UMD will be replaced by esm.sh-loaded version inside the importmap bridge to avoid duplicate copies -->
+<script src="https://unpkg.com/@babel/standalone@7.22.5/babel.min.js"></script>
+
+<!-- Importmap so ESM libs resolve react/three peers consistently -->
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1",
+    "react-dom/": "https://esm.sh/react-dom@18.3.1/",
+    "three": "https://esm.sh/three@0.160.0"
+  }
+}
+</script>
+
+<!-- Bridge: load ESM libs and attach to window so Babel non-module scripts can use them -->
+<script type="module">
+  import React from "react";
+  import * as ReactDOM from "react-dom";
+  import * as RD from "react-dom/client";
+  import * as THREE from "three";
+  import * as R3F from "https://esm.sh/@react-three/fiber@8.15.19?deps=react@18.3.1,react-dom@18.3.1,three@0.160.0";
+  import * as DREI from "https://esm.sh/@react-three/drei@9.99.0?deps=react@18.3.1,react-dom@18.3.1,three@0.160.0,@react-three/fiber@8.15.19";
+  import * as PP from "https://esm.sh/@react-three/postprocessing@2.16.2?deps=react@18.3.1,react-dom@18.3.1,three@0.160.0,@react-three/fiber@8.15.19";
+  import * as PPCore from "https://esm.sh/postprocessing@6.35.3?deps=three@0.160.0";
+  import * as FM from "https://esm.sh/framer-motion@11.0.8?deps=react@18.3.1,react-dom@18.3.1";
+  import * as LR from "https://esm.sh/lucide-react@0.344.0?deps=react@18.3.1";
+  import * as RC from "https://esm.sh/recharts@2.12.2?deps=react@18.3.1,react-dom@18.3.1";
+
+  window.React = React;
+  window.ReactDOM = ReactDOM;
+  window.THREE = THREE;
+  window.R3F = R3F;
+  window.DREI = DREI;
+  window.FM = FM;
+  window.LR = LR;
+  window.RC = RC;
+  window.ReactDOMClient = RD;
+  window.PP = PP;
+  window.PPCore = PPCore;
+
+  // Signal ready
+  window.__libsReady = true;
+  window.dispatchEvent(new Event("libs-ready"));
+</script>
+
+<!-- Globals shared across non-module Babel scripts -->
+<script>
+  window.installAppGlobals = function() {
+    var R = window.React;
+    window.useState = R.useState; window.useEffect = R.useEffect;
+    window.useRef = R.useRef; window.useMemo = R.useMemo;
+    window.useCallback = R.useCallback;
+    window.motion = window.FM.motion; window.AnimatePresence = window.FM.AnimatePresence;
+    window.createRoot = window.ReactDOMClient.createRoot;
+    var d = window.DREI;
+    window.OrbitControls = d.OrbitControls; window.Stars = d.Stars;
+    window.Html = d.Html; window.Line = d.Line;
+    var f = window.R3F;
+    window.Canvas = f.Canvas; window.useFrame = f.useFrame; window.useThree = f.useThree;
+    window.THREE_NS = window.THREE;
+    // Selectively expose only icons we use (to avoid clobbering window.Infinity etc.)
+    var L = window.LR;
+    ["Brain","Send","Network","LayoutDashboard","Database","TrendingUp","Target","Settings",
+     "X","ChevronRight","ChevronLeft","ChevronsRight","ArrowLeft","Sparkles","RotateCcw",
+     "Eye","EyeOff","ArrowUpDown","Filter","Layers","SlidersHorizontal"].forEach(function(k){ window[k] = L[k]; });
+    window.DLine = d.Line;
+    var pp = window.PP;
+    window.EffectComposer = pp.EffectComposer; window.Bloom = pp.Bloom;
+    window.DepthOfField = pp.DepthOfField; window.Vignette = pp.Vignette;
+    window.Noise = pp.Noise;
+    window.BlendFunction = window.PPCore.BlendFunction;
+    window.KernelSize = window.PPCore.KernelSize;
+    var rc = window.RC;
+    window.ResponsiveContainer = rc.ResponsiveContainer;
+    window.AreaChart = rc.AreaChart; window.Area = rc.Area;
+    window.LineChart = rc.LineChart; window.RLine = rc.Line;
+    window.BarChart = rc.BarChart; window.Bar = rc.Bar;
+    window.PieChart = rc.PieChart; window.Pie = rc.Pie;
+    window.Cell = rc.Cell; window.Treemap = rc.Treemap;
+    window.XAxis = rc.XAxis; window.YAxis = rc.YAxis;
+    window.CartesianGrid = rc.CartesianGrid; window.Tooltip = rc.Tooltip; window.Legend = rc.Legend;
+  };
+</script>
+
+<!-- App sources inlined as text/plain blocks -->
+<script type="text/plain" data-app-src="app/data.js">
+// Portfolio data — 15 social impact initiatives (fictional dataset for demo)
+
+const ARCHETYPES = {
+  A: { name: "Educación y Emprendimiento", color: "#5B9BD5", count: 6, benchmark: 1.4 },
+  B: { name: "Eventos Comunitarios",       color: "#ED7D31", count: 3, benchmark: 0.5 },
+  C: { name: "Energía y Vivienda",         color: "#70AD47", count: 1, benchmark: 2.5 },
+  D: { name: "Reforestación",              color: "#548235", count: 4, benchmark: 1.2 },
+  E: { name: "Asistencia Alimentaria",     color: "#C00000", count: 1, benchmark: 3.0 },
+};
+
+const mkOutcomes = (rows) => rows.map(r => ({
+  description: r[0], qty: r[1], proxy: r[2], unit: r[3] || "MXN/persona",
+  gross: r[1] * r[2],
+}));
+
+const PROJECTS = [
+  {
+    id: "P01", name: "Reto de Innovación Universitaria", archetype: "A",
+    investment: 1000000, sroi: 0.21, vBruto: 616200, vAjustado: 213082, category: "BAJO",
+    direct_beneficiaries: 480, region: "NL · MX",
+    adjustments: { dw: 0.30, at: 0.35, dp: 0.05, dr: 0.20 },
+    outcomes: mkOutcomes([
+      ["Estudiantes con habilidad emprendedora", 320, 1200],
+      ["Mentores capacitados", 40, 4500],
+      ["Proyectos prototipados", 22, 7000],
+    ]),
+    stakeholders: ["Estudiantes", "Mentores", "Universidad", "Aliados industria"],
+  },
+  {
+    id: "P02", name: "Tiger Tank — Programa Universitario", archetype: "A",
+    investment: 250000, sroi: 0.67, vBruto: 481500, vAjustado: 166503, category: "BAJO",
+    direct_beneficiaries: 210, region: "NL · MX",
+    adjustments: { dw: 0.25, at: 0.30, dp: 0.05, dr: 0.15 },
+    outcomes: mkOutcomes([
+      ["Equipos finalistas con plan de negocio", 18, 9500],
+      ["Estudiantes capacitados", 200, 1100],
+      ["Conexiones con inversionistas", 12, 7800],
+    ]),
+    stakeholders: ["Estudiantes", "Profesores", "Inversionistas"],
+  },
+  {
+    id: "P03", name: "Cátedra de Ingeniería Aplicada", archetype: "A",
+    investment: 215000, sroi: 1.13, vBruto: 700000, vAjustado: 242060, category: "MEDIO",
+    direct_beneficiaries: 95, region: "NL · MX",
+    adjustments: { dw: 0.20, at: 0.30, dp: 0.05, dr: 0.15 },
+    outcomes: mkOutcomes([
+      ["Tesistas dirigidos", 14, 18500],
+      ["Publicaciones académicas", 6, 28000],
+      ["Estudiantes con beca", 8, 27000],
+    ]),
+    stakeholders: ["Profesores", "Tesistas", "Industria"],
+  },
+  {
+    id: "P04", name: "Premio Nacional de Investigación", archetype: "A",
+    investment: 1050000, sroi: 0.56, vBruto: 1705000, vAjustado: 589589, category: "BAJO",
+    direct_beneficiaries: 65, region: "Nacional",
+    adjustments: { dw: 0.30, at: 0.35, dp: 0.05, dr: 0.20 },
+    outcomes: mkOutcomes([
+      ["Investigadores reconocidos", 12, 65000],
+      ["Visibilidad mediática (alcance)", 850000, 0.8],
+      ["Proyectos escalados", 5, 45000],
+    ]),
+    stakeholders: ["Investigadores", "Universidades", "Prensa"],
+  },
+  {
+    id: "P05", name: "Premio de Energías Alternativas", archetype: "A",
+    investment: 560000, sroi: 0.40, vBruto: 640000, vAjustado: 221312, category: "BAJO",
+    direct_beneficiaries: 38, region: "NL · MX",
+    adjustments: { dw: 0.30, at: 0.35, dp: 0.05, dr: 0.20 },
+    outcomes: mkOutcomes([
+      ["Proyectos finalistas con tracción", 6, 48000],
+      ["Estudiantes capacitados", 30, 1100],
+      ["Patentes en proceso", 2, 130000],
+    ]),
+    stakeholders: ["Estudiantes", "Universidad", "Industria energía"],
+  },
+  {
+    id: "P06", name: "Gamer con Causa", archetype: "B",
+    investment: 480000, sroi: 0.12, vBruto: 230000, vAjustado: 57477, category: "BAJO",
+    direct_beneficiaries: 1200, region: "Nacional",
+    adjustments: { dw: 0.40, at: 0.35, dp: 0.05, dr: 0.25 },
+    outcomes: mkOutcomes([
+      ["Asistentes con experiencia comunitaria", 1200, 95],
+      ["Donativos generados", 1, 80000],
+      ["Voluntarios activos", 35, 950],
+    ]),
+    stakeholders: ["Asistentes", "Voluntarios", "Marcas patrocinadoras"],
+  },
+  {
+    id: "P07", name: "Red de Aliados Sociales NL", archetype: "A",
+    investment: 250000, sroi: 1.45, vBruto: 1050000, vAjustado: 363090, category: "MEDIO",
+    direct_beneficiaries: 320, region: "NL · MX",
+    adjustments: { dw: 0.20, at: 0.30, dp: 0.05, dr: 0.15 },
+    outcomes: mkOutcomes([
+      ["OSCs fortalecidas", 28, 18500],
+      ["Capacitaciones impartidas", 120, 1800],
+      ["Convenios firmados", 14, 22000],
+    ]),
+    stakeholders: ["OSCs", "Funcionarios", "Empresas aliadas"],
+  },
+  {
+    id: "P08", name: "Academia de Exploradores Jóvenes", archetype: "B",
+    investment: 400000, sroi: 0.01, vBruto: 24000, vAjustado: 5998, category: "BAJO",
+    direct_beneficiaries: 240, region: "NL · MX",
+    adjustments: { dw: 0.45, at: 0.40, dp: 0.05, dr: 0.30 },
+    outcomes: mkOutcomes([
+      ["Niños con experiencia formativa", 240, 80],
+      ["Talleres impartidos", 12, 400],
+    ]),
+    stakeholders: ["Niños", "Familias", "Talleristas"],
+  },
+  {
+    id: "P09", name: "Carrera Energiza la Vida 5K", archetype: "B",
+    investment: 350000, sroi: 0.21, vBruto: 300000, vAjustado: 74970, category: "BAJO",
+    direct_beneficiaries: 2800, region: "NL · MX",
+    adjustments: { dw: 0.40, at: 0.35, dp: 0.05, dr: 0.25 },
+    outcomes: mkOutcomes([
+      ["Asistentes activados físicamente", 2800, 85],
+      ["Donativo a hospital", 1, 60000],
+      ["Visibilidad de marca (impresiones)", 1500000, 0.01],
+    ]),
+    stakeholders: ["Corredores", "Patrocinadores", "Hospital beneficiario"],
+  },
+  {
+    id: "P10", name: "Energía para Comunidades Rurales", archetype: "C",
+    investment: 2000000, sroi: 3.08, vBruto: 20034000, vAjustado: 6166465, category: "ALTO",
+    direct_beneficiaries: 4200, region: "Sierra · MX",
+    adjustments: { dw: 0.10, at: 0.30, dp: 0.05, dr: 0.10 },
+    outcomes: mkOutcomes([
+      ["Hogares electrificados", 1050, 14500],
+      ["Reducción de gasto en velas/diésel", 1050, 3800],
+      ["Niños con horas adicionales de estudio", 2100, 850],
+      ["CO₂ evitado (toneladas)", 380, 1200],
+    ]),
+    stakeholders: ["Familias rurales", "Operador local", "Gobierno municipal"],
+  },
+  {
+    id: "P11", name: "Reforestación Ruta Monarca", archetype: "D",
+    investment: 200000, sroi: 2.03, vBruto: 1030000, vAjustado: 406721, category: "ALTO",
+    direct_beneficiaries: 8500, region: "Michoacán · MX",
+    adjustments: { dw: 0.20, at: 0.30, dp: 0.05, dr: 0.15 },
+    outcomes: mkOutcomes([
+      ["Hectáreas reforestadas", 42, 18500],
+      ["Servicios ecosistémicos (valor)", 1, 240000],
+      ["Empleos rurales temporales", 28, 4500],
+    ]),
+    stakeholders: ["Comunidades ejidales", "Pronatura", "Visitantes"],
+  },
+  {
+    id: "P12", name: "Adopta un Árbol", archetype: "D",
+    investment: 200000, sroi: 0.52, vBruto: 261000, vAjustado: 103062, category: "BAJO",
+    direct_beneficiaries: 1100, region: "NL · MX",
+    adjustments: { dw: 0.30, at: 0.35, dp: 0.05, dr: 0.20 },
+    outcomes: mkOutcomes([
+      ["Árboles plantados con seguimiento", 850, 280],
+      ["Voluntarios sensibilizados", 220, 95],
+    ]),
+    stakeholders: ["Voluntarios", "Vecinos", "Municipio"],
+  },
+  {
+    id: "P13", name: "Alianza Parque Metropolitano", archetype: "D",
+    investment: 700000, sroi: 0.57, vBruto: 1006300, vAjustado: 397363, category: "BAJO",
+    direct_beneficiaries: 12000, region: "NL · MX",
+    adjustments: { dw: 0.30, at: 0.35, dp: 0.05, dr: 0.20 },
+    outcomes: mkOutcomes([
+      ["Visitantes anuales", 12000, 65],
+      ["Senderos rehabilitados (km)", 6, 28000],
+      ["Especies endémicas monitoreadas", 14, 4500],
+    ]),
+    stakeholders: ["Visitantes", "Patronato", "Biólogos"],
+  },
+  {
+    id: "P14", name: "Reforestación Tepotzotlán", archetype: "D",
+    investment: 650000, sroi: 0.08, vBruto: 139500, vAjustado: 55085, category: "BAJO",
+    direct_beneficiaries: 320, region: "EdoMex · MX",
+    adjustments: { dw: 0.45, at: 0.40, dp: 0.05, dr: 0.30 },
+    outcomes: mkOutcomes([
+      ["Árboles sobrevivientes a 12 meses", 310, 380],
+      ["Voluntarios participantes", 180, 130],
+    ]),
+    stakeholders: ["Voluntarios", "Comunidad local"],
+  },
+  {
+    id: "P15", name: "Donativo Asistencia Alimentaria", archetype: "E",
+    investment: 500000, sroi: 0.64, vBruto: 897500, vAjustado: 320408, category: "BAJO",
+    direct_beneficiaries: 6500, region: "Nacional",
+    adjustments: { dw: 0.30, at: 0.35, dp: 0.05, dr: 0.20 },
+    outcomes: mkOutcomes([
+      ["Despensas entregadas", 6500, 120],
+      ["Familias con seguridad alimentaria temporal", 1200, 95],
+    ]),
+    stakeholders: ["Familias receptoras", "Banco de alimentos"],
+  },
+];
+
+// Synthetic historical SROI data (for the "Histórico" chart in project dashboards)
+const HISTORY_BY_PROJECT = (id, currentSroi) => {
+  // generate a plausible 5-year curve ending at currentSroi
+  const years = [2020, 2021, 2022, 2023, 2024];
+  const seedHash = id.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const noise = (i) => ((Math.sin(seedHash + i * 1.7) + 1) / 2) * 0.35;
+  return years.map((y, i) => {
+    const t = i / (years.length - 1);
+    const trend = currentSroi * (0.55 + 0.45 * t);
+    const v = +(trend + (noise(i) - 0.17) * currentSroi * 0.4).toFixed(2);
+    return { year: y, sroi: Math.max(0.01, v) };
+  });
+};
+
+const portfolioTotals = (projects) => {
+  const inv = projects.reduce((a, p) => a + p.investment, 0);
+  const adj = projects.reduce((a, p) => a + p.vAjustado, 0);
+  const sroi = adj / inv;
+  const dist = { ALTO: 0, MEDIO: 0, BAJO: 0 };
+  projects.forEach(p => { dist[p.category] = (dist[p.category] || 0) + 1; });
+  return { inv, adj, sroi, dist, count: projects.length };
+};
+
+// Recompute a single project's SROI given new adjustments
+const recomputeProject = (p, newAdj) => {
+  const a = { ...p.adjustments, ...newAdj };
+  const factor = (1 - a.dw) * (1 - a.at) * (1 - a.dp) * (1 - a.dr);
+  const vAjustado = Math.round(p.vBruto * factor);
+  const sroi = +(vAjustado / p.investment).toFixed(2);
+  let category = "BAJO";
+  if (sroi > 2) category = "ALTO";
+  else if (sroi >= 1) category = "MEDIO";
+  return { ...p, adjustments: a, vAjustado, sroi, category };
+};
+
+const fmtMXN = (n) => {
+  if (n >= 1_000_000) return "$" + (n / 1_000_000).toFixed(2) + "M";
+  if (n >= 1_000) return "$" + (n / 1_000).toFixed(0) + "K";
+  return "$" + n.toLocaleString("es-MX");
+};
+const fmtMXNFull = (n) => "$" + Math.round(n).toLocaleString("es-MX") + " MXN";
+
+const sroiColor = (sroi) => {
+  if (sroi > 2) return "#10B981";
+  if (sroi >= 1) return "#F59E0B";
+  return "#EF4444";
+};
+const sroiCategory = (sroi) => sroi > 2 ? "ALTO" : sroi >= 1 ? "MEDIO" : "BAJO";
+
+</script>
+
+<script type="text/plain" data-app-src="app/Constellation.js">
+// 3D position by SROI band + archetype slice
+const projectPosition = (p) => {
+  let R;
+  if (p.sroi > 2) R = 1.2;
+  else if (p.sroi >= 1) R = 2.5;
+  else R = 4;
+
+  const archIdx = "ABCDE".indexOf(p.archetype);
+  const sliceCenter = (archIdx / 5) * Math.PI * 2;
+  const seed = (p.id.charCodeAt(1) * 13 + p.id.charCodeAt(2) * 7) % 100;
+  const theta = sliceCenter + ((seed / 100) - 0.5) * 0.9;
+  const phi = Math.PI * (0.25 + ((seed * 1.7) % 100) / 100 * 0.5);
+
+  return [
+    R * Math.sin(phi) * Math.cos(theta),
+    R * Math.cos(phi) * 0.85,
+    R * Math.sin(phi) * Math.sin(theta),
+  ];
+};
+
+const projectRadius = (p) => {
+  const t = (p.investment - 200000) / (2000000 - 200000);
+  return 0.3 + Math.max(0, Math.min(1, t)) * 0.4; // 0.3 .. 0.7
+};
+
+// Glass-bead palette: per-SROI fill, emissive intensity, opacity, clearcoat
+const nodeMatProps = (sroi) => {
+  if (sroi >= 2) return { color: "#10B981", emi: 1.8, opacity: 0.9, clearcoat: 0.9 };
+  if (sroi >= 1) return { color: "#F59E0B", emi: 1.2, opacity: 0.85, clearcoat: 0.8 };
+  return { color: "#7F1D1D", emi: 0.4, opacity: 0.7, clearcoat: 0.6 };
+};
+
+// ───────── Particle Halo ─────────
+
+// Soft circular gradient texture — makes points look pre-blurred
+let __softParticleTexture = null;
+const getSoftParticleTexture = () => {
+  if (__softParticleTexture) return __softParticleTexture;
+  const canvas = document.createElement("canvas");
+  canvas.width = 64; canvas.height = 64;
+  const ctx = canvas.getContext("2d");
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.3, "rgba(255,255,255,0.4)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 64, 64);
+  __softParticleTexture = new THREE_NS.CanvasTexture(canvas);
+  return __softParticleTexture;
+};
+
+// Brain-shaped particle cloud with hover dispersion
+const generateBrainPositions = (count) => {
+  const positions = new Float32Array(count * 3);
+  const targetIdle = new Float32Array(count * 3);
+  const targetDispersed = new Float32Array(count * 3);
+  for (let i = 0; i < count; i++) {
+    const isLeft = i % 2 === 0;
+    const hemisphereSign = isLeft ? -1 : 1;
+    const u = Math.random(), v = Math.random();
+    const w = Math.pow(Math.random(), 0.4);
+    const theta = u * Math.PI * 2;
+    const phi = Math.acos(2 * v - 1);
+    let lx = 5.0 * w * Math.sin(phi) * Math.cos(theta);
+    let ly = 4.0 * w * Math.sin(phi) * Math.sin(theta);
+    let lz = 4.5 * w * Math.cos(phi);
+    if (ly < 0) ly *= 0.65;
+    const distanceFromMidline = Math.abs(lx);
+    if (distanceFromMidline < 1.5) lx *= 0.5;
+    if (lz > 0) lz *= 1.15; else lz *= 0.9;
+    const wrinkle = Math.sin(theta * 7 + phi * 3) * Math.cos(phi * 5) * 0.6;
+    const len = Math.sqrt(lx*lx + ly*ly + lz*lz) || 1;
+    lx += (lx/len) * wrinkle;
+    ly += (ly/len) * wrinkle;
+    lz += (lz/len) * wrinkle;
+    const x = lx + hemisphereSign * (Math.abs(lx) > 1 ? 1.5 : 0.5);
+    const y = ly;
+    const z = lz;
+    const noise = 0.25;
+    targetIdle[i*3]   = x + (Math.random() - 0.5) * noise;
+    targetIdle[i*3+1] = y + (Math.random() - 0.5) * noise;
+    targetIdle[i*3+2] = z + (Math.random() - 0.5) * noise;
+    const dispRadius = 9 + Math.random() * 5;
+    const dispTheta = Math.random() * Math.PI * 2;
+    const dispPhi = Math.acos(2 * Math.random() - 1);
+    targetDispersed[i*3]   = dispRadius * Math.sin(dispPhi) * Math.cos(dispTheta);
+    targetDispersed[i*3+1] = dispRadius * Math.sin(dispPhi) * Math.sin(dispTheta);
+    targetDispersed[i*3+2] = dispRadius * Math.cos(dispPhi);
+    positions[i*3] = targetIdle[i*3];
+    positions[i*3+1] = targetIdle[i*3+1];
+    positions[i*3+2] = targetIdle[i*3+2];
+  }
+  return { positions, targetIdle, targetDispersed };
+};
+
+function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
+  const groupRef = useRef();
+  const pointsRef = useRef();
+  const localDispersion = useRef(0);
+  const colorRef = useMemo(() => new THREE_NS.Color(), []);
+  const idleColor = useMemo(() => new THREE_NS.Color('#3B82F6'), []);
+  const dispersedColor = useMemo(() => new THREE_NS.Color('#64748B'), []);
+  const { positions, targetIdle, targetDispersed } = useMemo(() => generateBrainPositions(count), [count]);
+  const geometry = useMemo(() => {
+    const g = new THREE_NS.BufferGeometry();
+    g.setAttribute('position', new THREE_NS.BufferAttribute(positions, 3));
+    return g;
+  }, [positions]);
+
+  useFrame((state, delta) => {
+    if (!pointsRef.current) return;
+    const target = isHovered ? 1 : 0;
+    const speed = isHovered ? delta * 1.0 : delta * 1.2;
+    localDispersion.current += (target - localDispersion.current) * Math.min(1, speed);
+    const t = localDispersion.current;
+    const eased = 1 - Math.pow(1 - t, 3);
+    if (dispersionRef) dispersionRef.current = eased;
+    const arr = pointsRef.current.geometry.attributes.position.array;
+    for (let i = 0; i < arr.length / 3; i++) {
+      arr[i*3]   = THREE_NS.MathUtils.lerp(targetIdle[i*3],   targetDispersed[i*3],   eased);
+      arr[i*3+1] = THREE_NS.MathUtils.lerp(targetIdle[i*3+1], targetDispersed[i*3+1], eased);
+      arr[i*3+2] = THREE_NS.MathUtils.lerp(targetIdle[i*3+2], targetDispersed[i*3+2], eased);
+    }
+    pointsRef.current.geometry.attributes.position.needsUpdate = true;
+    const mat = pointsRef.current.material;
+    if (mat) {
+      mat.size = THREE_NS.MathUtils.lerp(0.18, 0.08, eased);
+      mat.opacity = THREE_NS.MathUtils.lerp(0.85, 0.35, eased);
+      // Color stays #3B82F6 fixed — brain identity
+    }
+    if (groupRef.current) {
+      // initial 3/4 view
+      if (groupRef.current.rotation.y === 0) groupRef.current.rotation.y = -0.3;
+      groupRef.current.rotation.y += delta * 0.05 * (1 - eased);
+    }
+  });
+
+  return (
+    <group ref={groupRef}>
+      <points ref={pointsRef} geometry={geometry}>
+        <pointsMaterial
+          map={getSoftParticleTexture()}
+          size={0.18}
+          color="#3B82F6"
+          transparent
+          opacity={0.85}
+          sizeAttenuation
+          depthWrite={false}
+          alphaTest={0.001}
+          blending={THREE_NS.AdditiveBlending}
+          toneMapped={false}
+        />
+      </points>
+    </group>
+  );
+}
+
+// ───────── Node ─────────
+
+function NodeMesh({ project, position, radius, hovered, selected, dimmed, brainHovered, dispersionRef, onHover, onUnhover, onClick, recentChange }) {
+  const meshRef = useRef();
+  const matRef = useRef();
+  const lightRef = useRef();
+  const phase = useMemo(() => Math.random() * Math.PI * 2, []);
+  const idHash = useMemo(() => (project.id.charCodeAt(1) + project.id.charCodeAt(2)) * 0.1, [project.id]);
+  const mp = nodeMatProps(project.sroi);
+  const color = mp.color;
+  const baseEmissive = mp.emi;
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const t = state.clock.elapsedTime;
+    const breathe = 1 + Math.sin(t * 0.3 + phase) * 0.02;
+    let target = breathe;
+    if (hovered || selected) target = 1.3 * breathe;
+
+    let pulseMul = 1;
+    if (recentChange && recentChange.id === project.id) {
+      const age = t - recentChange.t;
+      if (age < 2.4) pulseMul = 1 + Math.abs(Math.sin(age * Math.PI * 2)) * 0.45 * Math.max(0, 1 - age / 2.4);
+    }
+    const cur = meshRef.current.scale.x;
+    const next = THREE_NS.MathUtils.lerp(cur, target * pulseMul, 0.12);
+    meshRef.current.scale.set(next, next, next);
+
+    if (matRef.current) {
+      const liveMul = 1 + Math.sin(t * 0.4 + idHash) * 0.12;
+      // Inversion: idle (cloud closed) brilla mucho, hover (cloud disperses) baja
+      const stateMul = brainHovered ? 0.7 : 2.5;
+      const focusBoost = (hovered || selected) ? 1.5 : 1.0;
+      const dimMul = dimmed ? 0.4 : 1.0;
+      matRef.current.emissiveIntensity = baseEmissive * stateMul * liveMul * focusBoost * dimMul;
+      // Material-driven blur sim: idle = translúcido suave, hover = nítido sólido
+      const d = dispersionRef?.current ?? 0;
+      matRef.current.opacity = THREE_NS.MathUtils.lerp(0.55, 0.92, d);
+      matRef.current.transmission = THREE_NS.MathUtils.lerp(0.4, 0.05, d);
+      matRef.current.roughness = THREE_NS.MathUtils.lerp(0.4, 0.15, d);
+    }
+    if (lightRef.current) {
+      lightRef.current.intensity = brainHovered ? 0.3 : 1.2;
+      lightRef.current.distance = brainHovered ? 3 : 8;
+    }
+  });
+
+  return (
+    <group position={position}>
+      <mesh
+        ref={meshRef}
+        onPointerOver={(e) => { e.stopPropagation(); onHover(); document.body.style.cursor = "pointer"; }}
+        onPointerOut={() => { onUnhover(); document.body.style.cursor = "auto"; }}
+        onClick={(e) => { e.stopPropagation(); onClick(); }}
+      >
+        <sphereGeometry args={[radius, 64, 64]} />
+        <meshPhysicalMaterial
+          ref={matRef}
+          color={color}
+          emissive={color}
+          emissiveIntensity={baseEmissive * 2.5}
+          transparent
+          opacity={0.7}
+          roughness={0.15}
+          metalness={0.05}
+          clearcoat={0.9}
+          clearcoatRoughness={0.05}
+          toneMapped={false}
+          side={THREE_NS.FrontSide}
+        />
+      </mesh>
+      <pointLight ref={lightRef} color={color} intensity={1.2} distance={8} decay={2} />
+
+      {selected && <SelectionRing radius={radius} />}
+
+      {(hovered || selected) && (
+        <Html center distanceFactor={12} zIndexRange={[100, 0]} style={{ pointerEvents: "none" }}>
+          <div className="node-tooltip">
+            <div className="node-tooltip-name">{project.name}</div>
+            <div className="node-tooltip-meta">
+              <span className="mono" style={{ color }}>{project.sroi.toFixed(2)}x</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span className="mono">{fmtMXN(project.investment)}</span>
+            </div>
+          </div>
+        </Html>
+      )}
+    </group>
+  );
+}
+
+function SelectionRing({ radius }) {
+  const ringRef = useRef();
+  const scaleRef = useRef(0);
+  useFrame((state, delta) => {
+    if (ringRef.current) {
+      scaleRef.current = THREE_NS.MathUtils.lerp(scaleRef.current, 1, 0.12);
+      ringRef.current.scale.setScalar(scaleRef.current);
+      ringRef.current.rotation.z += delta * 0.4;
+    }
+  });
+  return (
+    <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]}>
+      <torusGeometry args={[radius * 1.8, 0.02, 16, 100]} />
+      <meshBasicMaterial color="#FFFFFF" transparent opacity={0.4} toneMapped={false} />
+    </mesh>
+  );
+}
+
+// ───────── Camera rig ─────────
+
+function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
+  const { camera } = useThree();
+  const startRef = useRef(null);
+  const endRef = useRef(null);
+  const startTimeRef = useRef(0);
+  const durationMs = 800;
+
+  useEffect(() => {
+    if (targetPosition) {
+      startRef.current = camera.position.clone();
+      endRef.current = new THREE_NS.Vector3(...targetPosition);
+      startTimeRef.current = performance.now();
+    }
+  }, [targetPosition && targetPosition.join(",")]);
+
+  useFrame(() => {
+    if (startRef.current && endRef.current) {
+      const t = Math.min(1, (performance.now() - startTimeRef.current) / durationMs);
+      const eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      camera.position.lerpVectors(startRef.current, endRef.current, eased);
+      if (controlsRef.current && targetLookAt) {
+        const tgt = controlsRef.current.target;
+        tgt.lerp(new THREE_NS.Vector3(...targetLookAt), 0.1);
+        controlsRef.current.update();
+      }
+      if (t >= 1) { startRef.current = null; endRef.current = null; }
+    }
+  });
+  return null;
+}
+
+// ───────── Connections (archetype only, max 4 per node, top-3 SROI to origin) ─────────
+
+function ConnectionsLayer({ projects, positions, showConnections, selectedId }) {
+  const lines = useMemo(() => {
+    if (!showConnections) return [];
+    const result = [];
+    const topIds = new Set([...projects].sort((a, b) => b.sroi - a.sroi).slice(0, 3).map((p) => p.id));
+
+    // archetype pairs — limit to max 4 per node
+    const byArch = {};
+    projects.forEach((p, i) => { (byArch[p.archetype] = byArch[p.archetype] || []).push(i); });
+    const degree = new Array(projects.length).fill(0);
+
+    Object.values(byArch).forEach((idxs) => {
+      // sort by SROI desc so the strongest pair first
+      const sorted = idxs.map((i) => ({ i, sroi: projects[i].sroi })).sort((a, b) => b.sroi - a.sroi);
+      for (let a = 0; a < sorted.length; a++) {
+        for (let b = a + 1; b < sorted.length; b++) {
+          const i = sorted[a].i, j = sorted[b].i;
+          if (degree[i] >= 4 || degree[j] >= 4) continue;
+          const pa = projects[i], pb = projects[j];
+          const isTop = topIds.has(pa.id) && topIds.has(pb.id);
+          result.push({
+            from: positions[i], to: positions[j],
+            opacity: isTop ? 0.28 : 0.16,
+            width: isTop ? 0.7 : 0.5,
+            ids: [pa.id, pb.id],
+            key: `${pa.id}-${pb.id}`,
+          });
+          degree[i]++; degree[j]++;
+        }
+      }
+    });
+
+    // top-3 SROI connected to origin
+    [...projects].map((p, i) => ({ p, i })).sort((a, b) => b.p.sroi - a.p.sroi).slice(0, 3).forEach(({ p, i }) => {
+      result.push({
+        from: positions[i], to: [0, 0, 0],
+        opacity: 0.22, width: 0.6,
+        ids: [p.id, "__origin"],
+        key: `origin-${p.id}`,
+      });
+    });
+
+    return result;
+  }, [projects, positions, showConnections]);
+
+  return (
+    <>
+      {lines.map((l) => {
+        const involved = selectedId && l.ids.includes(selectedId);
+        return (
+          <DLine
+            key={l.key}
+            points={[l.from, l.to]}
+            color={involved ? "#FFFFFF" : "#CBD5E1"}
+            lineWidth={involved ? 1.6 : (l.width || 0.6)}
+            transparent
+            opacity={involved ? 0.8 : (l.opacity || 0.2)}
+            toneMapped={false}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+// ───────── Scene ─────────
+
+function SceneInner({ projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect, showConnections, autoRotate, controlsRef, recentChange, cameraTarget }) {
+  const positions = useMemo(() => projects.map((p) => projectPosition(p)), [projects]);
+  const [brainHovered, setBrainHovered] = useState(false);
+  const dispersionRef = useRef(0);
+
+  return (
+    <>
+      <fog attach="fog" args={["#0a0a0f", 26, 70]} />
+
+      {/* 3-point cinematic lighting */}
+      <ambientLight intensity={0.15} color="#1E293B" />
+      <directionalLight position={[10, 10, 15]} intensity={0.5} color="#E0E7FF" />
+      <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
+      <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
+
+      <BrainHalo count={3000} isHovered={brainHovered} dispersionRef={dispersionRef} />
+      <mesh
+        onPointerEnter={() => setBrainHovered(true)}
+        onPointerLeave={() => setBrainHovered(false)}
+      >
+        <sphereGeometry args={[8, 32, 32]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
+
+      <Stars radius={120} depth={80} count={1500} factor={2} saturation={0.1} fade speed={0.3} />
+
+      <ConnectionsLayer projects={projects} positions={positions} showConnections={showConnections} selectedId={selectedId} />
+
+      {projects.map((p, i) => (
+        <NodeMesh
+          key={p.id}
+          project={p}
+          position={positions[i]}
+          radius={projectRadius(p)}
+          hovered={hoveredId === p.id}
+          selected={selectedId === p.id}
+          dimmed={selectedId && selectedId !== p.id}
+          brainHovered={brainHovered}
+          dispersionRef={dispersionRef}
+          onHover={() => setHoveredId(p.id)}
+          onUnhover={() => setHoveredId((h) => h === p.id ? null : h)}
+          onClick={() => onSelect(p.id)}
+          recentChange={recentChange}
+        />
+      ))}
+
+      <mesh position={[0, 0, 0]} onPointerMissed={onDeselect}>
+        <boxGeometry args={[0.001, 0.001, 0.001]} />
+        <meshBasicMaterial transparent opacity={0} />
+      </mesh>
+
+      <CameraRig
+        targetPosition={cameraTarget?.position}
+        targetLookAt={cameraTarget?.lookAt}
+        controlsRef={controlsRef}
+      />
+
+      <BrainHoverCamera brainHovered={brainHovered} cameraTarget={cameraTarget} controlsRef={controlsRef} />
+
+      <OrbitControls
+        ref={controlsRef}
+        enabled={!brainHovered}
+        enableZoom
+        enablePan={false}
+        autoRotate={autoRotate && !brainHovered}
+        autoRotateSpeed={0.2}
+        zoomSpeed={0.6}
+        enableDamping
+        dampingFactor={0.05}
+        minDistance={12}
+        maxDistance={50}
+      />
+
+      {/* Postprocessing */}
+      <EffectComposer multisampling={4}>
+        <Bloom
+          intensity={0.7}
+          luminanceThreshold={0.25}
+          luminanceSmoothing={0.7}
+          kernelSize={KernelSize.MEDIUM}
+          mipmapBlur
+        />
+        <Vignette offset={0.3} darkness={0.55} eskil={false} blendFunction={BlendFunction.NORMAL} />
+        <Noise opacity={0.025} blendFunction={BlendFunction.OVERLAY} />
+      </EffectComposer>
+    </>
+  );
+}
+
+// (DoF removed — blur is simulated via node material)
+
+function BrainHoverCamera({ brainHovered, cameraTarget, controlsRef }) {
+  const { camera } = useThree();
+  const targetPos = useRef(new THREE_NS.Vector3(0, 1, 28));
+  useFrame((state, delta) => {
+    // Don't fight an explicit cameraTarget (selecting a node)
+    if (cameraTarget) return;
+    targetPos.current.set(0, brainHovered ? 0 : 1, brainHovered ? 16 : 28);
+    const lerpAmt = Math.min(1, delta * 1.2);
+    camera.position.lerp(targetPos.current, lerpAmt);
+    camera.lookAt(0, 0, 0);
+    if (controlsRef?.current) {
+      controlsRef.current.target.lerp(new THREE_NS.Vector3(0, 0, 0), lerpAmt);
+      controlsRef.current.update();
+    }
+  });
+  return null;
+}
+
+// (placeholder removed)
+
+function NodeProjector({ projects, selectedId, onProject }) {
+  const { camera, size } = useThree();
+  useFrame(() => {
+    if (!selectedId) { onProject(null); return; }
+    const p = projects.find(pr => pr.id === selectedId);
+    if (!p) { onProject(null); return; }
+    const pos = projectPosition(p);
+    const v = new THREE_NS.Vector3(pos[0], pos[1], pos[2]);
+    v.project(camera);
+    const x = (v.x * 0.5 + 0.5) * size.width;
+    const y = (-v.y * 0.5 + 0.5) * size.height;
+    const r = projectRadius(p);
+    // edge offset (project a point at radius offset along view-right)
+    const edge = new THREE_NS.Vector3(pos[0] + r, pos[1], pos[2]).project(camera);
+    const ex = (edge.x * 0.5 + 0.5) * size.width;
+    onProject({ x, y, edgeX: ex });
+  });
+  return null;
+}
+
+function Constellation({
+  projects, selectedId, onSelect, onDeselect,
+  showConnections = true, recentChange, cameraTarget, onProjectAnchor,
+}) {
+  const [hoveredId, setHoveredId] = useState(null);
+  const [autoRotate, setAutoRotate] = useState(true);
+  const controlsRef = useRef();
+  const idleTimer = useRef(null);
+
+  useEffect(() => {
+    const ctrl = controlsRef.current;
+    if (!ctrl) return;
+    const onStart = () => { setAutoRotate(false); clearTimeout(idleTimer.current); };
+    const onEnd = () => { clearTimeout(idleTimer.current); idleTimer.current = setTimeout(() => setAutoRotate(true), 4500); };
+    ctrl.addEventListener("start", onStart);
+    ctrl.addEventListener("end", onEnd);
+    return () => { ctrl.removeEventListener("start", onStart); ctrl.removeEventListener("end", onEnd); };
+  }, [controlsRef.current]);
+
+  return (
+    <Canvas
+      camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
+      gl={{ antialias: true, powerPreference: "high-performance", alpha: false }}
+      dpr={[1, 2]}
+      style={{ background: "transparent" }}
+    >
+      {onProjectAnchor && <NodeProjector projects={projects} selectedId={selectedId} onProject={onProjectAnchor} />}
+      <SceneInner
+        projects={projects}
+        hoveredId={hoveredId}
+        setHoveredId={setHoveredId}
+        selectedId={selectedId}
+        onSelect={onSelect}
+        onDeselect={onDeselect}
+        showConnections={showConnections}
+        autoRotate={autoRotate}
+        controlsRef={controlsRef}
+        recentChange={recentChange}
+        cameraTarget={cameraTarget}
+      />
+    </Canvas>
+  );
+}
+
+</script>
+
+<script type="text/plain" data-app-src="app/Panels.js">
+/* ============== SIDEBAR (floating icons, Arc/Linear style) ============== */
+function Sidebar({ activeView, setView, extras = [] }) {
+  const items = [
+    { id: "graph",     icon: window.Network,  label: "Constelación" },
+    { id: "dashboard", icon: LayoutDashboard, label: "Dashboard portafolio" },
+    { id: "proxies",   icon: Database,        label: "Base de proxies" },
+    { id: "bench",     icon: TrendingUp,      label: "Benchmarks" },
+    { id: "optimize",  icon: Target,          label: "Optimización" },
+    { id: "settings",  icon: Settings,        label: "Configuración" },
+  ];
+  return (
+    <>
+      {/* Logo flotante esquina sup izq */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        className="fixed left-4 top-4 z-30 w-12 h-12 rounded-2xl flex items-center justify-center"
+        style={{
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 12px 40px -10px rgba(0,0,0,0.5)",
+        }}
+      >
+        <Sparkles className="w-5 h-5" style={{ color: "#5B9BD5" }} />
+      </motion.div>
+
+      {/* Icon stack centrado verticalmente */}
+      <motion.nav
+        initial={{ x: -30, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+        className="fixed left-4 z-30 flex flex-col gap-2"
+        style={{ top: "25%", transform: "translateY(-50%)" }}
+      >
+        {items.map((it) => {
+          const Active = activeView === it.id;
+          const Icon = it.icon;
+          return (
+            <motion.button
+              key={it.id}
+              onClick={() => setView(it.id)}
+              whileHover={{ scale: 1.08, x: 2 }}
+              whileTap={{ scale: 0.94 }}
+              transition={{ type: "spring", stiffness: 400, damping: 18 }}
+              className="group relative w-12 h-12 rounded-2xl flex items-center justify-center"
+              style={{
+                backdropFilter: "blur(20px)",
+                WebkitBackdropFilter: "blur(20px)",
+                background: Active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
+                border: `1px solid ${Active ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)"}`,
+                boxShadow: Active ? "0 12px 40px -10px rgba(46,117,182,0.4)" : "0 8px 24px -10px rgba(0,0,0,0.4)",
+                transition: "background 0.25s, border-color 0.25s, box-shadow 0.25s",
+              }}
+            >
+              <Icon className="w-[18px] h-[18px]" style={{ color: Active ? "#F5F7FA" : "rgba(255,255,255,0.6)" }} />
+              {Active && (
+                <motion.span
+                  layoutId="sidebarActiveIndicator"
+                  className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full"
+                  style={{ background: "#F5F7FA" }}
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              {/* Tooltip */}
+              <span
+                className="absolute left-[58px] whitespace-nowrap text-xs px-2.5 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200"
+                style={{
+                  backdropFilter: "blur(16px)",
+                  WebkitBackdropFilter: "blur(16px)",
+                  background: "rgba(0,0,0,0.6)",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  color: "rgba(255,255,255,0.92)",
+                }}
+              >
+                {it.label}
+              </span>
+            </motion.button>
+          );
+        })}
+        {/* divider */}
+        {extras.length > 0 && (
+          <div className="my-1 mx-auto w-6 h-px" style={{ background: "rgba(255,255,255,0.12)" }} />
+        )}
+        {extras.map((ex) => (
+          <motion.button
+            key={ex.id}
+            onClick={ex.onClick}
+            whileHover={{ scale: 1.08, x: 2 }}
+            whileTap={{ scale: 0.94 }}
+            transition={{ type: "spring", stiffness: 400, damping: 18 }}
+            className="group relative w-12 h-12 rounded-2xl flex items-center justify-center"
+            style={{
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              background: ex.active ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.04)",
+              border: `1px solid ${ex.active ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.08)"}`,
+              boxShadow: ex.active ? "0 12px 40px -10px rgba(46,117,182,0.4)" : "0 8px 24px -10px rgba(0,0,0,0.4)",
+              transition: "background 0.25s, border-color 0.25s, box-shadow 0.25s",
+            }}
+          >
+            <ex.icon className="w-[18px] h-[18px]" style={{ color: ex.active ? "#F5F7FA" : "rgba(255,255,255,0.6)" }} />
+            <span
+              className="absolute left-[58px] whitespace-nowrap text-xs px-2.5 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200"
+              style={{
+                backdropFilter: "blur(16px)",
+                WebkitBackdropFilter: "blur(16px)",
+                background: "rgba(0,0,0,0.6)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                color: "rgba(255,255,255,0.92)",
+              }}
+            >
+              {ex.label}
+            </span>
+          </motion.button>
+        ))}
+      </motion.nav>
+
+      {/* Avatar flotante esquina inf izq */}
+      <motion.button
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+        whileHover={{ scale: 1.05 }}
+        className="fixed left-4 bottom-4 z-30 w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-semibold"
+        style={{
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          color: "rgba(255,255,255,0.85)",
+          boxShadow: "0 12px 40px -10px rgba(0,0,0,0.5)",
+        }}
+      >
+        MR
+      </motion.button>
+    </>
+  );
+}
+
+/* ============== NODE PANEL (floating right of canvas) ============== */
+function MiniBar({ value, max, color, label }) {
+  return (
+    <div>
+      <div className="flex justify-between text-[11px] mb-1" style={{ color: "#94A3B8" }}>
+        <span>{label}</span><span className="mono" style={{ color: "#F5F7FA" }}>{Math.round(value * 100)}%</span>
+      </div>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: "#1F2937" }}>
+        <div className="h-full rounded-full" style={{ width: `${(value / max) * 100}%`, background: color }} />
+      </div>
+    </div>
+  );
+}
+
+function NodePanel({ project, projects, anchor, onClose, onJumpTo, onOpenDashboard }) {
+  if (!project) return null;
+  const PANEL_W = 380;
+  const PANEL_H_EST = 540;
+  const PANEL_GAP = 32;
+  const MARGIN = 16;
+  const vw = typeof window !== "undefined" ? window.innerWidth : 1440;
+  const vh = typeof window !== "undefined" ? window.innerHeight : 900;
+
+  // Always pin panel to right edge of screen with margin
+  let panelLeft = vw - PANEL_W - MARGIN;
+  let panelTop = MARGIN + 8;
+  let connectFromX = anchor ? anchor.edgeX : null;
+  let connectToX = panelLeft;
+  let side = "right";
+
+  // If node is too close to right edge (would overlap panel), flip panel to left
+  if (anchor && anchor.edgeX > vw - PANEL_W - PANEL_GAP - MARGIN) {
+    side = "left";
+    panelLeft = MARGIN;
+    connectToX = panelLeft + PANEL_W;
+    // connector from left edge of node
+    connectFromX = anchor.x - (anchor.edgeX - anchor.x);
+  }
+  const arch = ARCHETYPES[project.archetype];
+  const benchmark = arch.benchmark;
+  const diag = project.sroi >= benchmark * 0.85 && project.sroi <= benchmark * 1.4 ? { label: "EN RANGO", color: "#10B981" }
+            : project.sroi < benchmark * 0.85 ? { label: "MUY BAJO", color: "#EF4444" }
+            : { label: "POR VERIFICAR", color: "#F59E0B" };
+  const peers = projects.filter(p => p.archetype === project.archetype && p.id !== project.id);
+  const totalGross = project.outcomes.reduce((a, o) => a + o.gross, 0);
+
+  return (
+    <>
+      {anchor && (
+        <svg
+          className="fixed inset-0 z-30 pointer-events-none"
+          style={{ width: "100vw", height: "100vh" }}
+        >
+          <defs>
+            <linearGradient id="connGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.15" />
+            </linearGradient>
+          </defs>
+          <motion.path
+            initial={{ pathLength: 0, opacity: 0 }}
+            animate={{ pathLength: 1, opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            d={`M ${connectFromX} ${anchor.y} L ${connectToX} ${panelTop + 60}`}
+            stroke="url(#connGrad)"
+            strokeWidth="1.2"
+            fill="none"
+            strokeDasharray="3 3"
+          />
+          <motion.circle
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.3 }}
+            cx={connectToX} cy={panelTop + 60} r="3"
+            fill="#FFFFFF" opacity="0.6"
+          />
+        </svg>
+      )}
+    <motion.div
+      initial={{ x: side === "right" ? 30 : -30, opacity: 0, scale: 0.96 }}
+      animate={{ x: 0, opacity: 1, scale: 1 }}
+      exit={{ x: side === "right" ? 40 : -40, opacity: 0, scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 260, damping: 28 }}
+      className="fixed rounded-3xl overflow-hidden flex flex-col z-40"
+      style={{
+        left: `${panelLeft}px`,
+        top: `${panelTop}px`,
+        width: `${PANEL_W}px`,
+        maxHeight: "calc(100vh - 48px)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        background: "rgba(19,25,41,0.55)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 24px 60px -20px rgba(0,0,0,0.6)",
+      }}
+    >
+      <div className="p-5 border-b hairline">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] mono px-2 py-1 rounded" style={{ background: arch.color + "33", color: arch.color, border: `1px solid ${arch.color}55` }}>
+              {project.id} · ARQ {project.archetype}
+            </span>
+            <span className="text-[10px] mono px-2 py-1 rounded" style={{ background: sroiColor(project.sroi) + "22", color: sroiColor(project.sroi), border: `1px solid ${sroiColor(project.sroi)}55` }}>
+              {project.category}
+            </span>
+          </div>
+          <button onClick={onClose} className="w-7 h-7 rounded-md flex items-center justify-center hover:bg-white/5 focus-ring" aria-label="Cerrar">
+            <X className="w-4 h-4" style={{ color: "#94A3B8" }} />
+          </button>
+        </div>
+        <h2 className="text-lg font-semibold leading-tight pr-2">{project.name}</h2>
+        <div className="text-xs mt-1.5" style={{ color: "#94A3B8" }}>
+          {fmtMXNFull(project.investment)} · SROI <span className="mono" style={{ color: sroiColor(project.sroi) }}>{project.sroi.toFixed(2)}x</span> · {arch.name}
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        {/* KPI strip */}
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { label: "Valor bruto",    val: fmtMXN(project.vBruto) },
+            { label: "Valor ajustado", val: fmtMXN(project.vAjustado) },
+            { label: "Beneficiarios",  val: project.direct_beneficiaries.toLocaleString("es-MX") },
+          ].map((k) => (
+            <div key={k.label} className="rounded-lg p-3" style={{ background: "#1a2236", border: "1px solid #1F2937" }}>
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: "#94A3B8" }}>{k.label}</div>
+              <div className="text-base font-semibold mt-1 mono">{k.val}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Outcomes */}
+        <div>
+          <div className="text-xs font-semibold mb-2 tracking-wide" style={{ color: "#94A3B8" }}>OUTCOMES</div>
+          <div className="space-y-2">
+            {project.outcomes.map((o, i) => (
+              <div key={i} className="rounded-lg p-3" style={{ background: "#1a2236", border: "1px solid #1F2937" }}>
+                <div className="text-sm">{o.description}</div>
+                <div className="text-[11px] mono mt-1" style={{ color: "#94A3B8" }}>
+                  {o.qty.toLocaleString("es-MX")} × {fmtMXN(o.proxy)} = {fmtMXN(o.gross)}
+                </div>
+                <div className="h-1 rounded-full mt-2 overflow-hidden" style={{ background: "#0A0E1A" }}>
+                  <div className="h-full" style={{ width: `${(o.gross / totalGross) * 100}%`, background: "linear-gradient(90deg,#2E75B6,#5B9BD5)" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Adjustments */}
+        <div>
+          <div className="text-xs font-semibold mb-3 tracking-wide" style={{ color: "#94A3B8" }}>AJUSTES SROI</div>
+          <div className="space-y-3">
+            <MiniBar label="Deadweight"    value={project.adjustments.dw} max={1} color="#EF4444" />
+            <MiniBar label="Attribution"   value={project.adjustments.at} max={1} color="#F59E0B" />
+            <MiniBar label="Displacement"  value={project.adjustments.dp} max={1} color="#5B9BD5" />
+            <MiniBar label="Drop-off"      value={project.adjustments.dr} max={1} color="#ED7D31" />
+          </div>
+        </div>
+
+        {/* Benchmark */}
+        <div className="rounded-lg p-4" style={{ background: "#1a2236", border: "1px solid #1F2937" }}>
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider" style={{ color: "#94A3B8" }}>Benchmark sectorial</div>
+              <div className="text-sm font-semibold mono mt-0.5">{benchmark.toFixed(2)}x · Arquetipo {project.archetype}</div>
+            </div>
+            <span className="text-[10px] mono px-2 py-1 rounded" style={{ background: diag.color + "22", color: diag.color, border: `1px solid ${diag.color}55` }}>
+              {diag.label}
+            </span>
+          </div>
+          {/* gauge bar */}
+          <div className="relative h-1.5 rounded-full mt-3" style={{ background: "#0A0E1A" }}>
+            <div className="absolute top-0 h-full rounded-full" style={{ left: 0, width: `${Math.min(100, (project.sroi / 4) * 100)}%`, background: sroiColor(project.sroi) }} />
+            <div className="absolute -top-1 w-px h-3.5" style={{ left: `${(benchmark / 4) * 100}%`, background: "#F5F7FA" }} />
+          </div>
+          <div className="flex justify-between text-[10px] mono mt-1" style={{ color: "#94A3B8" }}>
+            <span>0x</span><span>2x</span><span>4x</span>
+          </div>
+        </div>
+
+        {/* Stakeholders */}
+        <div>
+          <div className="text-xs font-semibold mb-2 tracking-wide" style={{ color: "#94A3B8" }}>STAKEHOLDERS</div>
+          <div className="flex flex-wrap gap-1.5">
+            {project.stakeholders.map((s) => (
+              <span key={s} className="text-[11px] px-2 py-1 rounded-md" style={{ background: "#1a2236", border: "1px solid #1F2937", color: "#F5F7FA" }}>
+                {s}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Connections */}
+        {peers.length > 0 && (
+          <div>
+            <div className="text-xs font-semibold mb-2 tracking-wide" style={{ color: "#94A3B8" }}>CONEXIONES (mismo arquetipo)</div>
+            <div className="space-y-1">
+              {peers.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => onJumpTo(p.id)}
+                  className="w-full flex items-center justify-between p-2 rounded-md hover:bg-white/5 transition focus-ring text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full" style={{ background: sroiColor(p.sroi) }} />
+                    <span className="text-xs">{p.id} · {p.name.length > 24 ? p.name.slice(0, 23) + "…" : p.name}</span>
+                  </div>
+                  <span className="text-[10px] mono" style={{ color: sroiColor(p.sroi) }}>{p.sroi.toFixed(2)}x</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="p-3 border-t hairline">
+        <button
+          onClick={onOpenDashboard}
+          className="w-full py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition focus-ring"
+          style={{ background: "#2E75B6", color: "#fff" }}
+        >
+          Ver dashboard completo
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+    </motion.div>
+    </>
+  );
+}
+
+/* ============== CHAT PANEL ============== */
+const PLACEHOLDERS = [
+  "Pregúntame sobre tu portafolio…",
+  "Compara dos proyectos…",
+  "¿Cuál proyecto debería escalar?",
+  "Modifica el deadweight de P03…",
+];
+
+const QUICK_CHIPS = ["Top 3 SROI", "Optimización", "Comparar arquetipos", "Riesgos"];
+
+function TypingIndicator() {
+  return (
+    <div className="flex gap-1 items-center px-3 py-2 rounded-2xl rounded-bl-sm" style={{ background: "#1F2937", width: "fit-content" }}>
+      <span className="typing-dot" /><span className="typing-dot" /><span className="typing-dot" />
+    </div>
+  );
+}
+
+function MiniTable({ rows, headers }) {
+  return (
+    <div className="mt-2 rounded-md overflow-hidden border" style={{ borderColor: "#1F2937" }}>
+      <table className="w-full text-[11px]">
+        <thead>
+          <tr style={{ background: "rgba(46,117,182,0.12)" }}>
+            {headers.map((h) => <th key={h} className="text-left px-2 py-1.5 font-medium" style={{ color: "#94A3B8" }}>{h}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={i} style={{ borderTop: i ? "1px solid #1F2937" : "none" }}>
+              {r.map((c, j) => <td key={j} className="px-2 py-1.5 mono" style={c.color ? { color: c.color } : {}}>{typeof c === "object" ? c.text : c}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ChatBubble({ msg, onAction, onProjectClick }) {
+  const isUser = msg.role === "user";
+  return (
+    <motion.div
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} mb-3`}
+    >
+      <div
+        className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${isUser ? "rounded-br-sm" : "rounded-bl-sm"}`}
+        style={isUser
+          ? { background: "linear-gradient(135deg,#2E75B6,#1f5285)", color: "#fff" }
+          : { background: "#1F2937", color: "#F5F7FA" }
+        }
+      >
+        {msg.content && (
+          <div className="whitespace-pre-wrap">
+            {renderRichText(msg.content, onProjectClick)}
+          </div>
+        )}
+        {msg.table && <MiniTable headers={msg.table.headers} rows={msg.table.rows} />}
+        {msg.actions && (
+          <div className="flex gap-2 flex-wrap mt-3">
+            {msg.actions.map((a, i) => (
+              <button
+                key={i}
+                onClick={() => onAction(a)}
+                className="text-[11px] px-2.5 py-1.5 rounded-md transition focus-ring"
+                style={a.primary
+                  ? { background: "#2E75B6", color: "#fff" }
+                  : { background: "rgba(255,255,255,0.06)", color: "#F5F7FA", border: "1px solid rgba(255,255,255,0.08)" }
+                }
+              >
+                {a.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+// Replace tokens like [P10] with clickable spans
+function renderRichText(text, onProjectClick) {
+  const parts = text.split(/(\bP\d{2}\b)/g);
+  return parts.map((p, i) => {
+    if (/^P\d{2}$/.test(p)) {
+      return (
+        <span key={i} className="chip-link mono" onClick={() => onProjectClick(p)}>
+          {p}
+        </span>
+      );
+    }
+    return <span key={i}>{p}</span>;
+  });
+}
+
+function ChatPanel({
+  collapsed, setCollapsed, projects, selectedId, onSelectProject,
+  applyAdjustment, applyOptimization,
+}) {
+  const [messages, setMessages] = useState(() => [
+    {
+      role: "bot",
+      content: "Hola, soy tu asistente de portafolio. Pregúntame cualquier cosa sobre tus 15 proyectos. Puedo:\n\n  • Comparar proyectos\n  • Sugerir optimizaciones\n  • Modificar parámetros del modelo\n\nPrueba: \"¿Cuál es mi proyecto de mayor SROI?\"",
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
+  const [pHolder, setPHolder] = useState(0);
+  const scrollRef = useRef(null);
+  const lastSelectedRef = useRef(null);
+
+  // rotate placeholder
+  useEffect(() => {
+    const t = setInterval(() => setPHolder((p) => (p + 1) % PLACEHOLDERS.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  // autoscroll
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages, typing]);
+
+  // context awareness when user selects a node
+  useEffect(() => {
+    if (selectedId && selectedId !== lastSelectedRef.current) {
+      lastSelectedRef.current = selectedId;
+      const p = projects.find((x) => x.id === selectedId);
+      if (p) {
+        setMessages((m) => [...m, {
+          role: "bot",
+          content: `Veo que estás en ${p.id} ${p.name}. ¿Qué quieres saber sobre este proyecto?`,
+          actions: [
+            { label: "Resumen ejecutivo", payload: { kind: "summary", id: p.id } },
+            { label: "Comparar con peers", payload: { kind: "peers", id: p.id } },
+          ],
+        }]);
+      }
+    }
+  }, [selectedId]);
+
+  const respond = (userText) => {
+    setTyping(true);
+    const delay = 800 + Math.random() * 700;
+    setTimeout(() => {
+      const reply = simulate(userText, projects, selectedId);
+      setMessages((m) => [...m, ...reply]);
+      setTyping(false);
+    }, delay);
+  };
+
+  const send = (text) => {
+    const t = (text ?? input).trim();
+    if (!t) return;
+    setMessages((m) => [...m, { role: "user", content: t }]);
+    setInput("");
+    respond(t);
+  };
+
+  const handleAction = (a) => {
+    const p = a.payload || {};
+    if (p.kind === "open" && p.id) onSelectProject(p.id);
+    if (p.kind === "summary" && p.id) {
+      const proj = projects.find(x => x.id === p.id);
+      if (proj) {
+        setTyping(true);
+        setTimeout(() => {
+          setMessages((m) => [...m, {
+            role: "bot",
+            content: `${proj.id} ${proj.name} tiene SROI ${proj.sroi.toFixed(2)}x con inversión ${fmtMXNFull(proj.investment)}. Genera ${fmtMXNFull(proj.vAjustado)} de valor social ajustado a ${proj.direct_beneficiaries.toLocaleString("es-MX")} beneficiarios directos. Categoría: ${proj.category}.`,
+          }]);
+          setTyping(false);
+        }, 700);
+      }
+    }
+    if (p.kind === "applyAdj") {
+      applyAdjustment(p.id, p.adj);
+      setMessages((m) => [...m, {
+        role: "bot",
+        content: `✓ Aplicado. Recalculando ${p.id}…`,
+      }]);
+      setTimeout(() => {
+        const updated = recomputeProject(projects.find(x => x.id === p.id), p.adj);
+        const newProjects = projects.map(x => x.id === p.id ? updated : x);
+        const tot = portfolioTotals(newProjects);
+        setMessages((m) => [...m, {
+          role: "bot",
+          content: `${p.id} ahora tiene SROI ${updated.sroi.toFixed(2)}x (categoría ${updated.category}). SROI portafolio: ${tot.sroi.toFixed(2)}x.`,
+        }]);
+      }, 600);
+    }
+    if (p.kind === "applyOpt") {
+      applyOptimization();
+      setMessages((m) => [...m, {
+        role: "bot",
+        content: "✓ Recomendaciones aplicadas. La constelación se está reorganizando.",
+      }]);
+    }
+    if (p.kind === "cancel") {
+      setMessages((m) => [...m, { role: "bot", content: "Sin cambios. ¿Algo más?" }]);
+    }
+  };
+
+  if (collapsed) {
+    return (
+      <motion.button
+        initial={{ opacity: 0, x: 20 }}
+        animate={{ opacity: 1, x: 0 }}
+        whileHover={{ scale: 1.05 }}
+        onClick={() => setCollapsed(false)}
+        className="fixed right-4 top-4 z-30 w-12 h-12 rounded-2xl flex items-center justify-center"
+        style={{
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          background: "rgba(255,255,255,0.04)",
+          border: "1px solid rgba(255,255,255,0.08)",
+          boxShadow: "0 12px 40px -10px rgba(0,0,0,0.5)",
+        }}
+        aria-label="Expandir chat"
+      >
+        <Brain className="w-5 h-5" style={{ color: "#5B9BD5" }} />
+      </motion.button>
+    );
+  }
+
+  return (
+    <motion.aside
+      initial={{ x: 60, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.5, delay: 0.15 }}
+      className="fixed right-4 top-4 bottom-4 w-[360px] z-20 flex flex-col rounded-3xl overflow-hidden"
+      style={{
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        background: "rgba(19,25,41,0.55)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 24px 60px -20px rgba(0,0,0,0.6)",
+      }}
+    >
+      <div className="px-4 py-3 border-b hairline flex items-center gap-3">
+        <button onClick={() => setCollapsed(true)} className="w-7 h-7 rounded-md flex items-center justify-center hover:bg-white/5 focus-ring" aria-label="Colapsar">
+          <ChevronsRight className="w-4 h-4" style={{ color: "#94A3B8" }} />
+        </button>
+        <div className="w-8 h-8 rounded-md flex items-center justify-center" style={{ background: "rgba(46,117,182,0.15)" }}>
+          <Brain className="w-4 h-4" style={{ color: "#5B9BD5" }} />
+        </div>
+        <div className="flex-1">
+          <div className="text-sm font-semibold leading-tight">Impact AI</div>
+          <div className="flex items-center gap-1.5 text-[10px]" style={{ color: "#94A3B8" }}>
+            <span className="pulse-dot inline-block w-1.5 h-1.5 rounded-full" style={{ background: "#10B981" }} />
+            Online
+          </div>
+        </div>
+      </div>
+
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4">
+        {messages.map((m, i) => (
+          <ChatBubble
+            key={i} msg={m}
+            onAction={handleAction}
+            onProjectClick={(id) => onSelectProject(id)}
+          />
+        ))}
+        {typing && (
+          <motion.div animate={{ opacity: 1 }} className="mb-3">
+            <TypingIndicator />
+          </motion.div>
+        )}
+      </div>
+
+      {/* quick chips */}
+      <div className="px-4 pt-2 pb-1 flex gap-1.5 flex-wrap">
+        {QUICK_CHIPS.map((c) => (
+          <button
+            key={c}
+            onClick={() => send(c)}
+            className="text-[11px] px-2.5 py-1 rounded-md hover:bg-white/5 transition"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "#94A3B8" }}
+          >
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {/* input */}
+      <div className="p-3 border-t hairline">
+        <div className="rounded-xl px-3 py-2 flex items-end gap-2" style={{ background: "#1a2236", border: "1px solid #1F2937" }}>
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+            placeholder={PLACEHOLDERS[pHolder]}
+            rows={1}
+            className="flex-1 bg-transparent outline-none text-sm resize-none placeholder:text-[#5e6c87] py-1.5"
+            style={{ maxHeight: 120 }}
+          />
+          <button
+            onClick={() => send()}
+            disabled={!input.trim()}
+            className="w-8 h-8 rounded-md flex items-center justify-center transition focus-ring disabled:opacity-30"
+            style={{ background: input.trim() ? "#2E75B6" : "transparent", color: "#fff" }}
+            aria-label="Enviar"
+          >
+            <Send className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </motion.aside>
+  );
+}
+
+/* ============== AI SIMULATION ============== */
+function simulate(text, projects, selectedId) {
+  const t = text.toLowerCase();
+  const tot = portfolioTotals(projects);
+  const sorted = [...projects].sort((a, b) => b.sroi - a.sroi);
+  const top = sorted[0], worst = sorted[sorted.length - 1];
+
+  // top SROI
+  if (/(mayor|top|mejor|alto)\s*(sroi|proyecto|rendimiento)?|top 3 sroi/.test(t) && !t.includes("compara")) {
+    const top3 = sorted.slice(0, 3);
+    return [{
+      role: "bot",
+      content: `Tu top de SROI lo lidera ${top.id} ${top.name} con SROI ${top.sroi.toFixed(2)}x. Genera ${fmtMXNFull(top.vAjustado)} de valor social ajustado contra ${fmtMXNFull(top.investment)} de inversión.`,
+      table: {
+        headers: ["#", "ID", "SROI", "Inversión"],
+        rows: top3.map((p, i) => [(i + 1).toString(), p.id, { text: p.sroi.toFixed(2) + "x", color: sroiColor(p.sroi) }, fmtMXN(p.investment)]),
+      },
+      actions: [{ label: `Abrir ${top.id}`, primary: true, payload: { kind: "open", id: top.id } }],
+    }];
+  }
+
+  // worst
+  if (/(menor|peor|bajo)\s*(sroi|proyecto)?|riesgo|riesgos/.test(t) && !t.includes("compara")) {
+    if (/riesgo/.test(t)) {
+      const concentration = top.investment / tot.inv;
+      return [{
+        role: "bot",
+        content: `Identifico 3 riesgos en tu portafolio:\n\n  1. Concentración en ${top.id}: representa el ${(concentration * 100).toFixed(0)}% de la inversión total. Una falla operativa aquí te baja el SROI portafolio en ${(top.sroi * concentration).toFixed(2)}x.\n  2. Fragmentación en reforestación: 4 proyectos del arquetipo D suman ${fmtMXNFull(projects.filter(p => p.archetype === "D").reduce((a, p) => a + p.investment, 0))} con SROI promedio bajo. Convendría consolidar.\n  3. Eventos comunitarios (arquetipo B) con SROI <0.25x — el formato actual no genera valor medible.`,
+      }];
+    }
+    return [{
+      role: "bot",
+      content: `${worst.id} ${worst.name} es el de menor SROI: ${worst.sroi.toFixed(2)}x. Esto sugiere revisar el modelo de outcomes o considerar redirigir la inversión.`,
+      actions: [{ label: `Abrir ${worst.id}`, primary: true, payload: { kind: "open", id: worst.id } }],
+    }];
+  }
+
+  // compare X y Y
+  const compareMatch = t.match(/compara\s+(p\d{2}).{0,5}?(p\d{2})/i) || t.match(/(p\d{2}).{0,5}?vs.{0,5}?(p\d{2})/i);
+  if (compareMatch) {
+    const a = projects.find(p => p.id === compareMatch[1].toUpperCase());
+    const b = projects.find(p => p.id === compareMatch[2].toUpperCase());
+    if (a && b) {
+      return [{
+        role: "bot",
+        content: `Comparativo ${a.id} vs ${b.id}:`,
+        table: {
+          headers: ["Métrica", a.id, b.id],
+          rows: [
+            ["SROI", { text: a.sroi.toFixed(2) + "x", color: sroiColor(a.sroi) }, { text: b.sroi.toFixed(2) + "x", color: sroiColor(b.sroi) }],
+            ["Inversión", fmtMXN(a.investment), fmtMXN(b.investment)],
+            ["Valor ajust.", fmtMXN(a.vAjustado), fmtMXN(b.vAjustado)],
+            ["Beneficiarios", a.direct_beneficiaries.toLocaleString("es-MX"), b.direct_beneficiaries.toLocaleString("es-MX")],
+            ["Arquetipo", a.archetype, b.archetype],
+          ],
+        },
+        actions: [
+          { label: `Abrir ${a.id}`, payload: { kind: "open", id: a.id } },
+          { label: `Abrir ${b.id}`, primary: true, payload: { kind: "open", id: b.id } },
+        ],
+      }];
+    }
+  }
+
+  // count low
+  if (/(cuántos|cuantos).+(bajo|rojo)/.test(t)) {
+    const low = projects.filter(p => p.category === "BAJO");
+    return [{
+      role: "bot",
+      content: `${low.length} de los ${projects.length} proyectos están en categoría BAJO (SROI <1x). Es esperable: eventos comunitarios y educación de cohorte amplia tienden a tener SROI bajo medible. ¿Quieres ver cuáles son y qué los une?`,
+      actions: [{ label: "Ver lista", payload: { kind: "open", id: low[0].id } }],
+    }];
+  }
+
+  // optimization
+  if (/optimi|recomenda|cómo optimizo|como optimizo/.test(t)) {
+    return [{
+      role: "bot",
+      content: `5 acciones para subir tu SROI portafolio de ${tot.sroi.toFixed(2)}x a ~1.45x:\n\n  1. Aliarse con operador especializado para ${top.id} (reduce deadweight 10%→5%).\n  2. Consolidar reforestación: fusionar P12+P14 con P11.\n  3. Migrar P15 a un canal con menor displacement.\n  4. Discontinuar P08 — SROI 0.01x sin tracción.\n  5. Reasignar 30% del presupuesto de eventos comunitarios a P10.\n\n¿Quieres que aplique estas recomendaciones al modelo?`,
+      actions: [
+        { label: "Aplicar todo", primary: true, payload: { kind: "applyOpt" } },
+        { label: "Cancelar", payload: { kind: "cancel" } },
+      ],
+    }];
+  }
+
+  // archetypes compare
+  if (/comparar arquetipos|arquetipo/.test(t)) {
+    const byArch = {};
+    projects.forEach(p => {
+      const a = byArch[p.archetype] = byArch[p.archetype] || { inv: 0, adj: 0, n: 0 };
+      a.inv += p.investment; a.adj += p.vAjustado; a.n += 1;
+    });
+    return [{
+      role: "bot",
+      content: "Comparativo por arquetipo:",
+      table: {
+        headers: ["Arq", "Nombre", "n", "SROI prom."],
+        rows: Object.entries(byArch).map(([k, v]) => {
+          const sroi = v.adj / v.inv;
+          return [k, ARCHETYPES[k].name.length > 18 ? ARCHETYPES[k].name.slice(0, 17) + "…" : ARCHETYPES[k].name, v.n.toString(), { text: sroi.toFixed(2) + "x", color: sroiColor(sroi) }];
+        }),
+      },
+    }];
+  }
+
+  // modify deadweight P03 to 40%
+  const modMatch = t.match(/(deadweight|attribution|displacement|drop.?off|dropoff)\s+(?:de\s+)?(p\d{2})\s+(?:a\s+)?(\d{1,3})\s*%?/i)
+                 || t.match(/(p\d{2})\s+(deadweight|attribution|displacement|drop.?off|dropoff)\s+(?:a\s+)?(\d{1,3})/i)
+                 || t.match(/sube.+(deadweight|attribution|displacement|drop.?off|dropoff).+(p\d{2}).+(\d{1,3})/i);
+  if (modMatch) {
+    let key, id, pct;
+    if (/p\d{2}/i.test(modMatch[1])) { id = modMatch[1].toUpperCase(); key = modMatch[2]; pct = modMatch[3]; }
+    else { key = modMatch[1]; id = modMatch[2].toUpperCase(); pct = modMatch[3]; }
+    const map = { deadweight: "dw", attribution: "at", displacement: "dp", "drop-off": "dr", dropoff: "dr", "dropoff": "dr", "drop off": "dr" };
+    const k = map[key.toLowerCase().replace(/-/g, "")] || map[key.toLowerCase()];
+    const proj = projects.find(p => p.id === id);
+    if (proj && k) {
+      const newAdj = { [k]: Math.min(0.95, parseInt(pct) / 100) };
+      const after = recomputeProject(proj, newAdj);
+      return [{
+        role: "bot",
+        content: `Aplicando ${key}=${pct}% al proyecto ${id} ${proj.name}. Esto cambiaría su SROI de ${proj.sroi.toFixed(2)}x a aproximadamente ${after.sroi.toFixed(2)}x. ¿Confirmas?`,
+        actions: [
+          { label: "Confirmar", primary: true, payload: { kind: "applyAdj", id, adj: newAdj } },
+          { label: "Cancelar", payload: { kind: "cancel" } },
+        ],
+      }];
+    }
+  }
+
+  // explain concept
+  if (/qu[eé] es deadweight|expl[íi]came (deadweight|attribution|displacement|drop)/.test(t)) {
+    return [{
+      role: "bot",
+      content: `**Deadweight** mide qué tanto del outcome habría ocurrido sin tu intervención. Si plantas 100 árboles pero el municipio iba a plantar 30 de todos modos, tu deadweight es 30%. Se descuenta del valor bruto. En ${top.id}, asumimos deadweight de 10% porque las comunidades no tenían acceso eléctrico previo.`,
+    }];
+  }
+
+  // fallback
+  return [{
+    role: "bot",
+    content: "Aún no sé responder eso, pero puedo ayudarte con: comparar proyectos, sugerir optimizaciones, modificar parámetros, o explicar conceptos del modelo. ¿Por dónde quieres empezar?",
+  }];
+}
+
+/* ============== BOTTOM CONTROLS ============== */
+function BottomControls({ projects, open, setOpen, showConnections, setShowConnections, groupBy, setGroupBy, onResetCamera }) {
+  const tot = portfolioTotals(projects);
+  if (!open) return null;
+  return (
+    <motion.div
+      initial={{ y: 20, opacity: 0, scale: 0.96 }}
+      animate={{ y: 0, opacity: 1, scale: 1 }}
+      exit={{ y: 20, opacity: 0, scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 320, damping: 26 }}
+      className="fixed bottom-5 left-1/2 -translate-x-1/2 rounded-2xl p-1.5 flex items-center gap-1 z-30"
+      style={{
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 16px 48px -12px rgba(0,0,0,0.6)",
+      }}
+    >
+      <div className="flex items-center gap-2 px-4 py-2 text-[11px] mono" style={{ color: "rgba(255,255,255,0.7)" }}>
+        <span style={{ color: "#F5F7FA" }}>{tot.count}</span>
+        <span>nodos</span>
+        <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+        <span style={{ color: "#F5F7FA" }}>{fmtMXN(tot.inv)}</span>
+        <span style={{ color: "rgba(255,255,255,0.2)" }}>·</span>
+        <span>SROI</span>
+        <span className="mono" style={{ color: sroiColor(tot.sroi) }}>{tot.sroi.toFixed(2)}x</span>
+      </div>
+
+      <div className="w-px h-6" style={{ background: "rgba(255,255,255,0.1)" }} />
+
+      <div className="flex items-center gap-1 p-1">
+        <span className="text-[10px] uppercase tracking-wider px-2" style={{ color: "rgba(255,255,255,0.4)" }}>Agrupar</span>
+        {["arquetipo", "sroi", "inversión"].map((g) => (
+          <button
+            key={g}
+            onClick={() => setGroupBy(g)}
+            className="text-[11px] px-3 py-1.5 rounded-lg transition-all duration-200"
+            style={{
+              background: groupBy === g ? "rgba(255,255,255,0.1)" : "transparent",
+              color: groupBy === g ? "#F5F7FA" : "rgba(255,255,255,0.5)",
+            }}
+          >
+            {g}
+          </button>
+        ))}
+      </div>
+
+      <div className="w-px h-6" style={{ background: "rgba(255,255,255,0.1)" }} />
+
+      <div className="flex items-center gap-1">
+        <button
+          onClick={() => setShowConnections(!showConnections)}
+          className="text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all duration-200"
+          style={{
+            background: showConnections ? "rgba(255,255,255,0.08)" : "transparent",
+            color: showConnections ? "#F5F7FA" : "rgba(255,255,255,0.7)",
+          }}
+        >
+          {showConnections ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+          Conexiones
+        </button>
+
+        <button
+          onClick={onResetCamera}
+          className="text-[11px] px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all duration-200 hover:bg-white/5"
+          style={{ color: "rgba(255,255,255,0.7)" }}
+        >
+          <RotateCcw className="w-3 h-3" />
+          Reset
+        </button>
+
+        <button
+          onClick={() => setOpen(false)}
+          className="text-[11px] px-2 py-1.5 rounded-lg flex items-center justify-center transition-all duration-200 hover:bg-white/5"
+          style={{ color: "rgba(255,255,255,0.5)" }}
+          aria-label="Cerrar"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ============== ARCHETYPE LEGEND POPOVER ============== */
+function ArchetypeLegend({ open, onClose }) {
+  if (!open) return null;
+  return (
+    <motion.div
+      initial={{ x: -20, opacity: 0, scale: 0.96 }}
+      animate={{ x: 0, opacity: 1, scale: 1 }}
+      exit={{ x: -20, opacity: 0, scale: 0.96 }}
+      transition={{ type: "spring", stiffness: 320, damping: 26 }}
+      className="fixed z-30 rounded-2xl px-5 py-4 w-[260px]"
+      style={{
+        left: "76px",
+        top: "50%",
+        transform: "translateY(-50%)",
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 16px 48px -12px rgba(0,0,0,0.6)",
+      }}
+    >
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="text-[9px] mono uppercase tracking-[0.2em]" style={{ color: "rgba(255,255,255,0.4)" }}>Arquetipos</div>
+        <button onClick={onClose} className="w-5 h-5 rounded flex items-center justify-center hover:bg-white/5" aria-label="Cerrar">
+          <X className="w-3 h-3" style={{ color: "rgba(255,255,255,0.5)" }} />
+        </button>
+      </div>
+      <div className="space-y-1.5">
+        {Object.entries(ARCHETYPES).map(([k, v]) => (
+          <div key={k} className="flex items-center gap-2 text-[11px]">
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: v.color }} />
+            <span className="mono" style={{ color: "rgba(255,255,255,0.5)" }}>{k}</span>
+            <span style={{ color: "rgba(255,255,255,0.92)" }}>{v.name}</span>
+            <span className="ml-auto mono text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>{v.count}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 pt-2.5" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="text-[9px] mono uppercase tracking-[0.2em] mb-1.5" style={{ color: "rgba(255,255,255,0.4)" }}>SROI</div>
+        <div className="flex items-center gap-3 text-[10px] mono" style={{ color: "rgba(255,255,255,0.7)" }}>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{background:"#10B981"}} />&gt; 2x</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{background:"#F59E0B"}} />1–2x</span>
+          <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full" style={{background:"#EF4444"}} />&lt; 1x</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ============== BACK CHIP (when node selected) ============== */
+function BackChip({ onClick }) {
+  return (
+    <motion.button
+      initial={{ y: -10, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ y: -10, opacity: 0 }}
+      transition={{ type: "spring", stiffness: 220, damping: 24 }}
+      onClick={onClick}
+      className="fixed top-4 left-1/2 -translate-x-1/2 rounded-2xl px-4 py-2 text-xs flex items-center gap-2 z-30"
+      style={{
+        backdropFilter: "blur(20px)",
+        WebkitBackdropFilter: "blur(20px)",
+        background: "rgba(255,255,255,0.04)",
+        border: "1px solid rgba(255,255,255,0.08)",
+        boxShadow: "0 12px 40px -10px rgba(0,0,0,0.5)",
+        color: "rgba(255,255,255,0.85)",
+      }}
+    >
+      <ArrowLeft className="w-3.5 h-3.5" />
+      Volver al portafolio
+    </motion.button>
+  );
+}
+
+</script>
+
+<script type="text/plain" data-app-src="app/Dashboard.js">
+const cardEntry = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+};
+
+function Card({ children, className = "", style = {}, delay = 0 }) {
+  return (
+    <motion.div
+      {...cardEntry}
+      transition={{ duration: 0.4, delay, ease: "easeOut" }}
+      whileHover={{ y: -3 }}
+      className={`rounded-xl p-5 grad-border ${className}`}
+      style={{ background: "rgba(19,25,41,0.8)", border: "1px solid rgba(255,255,255,0.05)", boxShadow: "0 4px 20px -8px rgba(0,0,0,0.4)", ...style }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+const tooltipStyle = {
+  contentStyle: { background: "#131929", border: "1px solid #1F2937", borderRadius: 8, fontSize: 12 },
+  itemStyle: { color: "#F5F7FA" },
+  labelStyle: { color: "#94A3B8" },
+};
+
+/* ============== PORTFOLIO DASHBOARD ============== */
+function PortfolioDashboard({ projects, onOpenProject, onBackToGraph }) {
+  const tot = portfolioTotals(projects);
+  const [sortKey, setSortKey] = useState("sroi");
+  const [sortDir, setSortDir] = useState("desc");
+  const [filterArch, setFilterArch] = useState("ALL");
+
+  const sortedProjects = useMemo(() => {
+    let arr = [...projects];
+    if (filterArch !== "ALL") arr = arr.filter(p => p.archetype === filterArch);
+    arr.sort((a, b) => {
+      const av = a[sortKey], bv = b[sortKey];
+      if (typeof av === "string") return sortDir === "asc" ? av.localeCompare(bv) : bv.localeCompare(av);
+      return sortDir === "asc" ? av - bv : bv - av;
+    });
+    return arr;
+  }, [projects, sortKey, sortDir, filterArch]);
+
+  const treemapData = useMemo(() => {
+    return Object.entries(ARCHETYPES).map(([k, v]) => {
+      const pp = projects.filter(p => p.archetype === k);
+      if (!pp.length) return null;
+      const inv = pp.reduce((a, p) => a + p.investment, 0);
+      const adj = pp.reduce((a, p) => a + p.vAjustado, 0);
+      const sroi = adj / inv;
+      return { name: v.name, size: inv, sroi, color: sroiColor(sroi), arch: k, count: pp.length };
+    }).filter(Boolean);
+  }, [projects]);
+
+  const top5 = useMemo(() => [...projects].sort((a, b) => b.sroi - a.sroi).slice(0, 5), [projects]);
+  const distData = [
+    { name: "Alto", value: tot.dist.ALTO || 0, color: "#10B981" },
+    { name: "Medio", value: tot.dist.MEDIO || 0, color: "#F59E0B" },
+    { name: "Bajo", value: tot.dist.BAJO || 0, color: "#EF4444" },
+  ];
+
+  return (
+    <div className="absolute inset-0 overflow-y-auto">
+      <div className="max-w-[1400px] mx-auto px-8 py-8">
+        {/* header */}
+        <motion.header
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-end justify-between mb-8"
+        >
+          <div>
+            <div className="text-[10px] mono uppercase tracking-[0.2em]" style={{ color: "#94A3B8" }}>Portafolio · 2024</div>
+            <h1 className="text-3xl font-semibold mt-1">Resumen de impacto social</h1>
+            <div className="text-sm mt-1" style={{ color: "#94A3B8" }}>
+              {tot.count} iniciativas · {fmtMXNFull(tot.inv)} inversión · SROI <span className="mono" style={{ color: sroiColor(tot.sroi) }}>{tot.sroi.toFixed(2)}x</span>
+            </div>
+          </div>
+          <button
+            onClick={onBackToGraph}
+            className="text-xs px-3 py-2 rounded-lg flex items-center gap-1.5 hover:bg-white/5 transition"
+            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+          >
+            <Network className="w-3.5 h-3.5" /> Volver al grafo
+          </button>
+        </motion.header>
+
+        {/* KPI strip */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <Card className="col-span-3" delay={0.05}>
+            <div className="text-[10px] mono uppercase tracking-wider" style={{ color: "#94A3B8" }}>SROI Portafolio</div>
+            <div className="text-3xl font-semibold mt-1 mono" style={{ color: sroiColor(tot.sroi) }}>{tot.sroi.toFixed(2)}x</div>
+            <div className="h-8 mt-2">
+              <ResponsiveContainer>
+                <LineChart data={[{x:0,y:0.78},{x:1,y:0.91},{x:2,y:0.86},{x:3,y:1.02},{x:4,y:tot.sroi}]}>
+                  <RLine dataKey="y" stroke="#5B9BD5" strokeWidth={1.5} dot={false} type="monotone" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          <Card className="col-span-3" delay={0.1}>
+            <div className="text-[10px] mono uppercase tracking-wider" style={{ color: "#94A3B8" }}>Inversión total</div>
+            <div className="text-3xl font-semibold mt-1 mono">{fmtMXN(tot.inv)}</div>
+            <div className="text-[11px] mt-1.5" style={{ color: "#94A3B8" }}>MXN · 2024</div>
+          </Card>
+          <Card className="col-span-3" delay={0.15}>
+            <div className="text-[10px] mono uppercase tracking-wider" style={{ color: "#94A3B8" }}>Valor social ajustado</div>
+            <div className="text-3xl font-semibold mt-1 mono">{fmtMXN(tot.adj)}</div>
+            <div className="text-[11px] mt-1.5" style={{ color: "#10B981" }}>+{((tot.adj - tot.inv) / tot.inv * 100).toFixed(0)}% vs inversión</div>
+          </Card>
+          <Card className="col-span-3" delay={0.2}>
+            <div className="text-[10px] mono uppercase tracking-wider" style={{ color: "#94A3B8" }}>Distribución</div>
+            <div className="flex items-center gap-3 mt-1">
+              <div className="w-16 h-16">
+                <ResponsiveContainer>
+                  <PieChart>
+                    <Pie data={distData} dataKey="value" innerRadius={20} outerRadius={30} strokeWidth={0}>
+                      {distData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="flex-1 space-y-1 text-[11px]">
+                {distData.map(d => (
+                  <div key={d.name} className="flex items-center justify-between">
+                    <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{background:d.color}} />{d.name}</span>
+                    <span className="mono">{d.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Row 2 */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <Card className="col-span-8" delay={0.25}>
+            <div className="flex justify-between items-baseline mb-3">
+              <h3 className="text-sm font-semibold">Portafolio por arquetipo</h3>
+              <div className="text-[10px] mono" style={{ color: "#94A3B8" }}>área = inversión · color = SROI</div>
+            </div>
+            <div className="h-[220px]">
+              <ResponsiveContainer>
+                <Treemap data={treemapData} dataKey="size" stroke="#0A0E1A" content={<TreemapCell />} />
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          <Card className="col-span-4" delay={0.3}>
+            <h3 className="text-sm font-semibold mb-3">Top 5 SROI</h3>
+            <div className="space-y-2.5">
+              {top5.map((p, i) => (
+                <button
+                  key={p.id}
+                  onClick={() => onOpenProject(p.id)}
+                  className="w-full text-left group"
+                >
+                  <div className="flex justify-between items-center text-xs mb-1">
+                    <span className="flex items-center gap-2">
+                      <span className="mono w-4 text-[10px]" style={{ color: "#94A3B8" }}>{i + 1}</span>
+                      <span className="group-hover:text-[#5B9BD5] transition">{p.id} · {p.name.length > 22 ? p.name.slice(0,21)+"…" : p.name}</span>
+                    </span>
+                    <span className="mono" style={{ color: sroiColor(p.sroi) }}>{p.sroi.toFixed(2)}x</span>
+                  </div>
+                  <div className="h-1 rounded-full overflow-hidden" style={{ background: "#1F2937" }}>
+                    <div className="h-full rounded-full" style={{ width: `${Math.min(100, p.sroi/3.5*100)}%`, background: sroiColor(p.sroi) }} />
+                  </div>
+                </button>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Row 3 - ranking */}
+        <Card delay={0.35}>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold">Ranking completo</h3>
+            <div className="flex items-center gap-2">
+              <Filter className="w-3.5 h-3.5" style={{ color: "#94A3B8" }} />
+              <select
+                value={filterArch}
+                onChange={(e) => setFilterArch(e.target.value)}
+                className="text-[11px] mono px-2 py-1 rounded outline-none"
+                style={{ background: "#1a2236", border: "1px solid #1F2937", color: "#F5F7FA" }}
+              >
+                <option value="ALL">Todos los arquetipos</option>
+                {Object.entries(ARCHETYPES).map(([k, v]) => <option key={k} value={k}>{k} · {v.name}</option>)}
+              </select>
+            </div>
+          </div>
+          <table className="w-full text-xs">
+            <thead>
+              <tr style={{ color: "#94A3B8" }}>
+                {[
+                  { k: "id", l: "ID" }, { k: "name", l: "Proyecto" }, { k: "archetype", l: "Arq." },
+                  { k: "investment", l: "Inversión" }, { k: "vAjustado", l: "Valor ajust." },
+                  { k: "sroi", l: "SROI" }, { k: "category", l: "Categoría" },
+                ].map((h) => (
+                  <th
+                    key={h.k}
+                    onClick={() => { setSortKey(h.k); setSortDir(sortDir === "asc" ? "desc" : "asc"); }}
+                    className="text-left py-2 px-2 font-medium cursor-pointer hover:text-white transition select-none"
+                  >
+                    <span className="inline-flex items-center gap-1">{h.l} <ArrowUpDown className="w-3 h-3 opacity-50" /></span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedProjects.map((p) => (
+                <tr
+                  key={p.id}
+                  onClick={() => onOpenProject(p.id)}
+                  className="cursor-pointer transition"
+                  style={{ borderTop: "1px solid #1F2937" }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = "rgba(46,117,182,0.06)"}
+                  onMouseLeave={(e) => e.currentTarget.style.background = ""}
+                >
+                  <td className="py-2.5 px-2 mono" style={{ color: "#94A3B8" }}>{p.id}</td>
+                  <td className="py-2.5 px-2">{p.name}</td>
+                  <td className="py-2.5 px-2">
+                    <span className="mono text-[10px] px-1.5 py-0.5 rounded" style={{ background: ARCHETYPES[p.archetype].color + "33", color: ARCHETYPES[p.archetype].color }}>
+                      {p.archetype}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-2 mono">{fmtMXN(p.investment)}</td>
+                  <td className="py-2.5 px-2 mono">{fmtMXN(p.vAjustado)}</td>
+                  <td className="py-2.5 px-2 mono font-semibold" style={{ color: sroiColor(p.sroi) }}>{p.sroi.toFixed(2)}x</td>
+                  <td className="py-2.5 px-2">
+                    <span className="text-[10px] mono px-1.5 py-0.5 rounded" style={{ background: sroiColor(p.sroi) + "22", color: sroiColor(p.sroi) }}>
+                      {p.category}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function TreemapCell({ x, y, width, height, name, size, sroi, color, count }) {
+  if (width < 30 || height < 20) return null;
+  return (
+    <g>
+      <rect x={x} y={y} width={width} height={height} fill={color} fillOpacity={0.18} stroke={color} strokeWidth={1} />
+      <rect x={x} y={y} width={width} height={4} fill={color} />
+      {width > 70 && height > 50 && (
+        <>
+          <text x={x + 10} y={y + 22} fill="#F5F7FA" fontSize={11} fontWeight={500}>{name}</text>
+          <text x={x + 10} y={y + 38} fill="#94A3B8" fontSize={10} fontFamily="monospace">{count} proyectos</text>
+          <text x={x + 10} y={y + height - 10} fill={color} fontSize={14} fontWeight={600} fontFamily="monospace">{sroi.toFixed(2)}x</text>
+        </>
+      )}
+    </g>
+  );
+}
+
+/* ============== PROJECT DASHBOARD (drill-down) ============== */
+function ProjectDashboard({ project, projects, onBack, onOpenProject }) {
+  const arch = ARCHETYPES[project.archetype];
+  const history = HISTORY_BY_PROJECT(project.id, project.sroi);
+
+  // sensitivity: vary one adjustment from 0..0.6 and recompute
+  const sensitivityData = useMemo(() => {
+    const points = [];
+    for (let pct = 0; pct <= 60; pct += 5) {
+      const f = pct / 100;
+      const baseFactor = (1 - project.adjustments.dp) * (1 - project.adjustments.dr);
+      const dwSroi = (project.vBruto * (1 - f) * (1 - project.adjustments.at) * baseFactor) / project.investment;
+      const atSroi = (project.vBruto * (1 - project.adjustments.dw) * (1 - f) * baseFactor) / project.investment;
+      const drSroi = (project.vBruto * (1 - project.adjustments.dw) * (1 - project.adjustments.at) * (1 - project.adjustments.dp) * (1 - f)) / project.investment;
+      points.push({ pct, dw: +dwSroi.toFixed(2), at: +atSroi.toFixed(2), dr: +drSroi.toFixed(2) });
+    }
+    return points;
+  }, [project]);
+
+  const benchmarkBars = [
+    { name: "Mín. sector", value: arch.benchmark * 0.5 },
+    { name: "Promedio sector", value: arch.benchmark },
+    { name: "Máx. sector", value: arch.benchmark * 2.0 },
+    { name: project.id, value: project.sroi },
+  ];
+
+  const stakeholderData = project.stakeholders.map((s, i) => ({
+    name: s, value: 100 / project.stakeholders.length + (i % 2 === 0 ? 5 : -5),
+  }));
+  const stakeholderColors = ["#5B9BD5", "#ED7D31", "#10B981", "#F59E0B", "#A78BFA"];
+
+  return (
+    <motion.div
+      animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}
+      transition={{ duration: 0.4 }}
+      className="absolute inset-0 overflow-y-auto z-40"
+      style={{ background: "rgba(10,14,26,0.97)" }}
+    >
+      <div className="max-w-[1400px] mx-auto px-8 py-8">
+        <motion.header animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <div className="flex items-center gap-2 text-[11px] mono mb-2" style={{ color: "#94A3B8" }}>
+            <button onClick={onBack} className="hover:text-white transition flex items-center gap-1">
+              <ArrowLeft className="w-3 h-3" /> Volver al grafo
+            </button>
+            <span>/</span>
+            <span>Portafolio</span>
+            <span>/</span>
+            <span style={{ color: arch.color }}>Arq. {project.archetype}</span>
+            <span>/</span>
+            <span style={{ color: "#F5F7FA" }}>{project.id}</span>
+          </div>
+          <div className="flex items-end justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] mono px-2 py-1 rounded" style={{ background: arch.color + "33", color: arch.color, border: `1px solid ${arch.color}55` }}>
+                  {project.id} · ARQ {project.archetype}
+                </span>
+                <span className="text-[10px] mono px-2 py-1 rounded" style={{ background: sroiColor(project.sroi) + "22", color: sroiColor(project.sroi), border: `1px solid ${sroiColor(project.sroi)}55` }}>
+                  {project.category}
+                </span>
+                <span className="text-[10px] mono" style={{ color: "#94A3B8" }}>{project.region}</span>
+              </div>
+              <h1 className="text-3xl font-semibold mt-2">{project.name}</h1>
+              <div className="text-sm mt-1" style={{ color: "#94A3B8" }}>{arch.name}</div>
+            </div>
+          </div>
+        </motion.header>
+
+        {/* KPI cards */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          {[
+            { l: "Inversión", v: fmtMXN(project.investment), sub: "MXN · 2024" },
+            { l: "SROI", v: project.sroi.toFixed(2) + "x", color: sroiColor(project.sroi), sub: "Valor / Inversión" },
+            { l: "Beneficiarios directos", v: project.direct_beneficiaries.toLocaleString("es-MX"), sub: "personas" },
+            { l: "Valor social ajustado", v: fmtMXN(project.vAjustado), sub: `${(project.vAjustado/project.vBruto*100).toFixed(0)}% del bruto` },
+          ].map((k, i) => (
+            <Card key={k.l} className="col-span-3" delay={0.05 * (i + 1)}>
+              <div className="text-[10px] mono uppercase tracking-wider" style={{ color: "#94A3B8" }}>{k.l}</div>
+              <div className="text-3xl font-semibold mt-1 mono" style={{ color: k.color || "#F5F7FA" }}>{k.v}</div>
+              <div className="text-[11px] mt-1.5" style={{ color: "#94A3B8" }}>{k.sub}</div>
+            </Card>
+          ))}
+        </div>
+
+        {/* Row 1 */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <Card className="col-span-8" delay={0.3}>
+            <h3 className="text-sm font-semibold mb-3">Outcomes y proxies</h3>
+            <table className="w-full text-xs">
+              <thead style={{ color: "#94A3B8" }}>
+                <tr>
+                  <th className="text-left py-2 font-medium">Descripción</th>
+                  <th className="text-right py-2 font-medium">Cantidad</th>
+                  <th className="text-right py-2 font-medium">Proxy</th>
+                  <th className="text-right py-2 font-medium">Valor bruto</th>
+                  <th className="text-right py-2 font-medium pl-3">Contribución</th>
+                </tr>
+              </thead>
+              <tbody>
+                {project.outcomes.map((o, i) => {
+                  const total = project.outcomes.reduce((a, x) => a + x.gross, 0);
+                  const pct = (o.gross / total) * 100;
+                  return (
+                    <tr key={i} style={{ borderTop: "1px solid #1F2937" }}>
+                      <td className="py-2.5">{o.description}</td>
+                      <td className="text-right py-2.5 mono">{o.qty.toLocaleString("es-MX")}</td>
+                      <td className="text-right py-2.5 mono">{fmtMXN(o.proxy)}</td>
+                      <td className="text-right py-2.5 mono font-semibold">{fmtMXN(o.gross)}</td>
+                      <td className="py-2.5 pl-3">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-1 rounded overflow-hidden" style={{ background: "#1F2937" }}>
+                            <div className="h-full rounded" style={{ width: `${pct}%`, background: "linear-gradient(90deg,#2E75B6,#5B9BD5)" }} />
+                          </div>
+                          <span className="mono text-[10px] w-10 text-right" style={{ color: "#94A3B8" }}>{pct.toFixed(0)}%</span>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </Card>
+          <Card className="col-span-4" delay={0.35}>
+            <h3 className="text-sm font-semibold mb-2">Stakeholders</h3>
+            <div className="h-[200px]">
+              <ResponsiveContainer>
+                <PieChart>
+                  <Pie data={stakeholderData} dataKey="value" innerRadius={45} outerRadius={75} strokeWidth={0}>
+                    {stakeholderData.map((d, i) => <Cell key={i} fill={stakeholderColors[i % stakeholderColors.length]} />)}
+                  </Pie>
+                  <Tooltip {...tooltipStyle} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="space-y-1 text-[11px] mt-2">
+              {stakeholderData.map((d, i) => (
+                <div key={d.name} className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full" style={{ background: stakeholderColors[i % stakeholderColors.length] }} />
+                  <span style={{ color: "#94A3B8" }}>{d.name}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+
+        {/* Row 2 */}
+        <div className="grid grid-cols-12 gap-4 mb-4">
+          <Card className="col-span-6" delay={0.4}>
+            <h3 className="text-sm font-semibold mb-1">Sensibilidad de SROI</h3>
+            <div className="text-[11px] mb-3" style={{ color: "#94A3B8" }}>Cómo varía el SROI al mover cada ajuste</div>
+            <div className="h-[230px]">
+              <ResponsiveContainer>
+                <LineChart data={sensitivityData}>
+                  <CartesianGrid strokeDasharray="2 4" stroke="#1F2937" />
+                  <XAxis dataKey="pct" tick={{ fill: "#94A3B8", fontSize: 10 }} unit="%" stroke="#1F2937" />
+                  <YAxis tick={{ fill: "#94A3B8", fontSize: 10 }} stroke="#1F2937" />
+                  <Tooltip {...tooltipStyle} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <RLine type="monotone" dataKey="dw" name="Deadweight" stroke="#EF4444" strokeWidth={1.5} dot={false} />
+                  <RLine type="monotone" dataKey="at" name="Attribution" stroke="#F59E0B" strokeWidth={1.5} dot={false} />
+                  <RLine type="monotone" dataKey="dr" name="Drop-off" stroke="#ED7D31" strokeWidth={1.5} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          <Card className="col-span-6" delay={0.45}>
+            <h3 className="text-sm font-semibold mb-1">Comparación con benchmark</h3>
+            <div className="text-[11px] mb-3" style={{ color: "#94A3B8" }}>Posición frente al rango sectorial · Arq. {project.archetype}</div>
+            <div className="h-[230px]">
+              <ResponsiveContainer>
+                <BarChart data={benchmarkBars} layout="vertical">
+                  <CartesianGrid strokeDasharray="2 4" stroke="#1F2937" horizontal={false} />
+                  <XAxis type="number" tick={{ fill: "#94A3B8", fontSize: 10 }} stroke="#1F2937" />
+                  <YAxis type="category" dataKey="name" tick={{ fill: "#F5F7FA", fontSize: 11 }} stroke="#1F2937" width={110} />
+                  <Tooltip {...tooltipStyle} />
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                    {benchmarkBars.map((b, i) => (
+                      <Cell key={i} fill={b.name === project.id ? sroiColor(project.sroi) : "#5B9BD5"} fillOpacity={b.name === project.id ? 1 : 0.45} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
+
+        {/* Row 3 - history */}
+        <Card delay={0.5}>
+          <h3 className="text-sm font-semibold mb-3">Histórico SROI</h3>
+          <div className="h-[200px]">
+            <ResponsiveContainer>
+              <AreaChart data={history}>
+                <defs>
+                  <linearGradient id="histGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={sroiColor(project.sroi)} stopOpacity={0.4} />
+                    <stop offset="100%" stopColor={sroiColor(project.sroi)} stopOpacity={0.02} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="2 4" stroke="#1F2937" />
+                <XAxis dataKey="year" tick={{ fill: "#94A3B8", fontSize: 10 }} stroke="#1F2937" />
+                <YAxis tick={{ fill: "#94A3B8", fontSize: 10 }} stroke="#1F2937" />
+                <Tooltip {...tooltipStyle} />
+                <Area type="monotone" dataKey="sroi" stroke={sroiColor(project.sroi)} strokeWidth={2} fill="url(#histGrad)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
+    </motion.div>
+  );
+}
+
+</script>
+
+<script type="text/plain" data-app-src="app/main.js">
+function App() {
+  const [projects, setProjects] = useState(PROJECTS);
+  const [selectedId, setSelectedId] = useState(null);
+  const [activeView, setActiveView] = useState("graph"); // graph | dashboard | projectDash
+  const [chatCollapsed, setChatCollapsed] = useState(true);
+  const [showConnections, setShowConnections] = useState(true);
+  const [groupBy, setGroupBy] = useState("arquetipo");
+  const [recentChange, setRecentChange] = useState(null);
+  const [cameraTarget, setCameraTarget] = useState(null);
+  const [openDashFor, setOpenDashFor] = useState(null);
+  const [legendOpen, setLegendOpen] = useState(false);
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const [nodeAnchor, setNodeAnchor] = useState(null);
+
+  const selectedProject = selectedId ? projects.find(p => p.id === selectedId) : null;
+  const dashProject = openDashFor ? projects.find(p => p.id === openDashFor) : null;
+
+  // when selecting a node, move camera close
+  const handleSelect = useCallback((id) => {
+    setSelectedId(id);
+    const idx = projects.findIndex(p => p.id === id);
+    if (idx < 0) return;
+    const pos = projectPosition(projects[idx], idx, projects.length);
+    // camera offset along node-to-origin axis, slightly outside
+    const len = Math.sqrt(pos[0]**2 + pos[1]**2 + pos[2]**2);
+    const k = (len + 6) / len;
+    const camPos = [pos[0] * k, pos[1] * k + 1, pos[2] * k];
+    setCameraTarget({ position: camPos, lookAt: pos, t: performance.now() });
+  }, [projects]);
+
+  const handleDeselect = useCallback(() => {
+    setSelectedId(null);
+    setCameraTarget({ position: [0, 6, 26], lookAt: [0, 0, 0], t: performance.now() });
+  }, []);
+
+  const applyAdjustment = useCallback((id, adj) => {
+    setProjects((prev) => prev.map(p => p.id === id ? recomputeProject(p, adj) : p));
+    setRecentChange({ id, t: performance.now() / 1000 });
+    setTimeout(() => setRecentChange(null), 3000);
+  }, []);
+
+  const applyOptimization = useCallback(() => {
+    setProjects((prev) => prev.map(p => {
+      // simulate optimization: nudge dw and dr down by some amount
+      const newAdj = {
+        dw: Math.max(0.05, p.adjustments.dw - 0.10),
+        dr: Math.max(0.05, p.adjustments.dr - 0.05),
+      };
+      return recomputeProject(p, newAdj);
+    }));
+    // pulse all
+    setRecentChange({ id: "ALL", t: performance.now() / 1000 });
+    setTimeout(() => setRecentChange(null), 3000);
+  }, []);
+
+  return (
+    <div className="w-screen h-screen overflow-hidden relative" style={{ background: "radial-gradient(circle at 50% 50%, #1E293B 0%, #0F172A 40%, #020617 100%)" }}>
+      <Sidebar
+        activeView={activeView}
+        setView={(v) => { setActiveView(v); setOpenDashFor(null); setSelectedId(null); }}
+        extras={[
+          { id: "legend", icon: Layers, label: "Arquetipos", active: legendOpen, onClick: () => setLegendOpen(o => !o) },
+          { id: "controls", icon: SlidersHorizontal, label: "Controles", active: controlsOpen, onClick: () => setControlsOpen(o => !o) },
+          { id: "chat", icon: Brain, label: "Asistente", active: !chatCollapsed, onClick: () => setChatCollapsed(c => !c) },
+        ]}
+      />
+
+      <main className="absolute inset-0 overflow-hidden">
+        {/* GRAPH VIEW */}
+        <AnimatePresence mode="wait">
+          {activeView === "graph" && (
+            <motion.div
+              key="graph"
+              animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0"
+            >
+              <Constellation
+                projects={projects}
+                selectedId={selectedId}
+                onSelect={handleSelect}
+                onDeselect={handleDeselect}
+                showConnections={showConnections}
+                recentChange={recentChange}
+                cameraTarget={cameraTarget}
+                onProjectAnchor={setNodeAnchor}
+              />
+
+              {/* title - flotante */}
+              <motion.div
+                initial={{ y: -20, opacity: 0 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="fixed top-6 left-24 z-20"
+              >
+                <div className="text-[10px] mono uppercase tracking-[0.25em]" style={{ color: "rgba(255,255,255,0.4)" }}>Constellation</div>
+                <h1 className="text-xl font-semibold mt-1" style={{ color: "rgba(255,255,255,0.95)" }}>Portafolio de Impacto · 2024</h1>
+              </motion.div>
+
+              <AnimatePresence>
+                {legendOpen && <ArchetypeLegend key="legend" open={legendOpen} onClose={() => setLegendOpen(false)} />}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {selectedId && <BackChip key="back" onClick={handleDeselect} />}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {controlsOpen && (
+                  <BottomControls
+                    key="controls"
+                    open={controlsOpen}
+                    setOpen={setControlsOpen}
+                    projects={projects}
+                    showConnections={showConnections}
+                    setShowConnections={setShowConnections}
+                    groupBy={groupBy}
+                    setGroupBy={setGroupBy}
+                    onResetCamera={handleDeselect}
+                  />
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {selectedProject && (
+                  <NodePanel
+                    key={selectedProject.id}
+                    project={selectedProject}
+                    projects={projects}
+                    anchor={nodeAnchor}
+                    onClose={handleDeselect}
+                    onJumpTo={(id) => handleSelect(id)}
+                    onOpenDashboard={() => setOpenDashFor(selectedProject.id)}
+                  />
+                )}
+              </AnimatePresence>
+            </motion.div>
+          )}
+
+          {activeView === "dashboard" && (
+            <motion.div
+              key="dashboard"
+              animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              className="absolute inset-0"
+            >
+              <PortfolioDashboard
+                projects={projects}
+                onOpenProject={(id) => setOpenDashFor(id)}
+                onBackToGraph={() => setActiveView("graph")}
+              />
+            </motion.div>
+          )}
+
+          {(activeView === "proxies" || activeView === "bench" || activeView === "optimize" || activeView === "settings") && (
+            <motion.div
+              key="placeholder"
+              animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <div className="text-center max-w-md px-8">
+                <div className="text-[10px] mono uppercase tracking-[0.25em]" style={{ color: "#5e6c87" }}>Próximamente</div>
+                <h2 className="text-2xl font-semibold mt-2">
+                  {activeView === "proxies" && "Base de proxies"}
+                  {activeView === "bench" && "Benchmarks sectoriales"}
+                  {activeView === "optimize" && "Asistente de optimización"}
+                  {activeView === "settings" && "Configuración"}
+                </h2>
+                <p className="text-sm mt-2" style={{ color: "#94A3B8" }}>
+                  Esta sección está en construcción. Vuelve a la constelación para explorar el portafolio o pregunta al asistente en el panel derecho.
+                </p>
+                <button
+                  onClick={() => setActiveView("graph")}
+                  className="mt-5 text-xs px-3 py-2 rounded-lg hover:bg-white/5 transition"
+                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+                >
+                  Volver a la constelación
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* PROJECT DASHBOARD overlay */}
+        <AnimatePresence>
+          {dashProject && (
+            <ProjectDashboard
+              key={dashProject.id}
+              project={dashProject}
+              projects={projects}
+              onBack={() => setOpenDashFor(null)}
+              onOpenProject={(id) => setOpenDashFor(id)}
+            />
+          )}
+        </AnimatePresence>
+      </main>
+
+      <ChatPanel
+        collapsed={chatCollapsed}
+        setCollapsed={setChatCollapsed}
+        projects={projects}
+        selectedId={selectedId}
+        onSelectProject={(id) => {
+          if (activeView !== "graph") setActiveView("graph");
+          setOpenDashFor(null);
+          handleSelect(id);
+        }}
+        applyAdjustment={applyAdjustment}
+        applyOptimization={applyOptimization}
+      />
+    </div>
+  );
+}
+
+const root = createRoot(document.getElementById("root"));
+root.render(<App />);
+
+</script>
+
+<script>
+  function loadAppScripts() {
+    window.installAppGlobals();
+    try {
+      const blocks = document.querySelectorAll('script[type="text/plain"][data-app-src]');
+      const sources = Array.from(blocks).map(b => b.textContent);
+      const combined = sources.join("\n;\n");
+      const transformed = Babel.transform(combined, { presets: ["react"] }).code;
+      const fn = new Function(transformed);
+      fn();
+    } catch (e) {
+      console.error("App load failed:", e);
+      document.body.innerHTML = '<pre style="color:#EF4444;padding:20px;font-family:monospace;font-size:12px;white-space:pre-wrap;">' + (e.stack || e.message) + '</pre>';
+    }
+  }
+  if (window.__libsReady) loadAppScripts();
+  else window.addEventListener("libs-ready", loadAppScripts);
+</script>
+<template id="__bundler_thumbnail" data-bg-color="#0A0E1A">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="g" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#3B82F6" stop-opacity="0.5"/>
+        <stop offset="60%" stop-color="#1E293B" stop-opacity="0.2"/>
+        <stop offset="100%" stop-color="#0A0E1A" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1200" height="800" fill="#0A0E1A"/>
+    <ellipse cx="600" cy="400" rx="380" ry="260" fill="url(#g)"/>
+    <g fill="#10B981"><circle cx="500" cy="380" r="14"/><circle cx="720" cy="350" r="11"/><circle cx="640" cy="460" r="9"/></g>
+    <g fill="#F59E0B"><circle cx="430" cy="450" r="10"/><circle cx="780" cy="430" r="8"/><circle cx="560" cy="320" r="9"/></g>
+    <g fill="#7F1D1D"><circle cx="680" cy="500" r="8"/><circle cx="470" cy="320" r="7"/></g>
+    <g stroke="#94A3B8" stroke-width="0.8" opacity="0.4">
+      <line x1="500" y1="380" x2="720" y2="350"/>
+      <line x1="500" y1="380" x2="640" y2="460"/>
+      <line x1="720" y1="350" x2="780" y2="430"/>
+      <line x1="430" y1="450" x2="640" y2="460"/>
+    </g>
+    <text x="600" y="700" text-anchor="middle" fill="#94A3B8" font-family="ui-monospace,monospace" font-size="22" letter-spacing="6">IMPACT LENS</text>
+  </svg>
+</template>
+
+</body>
+</html>
