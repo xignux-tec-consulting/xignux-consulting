@@ -3,6 +3,7 @@ import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
+import * as THREE from 'three'
 import BrainHalo from './BrainHalo'
 import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
@@ -10,10 +11,13 @@ import { CameraRig, BrainHoverCamera, NodeProjector } from './CameraRig'
 import { projectPosition } from './utils'
 
 function SceneBackground({ darkMode }) {
-  const { gl } = useThree()
+  const { gl, scene } = useThree()
   useEffect(() => {
-    gl.setClearColor(darkMode ? '#0A0E1A' : '#0d1422', 1)
-  }, [darkMode, gl])
+    const color = darkMode ? '#0A0E1A' : '#0d1422'
+    gl.setClearColor(color, 1)
+    scene.background = new THREE.Color(color)
+    scene.fog = new THREE.Fog(darkMode ? '#0a0a0f' : '#0d1422', 26, 70)
+  }, [darkMode, gl, scene])
   return null
 }
 
@@ -28,7 +32,6 @@ function SceneInner({
   return (
     <>
       <SceneBackground darkMode={darkMode} />
-      <fog attach="fog" args={[darkMode ? '#0a0a0f' : '#0d1220', 26, 70]} />
 
       <ambientLight intensity={darkMode ? 0.15 : 0.45} color={darkMode ? '#1E293B' : '#E0ECFF'} />
       <directionalLight position={[10, 10, 15]} intensity={darkMode ? 0.5 : 0.8} color="#E0E7FF" />

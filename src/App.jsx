@@ -216,6 +216,7 @@ export default function App() {
             onSelectProject={handleJumpTo}
             applyAdjustment={applyAdjustment}
             applyOptimization={applyOptimization}
+            darkMode={darkMode}
           />
         )}
       </div>
