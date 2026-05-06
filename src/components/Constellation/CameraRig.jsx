@@ -37,16 +37,46 @@ export function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
 
 export function BrainHoverCamera({ brainHovered, cameraTarget, controlsRef }) {
   const { camera } = useThree()
-  const targetPos = useRef(new THREE.Vector3(0, 1, 28))
+  const targetPos = useRef(new THREE.Vector3(0, 1, 18))
   const zeroVec = useRef(new THREE.Vector3(0, 0, 0))
   useFrame((state, delta) => {
     if (cameraTarget) return
-    targetPos.current.set(0, brainHovered ? 0 : 1, brainHovered ? 16 : 28)
+    targetPos.current.set(0, brainHovered ? 0 : 1, brainHovered ? 16 : 18)
     const lerpAmt = Math.min(1, delta * 1.2)
     camera.position.lerp(targetPos.current, lerpAmt)
     camera.lookAt(0, 0, 0)
     if (controlsRef?.current) {
       controlsRef.current.target.lerp(zeroVec.current, lerpAmt)
+      controlsRef.current.update()
+    }
+  })
+  return null
+}
+
+export function NodeZoomCamera({ selectedId, projects, positions, controlsRef }) {
+  const { camera } = useThree()
+  const nodePos = useRef(new THREE.Vector3())
+  const camDir = useRef(new THREE.Vector3())
+  const camTarget = useRef(new THREE.Vector3())
+
+  useFrame((_, delta) => {
+    if (!selectedId || !positions || !projects) return
+    const idx = projects.findIndex((p) => p.id === selectedId)
+    if (idx < 0) return
+
+    const pos = positions[idx]
+    nodePos.current.set(pos[0], pos[1], pos[2])
+
+    // Camera sits 5 units radially outward from the node (away from origin)
+    const dist = nodePos.current.length() || 0.001
+    camDir.current.copy(nodePos.current).multiplyScalar(1 / dist)
+    camTarget.current.copy(nodePos.current).addScaledVector(camDir.current, 5)
+
+    const speed = Math.min(1, delta * 1.8)
+    camera.position.lerp(camTarget.current, speed)
+
+    if (controlsRef?.current) {
+      controlsRef.current.target.lerp(nodePos.current, speed)
       controlsRef.current.update()
     }
   })

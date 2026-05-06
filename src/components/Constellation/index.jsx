@@ -6,7 +6,7 @@ import { BlendFunction, KernelSize } from 'postprocessing'
 import BrainHalo from './BrainHalo'
 import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
-import { CameraRig, BrainHoverCamera, NodeProjector } from './CameraRig'
+import { CameraRig, BrainHoverCamera, NodeProjector, NodeZoomCamera } from './CameraRig'
 import { computePositions } from './utils'
 
 function SceneInner({
@@ -42,7 +42,7 @@ function SceneInner({
       <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
       <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
 
-      <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
+      <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} selectedId={selectedId} />
 
       {/* Invisible hit-detection sphere for brain hover — 8×8 is enough for raycasting */}
       <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
@@ -88,6 +88,13 @@ function SceneInner({
         controlsRef={controlsRef}
       />
 
+      <NodeZoomCamera
+        selectedId={selectedId}
+        projects={projects}
+        positions={positions}
+        controlsRef={controlsRef}
+      />
+
       <BrainHoverCamera
         brainHovered={brainHovered}
         cameraTarget={cameraTarget}
@@ -96,10 +103,10 @@ function SceneInner({
 
       <OrbitControls
         ref={controlsRef}
-        enabled={!brainHovered}
+        enabled={!brainHovered && !selectedId}
         enableZoom
         enablePan={false}
-        autoRotate={autoRotate && !brainHovered}
+        autoRotate={autoRotate && !brainHovered && !selectedId}
         autoRotateSpeed={0.2}
         zoomSpeed={0.6}
         enableDamping

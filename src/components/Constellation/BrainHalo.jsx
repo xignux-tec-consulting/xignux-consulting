@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { getSoftParticleTexture, generateBrainPositions } from './utils'
 
-export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
+export default function BrainHalo({ count = 3000, isHovered, dispersionRef, selectedId }) {
   const groupRef = useRef()
   const pointsRef = useRef()
   const localDispersion = useRef(0)
@@ -53,7 +53,14 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
       }
       pointsRef.current.geometry.attributes.position.needsUpdate = true
       material.size = THREE.MathUtils.lerp(0.18, 0.08, eased)
-      material.opacity = THREE.MathUtils.lerp(0.85, 0.35, eased)
+    }
+
+    // Opacity updates every frame — handles selectedId dimming even when particles aren't moving
+    const targetOpacity = isHovered
+      ? THREE.MathUtils.lerp(0.85, 0.35, eased)
+      : selectedId ? 0.15 : 0.85
+    if (Math.abs(material.opacity - targetOpacity) > 0.001) {
+      material.opacity = THREE.MathUtils.lerp(material.opacity, targetOpacity, Math.min(1, delta * 2))
     }
 
     // Rotation continues always (cheap, no buffer update needed)
