@@ -21,6 +21,7 @@ export default function App() {
   const [recentChange, setRecentChange] = useState(null)
   const [cameraTarget, setCameraTarget] = useState(null)
   const [openDashFor, setOpenDashFor] = useState(null)
+  const [dashPreviousView, setDashPreviousView] = useState('graph')
   const [legendOpen, setLegendOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(true)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
@@ -86,7 +87,10 @@ export default function App() {
     setTimeout(() => setRecentChange(null), 3000)
   }, [])
 
-  const handleOpenProjectDash = useCallback((id) => setOpenDashFor(id), [])
+  const handleOpenProjectDash = useCallback((id) => {
+    setDashPreviousView(activeView)
+    setOpenDashFor(id)
+  }, [activeView])
   const handleCloseProjectDash = useCallback(() => setOpenDashFor(null), [])
 
   const sidebarExtras = activeView === 'graph' && selectedProject
@@ -137,7 +141,7 @@ export default function App() {
 
         {/* Portfolio Overview */}
         <AnimatePresence>
-          {isPortfolioView && (
+          {isPortfolioView && !isProjectDashOpen && (
             <PortfolioDashboard
               projects={projects}
               darkMode={darkMode}
@@ -157,7 +161,20 @@ export default function App() {
             <ProjectDashboard
               project={openDashProject}
               projects={projects}
-              onBack={handleCloseProjectDash}
+              darkMode={darkMode}
+              previousView={dashPreviousView}
+              onBack={() => {
+                handleCloseProjectDash()
+                setActiveView(dashPreviousView)
+              }}
+              onBackToGraph={() => {
+                handleCloseProjectDash()
+                setActiveView('graph')
+              }}
+              onBackToPortfolio={() => {
+                handleCloseProjectDash()
+                setActiveView('portfolio')
+              }}
             />
           )}
         </AnimatePresence>

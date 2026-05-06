@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Network, Filter, ArrowUpDown, ChevronDown, ChevronRight,
   TrendingUp, TrendingDown, Minus, AlertTriangle, Info,
+  Star, Gem, Sprout,
 } from 'lucide-react'
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar,
@@ -98,10 +99,10 @@ function SroiBadge({ sroi }) {
 
 /* ─── quadrant colors / icons ────────────────────────────────────── */
 const QUADRANT = {
-  ESTRELLA:    { color: '#F59E0B', icon: '⭐', label: 'Estrella',    desc: 'SROI alto + Estratégico alto · Mantener y escalar' },
-  OPORTUNIDAD: { color: '#5B9BD5', icon: '💎', label: 'Oportunidad', desc: 'SROI alto + Estratégico medio · Reposicionar' },
-  SEMILLA:     { color: '#10B981', icon: '🌱', label: 'Semilla',     desc: 'SROI bajo + Estratégico alto · Invertir en medición' },
-  REVISAR:     { color: '#EF4444', icon: '⚠',  label: 'Revisar',     desc: 'SROI bajo + Estratégico bajo · Evaluar consolidación' },
+  ESTRELLA:    { color: '#F59E0B', Icon: Star,          label: 'Estrella',    desc: 'SROI alto + Estratégico alto · Mantener y escalar' },
+  OPORTUNIDAD: { color: '#5B9BD5', Icon: Gem,           label: 'Oportunidad', desc: 'SROI alto + Estratégico medio · Reposicionar' },
+  SEMILLA:     { color: '#10B981', Icon: Sprout,        label: 'Semilla',     desc: 'SROI bajo + Estratégico alto · Invertir en medición' },
+  REVISAR:     { color: '#EF4444', Icon: AlertTriangle, label: 'Revisar',     desc: 'SROI bajo + Estratégico bajo · Evaluar consolidación' },
 }
 
 /* ─── benchmark data ─────────────────────────────────────────────── */
@@ -217,6 +218,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
     labelStyle: { color: th.textMuted, marginBottom: 4 },
     cursor: { stroke: '#2E75B6', strokeWidth: 1, strokeDasharray: '3 3' },
   }
+  const ttBar = { ...tt, cursor: { fill: 'rgba(46,117,182,0.08)' } }
 
   /* ─── render ─────────────────────────────────────────────────── */
   return (
@@ -282,9 +284,32 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <div className="w-32 h-32">
                     <ResponsiveContainer>
                       <PieChart>
-                        <Pie data={distData} dataKey="value" innerRadius={32} outerRadius={56} strokeWidth={0} paddingAngle={2}>
-                          {distData.map((d, i) => <Cell key={i} fill={d.color} />)}
+                        <Pie
+                          data={distData}
+                          dataKey="value"
+                          innerRadius={32}
+                          outerRadius={56}
+                          activeOuterRadius={62}
+                          strokeWidth={0}
+                          paddingAngle={2}
+                          style={{ cursor: 'pointer', outline: 'none' }}
+                        >
+                          {distData.map((d, i) => (
+                            <Cell key={i} fill={d.color} />
+                          ))}
                         </Pie>
+                        <Tooltip
+                          content={(props) => {
+                            if (!props.active || !props.payload?.length) return null
+                            const d = props.payload[0]
+                            return (
+                              <div style={{ background: th.tooltipBg, border: `1px solid ${th.tooltipBorder}`, borderRadius: 8, padding: '6px 10px', fontSize: 11 }}>
+                                <div style={{ color: d.payload.color, fontWeight: 600 }}>{d.name}</div>
+                                <div style={{ color: th.tooltipText }}>{d.value} proyecto{d.value !== 1 ? 's' : ''}</div>
+                              </div>
+                            )
+                          }}
+                        />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>
@@ -310,8 +335,10 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                       <CartesianGrid strokeDasharray="2 4" stroke={th.chartGrid} />
                       <XAxis dataKey="name" tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} />
                       <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} />
-                      <Tooltip {...tt} formatter={(v) => v.toFixed(2) + 'x'} />
-                      <Bar dataKey="sroi" name="SROI portafolio" radius={[4, 4, 0, 0]}>
+                      <Tooltip {...ttBar} formatter={(v) => v.toFixed(2) + 'x'} />
+                      <Bar dataKey="sroi" name="SROI portafolio" radius={[4, 4, 0, 0]}
+                        activeBar={{ stroke: 'rgba(255,255,255,0.3)', strokeWidth: 2, fillOpacity: 1 }}
+                      >
                         {archetypeBar.map((d, i) => <Cell key={i} fill={d.color} fillOpacity={0.75} />)}
                       </Bar>
                       {archetypeBar.map((d) => (
@@ -454,8 +481,8 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                       </td>
                       <td className="py-3 px-2"><SroiBadge sroi={p.sroi} /></td>
                       <td className="py-3 px-2">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: q.color + '1a', color: q.color, border: `1px solid ${q.color}33` }}>
-                          {q.icon} {q.label}
+                        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: q.color + '1a', color: q.color, border: `1px solid ${q.color}33` }}>
+                          <q.Icon className="w-3 h-3" /> {q.label}
                         </span>
                       </td>
                     </tr>
@@ -585,7 +612,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 const count = projects.filter((p) => p.quadrant === k).length
                 return (
                   <Card key={k} delay={0.05} dark={darkMode} style={{ borderColor: v.color + '33' }}>
-                    <div className="text-xl mb-1">{v.icon}</div>
+                    <v.Icon className="w-5 h-5 mb-2" style={{ color: v.color }} />
                     <div className="text-sm font-semibold" style={{ color: v.color }}>{v.label}</div>
                     <div className="text-[11px] mt-1 mb-2" style={{ color: th.textMuted }}>{v.desc}</div>
                     <div className="mono text-2xl font-semibold" style={{ color: th.textPrimary }}>{count}</div>
@@ -609,10 +636,10 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <div className="flex-1" />
                 </div>
                 {/* quadrant labels */}
-                <div className="absolute top-3 left-3 text-[10px] mono" style={{ color: '#10B981' }}>🌱 SEMILLA</div>
-                <div className="absolute top-3 right-3 text-[10px] mono text-right" style={{ color: '#F59E0B' }}>⭐ ESTRELLA</div>
-                <div className="absolute bottom-3 left-3 text-[10px] mono" style={{ color: '#EF4444' }}>⚠ REVISAR</div>
-                <div className="absolute bottom-3 right-3 text-[10px] mono text-right" style={{ color: '#5B9BD5' }}>💎 OPORTUNIDAD</div>
+                <div className="absolute top-3 left-3 flex items-center gap-1 text-[10px] mono" style={{ color: '#10B981' }}><Sprout className="w-3 h-3" /> SEMILLA</div>
+                <div className="absolute top-3 right-3 flex items-center gap-1 text-[10px] mono text-right" style={{ color: '#F59E0B' }}><Star className="w-3 h-3" /> ESTRELLA</div>
+                <div className="absolute bottom-3 left-3 flex items-center gap-1 text-[10px] mono" style={{ color: '#EF4444' }}><AlertTriangle className="w-3 h-3" /> REVISAR</div>
+                <div className="absolute bottom-3 right-3 flex items-center gap-1 text-[10px] mono text-right" style={{ color: '#5B9BD5' }}><Gem className="w-3 h-3" /> OPORTUNIDAD</div>
                 {/* axis labels */}
                 <div className="absolute bottom-0 left-1/2 -translate-x-1/2 text-[10px] pb-1" style={{ color: th.textFaint }}>← Alineación estratégica →</div>
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 -rotate-90 text-[10px]" style={{ color: th.textFaint }}>← SROI →</div>
@@ -666,8 +693,8 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     <tr key={p.id} style={{ borderBottom: `1px solid ${th.tableBorder}`, color: th.textPrimary }}>
                       <td className="py-2.5 px-2 font-medium">{p.id} · {p.name}</td>
                       <td className="py-2.5 px-2">
-                        <span className="text-[10px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: p.q.color + '1a', color: p.q.color, border: `1px solid ${p.q.color}33` }}>
-                          {p.q.icon} {p.q.label}
+                        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: p.q.color + '1a', color: p.q.color, border: `1px solid ${p.q.color}33` }}>
+                          <p.q.Icon className="w-3 h-3" /> {p.q.label}
                         </span>
                       </td>
                       <td className="py-2.5 px-2 mono text-right font-semibold" style={{ color: sroiColor(p.sroi) }}>{p.sroi.toFixed(2)}x</td>
@@ -710,8 +737,10 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     <CartesianGrid strokeDasharray="2 4" stroke={th.chartGrid} />
                     <XAxis dataKey="label" tick={{ fill: th.textSecondary, fontSize: 11 }} stroke={th.chartGrid} />
                     <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} domain={[0, 2]} />
-                    <Tooltip {...tt} formatter={(v) => v.toFixed(2) + 'x'} />
-                    <Bar dataKey="sroi" name="SROI portafolio" radius={[6, 6, 0, 0]}>
+                    <Tooltip {...ttBar} formatter={(v) => v.toFixed(2) + 'x'} />
+                    <Bar dataKey="sroi" name="SROI portafolio" radius={[6, 6, 0, 0]}
+                      activeBar={{ stroke: 'rgba(255,255,255,0.3)', strokeWidth: 2, fillOpacity: 1 }}
+                    >
                       {SCENARIOS.map((s, i) => <Cell key={i} fill={s.color} fillOpacity={0.8} />)}
                     </Bar>
                     <ReferenceLine y={1} stroke={th.textMuted} strokeDasharray="4 4" label={{ value: 'Break-even (1x)', fill: th.textMuted, fontSize: 10 }} />

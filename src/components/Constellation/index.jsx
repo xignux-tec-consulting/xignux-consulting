@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
@@ -23,7 +23,7 @@ function SceneBackground({ darkMode }) {
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
-  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
+  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy, darkMode,
 }) {
   const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
   // Pre-compute radii once — stable unless projects change
@@ -138,7 +138,7 @@ function SceneInner({
 
 export default function Constellation({
   projects, selectedId, onSelect, onDeselect,
-  showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor,
+  showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor, darkMode = true,
 }) {
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
@@ -159,14 +159,12 @@ export default function Constellation({
     return () => { ctrl.removeEventListener('start', onStart); ctrl.removeEventListener('end', onEnd) }
   }, [])
 
-  const bgColor = darkMode ? '#0A0E1A' : '#0d1422'
-
   return (
     <Canvas
       camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
       dpr={[1, 1.5]}
-      style={{ background: 'transparent' }}
+      style={{ background: darkMode ? '#0A0E1A' : '#0d1422' }}
     >
       {onProjectAnchor && (
         <NodeProjector
@@ -188,6 +186,7 @@ export default function Constellation({
         recentChange={recentChange}
         cameraTarget={cameraTarget}
         groupBy={groupBy}
+        darkMode={darkMode}
       />
     </Canvas>
   )
