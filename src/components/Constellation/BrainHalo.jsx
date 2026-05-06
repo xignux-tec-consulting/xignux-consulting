@@ -19,6 +19,19 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
     return g
   }, [positions])
 
+  const material = useMemo(() => new THREE.PointsMaterial({
+    map: getSoftParticleTexture(),
+    size: 0.18,
+    color: new THREE.Color('#3B82F6'),
+    transparent: true,
+    opacity: 0.85,
+    sizeAttenuation: true,
+    depthWrite: false,
+    alphaTest: 0.001,
+    blending: THREE.AdditiveBlending,
+    toneMapped: false,
+  }), [])
+
   useFrame((_, delta) => {
     if (!pointsRef.current) return
 
@@ -39,11 +52,8 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
         arr[i * 3 + 2] = THREE.MathUtils.lerp(targetIdle[i * 3 + 2], targetDispersed[i * 3 + 2], eased)
       }
       pointsRef.current.geometry.attributes.position.needsUpdate = true
-      const mat = pointsRef.current.material
-      if (mat) {
-        mat.size = THREE.MathUtils.lerp(0.18, 0.08, eased)
-        mat.opacity = THREE.MathUtils.lerp(0.85, 0.35, eased)
-      }
+      material.size = THREE.MathUtils.lerp(0.18, 0.08, eased)
+      material.opacity = THREE.MathUtils.lerp(0.85, 0.35, eased)
     }
 
     // Rotation continues always (cheap, no buffer update needed)
@@ -55,20 +65,7 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
 
   return (
     <group ref={groupRef}>
-      <points ref={pointsRef} geometry={geometry}>
-        <pointsMaterial
-          map={getSoftParticleTexture()}
-          size={0.18}
-          color="#3B82F6"
-          transparent
-          opacity={0.85}
-          sizeAttenuation
-          depthWrite={false}
-          alphaTest={0.001}
-          blending={THREE.AdditiveBlending}
-          toneMapped={false}
-        />
-      </points>
+      <points ref={pointsRef} geometry={geometry} material={material} />
     </group>
   )
 }

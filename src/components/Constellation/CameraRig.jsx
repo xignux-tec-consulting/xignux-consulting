@@ -8,6 +8,7 @@ export function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
   const startRef = useRef(null)
   const endRef = useRef(null)
   const startTimeRef = useRef(0)
+  const lookAtVec = useRef(new THREE.Vector3())
   const durationMs = 800
 
   useEffect(() => {
@@ -25,7 +26,7 @@ export function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
       camera.position.lerpVectors(startRef.current, endRef.current, eased)
       if (controlsRef.current && targetLookAt) {
         const tgt = controlsRef.current.target
-        tgt.lerp(new THREE.Vector3(...targetLookAt), 0.1)
+        tgt.lerp(lookAtVec.current.set(...targetLookAt), 0.1)
         controlsRef.current.update()
       }
       if (t >= 1) { startRef.current = null; endRef.current = null }
@@ -37,6 +38,7 @@ export function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
 export function BrainHoverCamera({ brainHovered, cameraTarget, controlsRef }) {
   const { camera } = useThree()
   const targetPos = useRef(new THREE.Vector3(0, 1, 28))
+  const zeroVec = useRef(new THREE.Vector3(0, 0, 0))
   useFrame((state, delta) => {
     if (cameraTarget) return
     targetPos.current.set(0, brainHovered ? 0 : 1, brainHovered ? 16 : 28)
@@ -44,7 +46,7 @@ export function BrainHoverCamera({ brainHovered, cameraTarget, controlsRef }) {
     camera.position.lerp(targetPos.current, lerpAmt)
     camera.lookAt(0, 0, 0)
     if (controlsRef?.current) {
-      controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), lerpAmt)
+      controlsRef.current.target.lerp(zeroVec.current, lerpAmt)
       controlsRef.current.update()
     }
   })
@@ -53,18 +55,19 @@ export function BrainHoverCamera({ brainHovered, cameraTarget, controlsRef }) {
 
 export function NodeProjector({ projects, selectedId, onProject }) {
   const { camera, size } = useThree()
+  const vRef = useRef(new THREE.Vector3())
+  const edgeRef = useRef(new THREE.Vector3())
   useFrame(() => {
     if (!selectedId) { onProject(null); return }
     const p = projects.find((pr) => pr.id === selectedId)
     if (!p) { onProject(null); return }
     const pos = projectPosition(p)
-    const v = new THREE.Vector3(pos[0], pos[1], pos[2])
-    v.project(camera)
-    const x = (v.x * 0.5 + 0.5) * size.width
-    const y = (-v.y * 0.5 + 0.5) * size.height
+    vRef.current.set(pos[0], pos[1], pos[2]).project(camera)
+    const x = (vRef.current.x * 0.5 + 0.5) * size.width
+    const y = (-vRef.current.y * 0.5 + 0.5) * size.height
     const r = 0.3 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.4
-    const edge = new THREE.Vector3(pos[0] + r, pos[1], pos[2]).project(camera)
-    const ex = (edge.x * 0.5 + 0.5) * size.width
+    edgeRef.current.set(pos[0] + r, pos[1], pos[2]).project(camera)
+    const ex = (edgeRef.current.x * 0.5 + 0.5) * size.width
     onProject({ x, y, edgeX: ex })
   })
   return null
