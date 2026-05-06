@@ -5,21 +5,30 @@ import * as THREE from 'three'
 import { nodeMatProps } from './utils'
 import { fmtMXN } from '../../lib/sroi'
 
-function SelectionRing({ radius }) {
+function OrbitalRing({ radius, color, opacity, speed, thickness = 0.018 }) {
   const ringRef = useRef()
   const scaleRef = useRef(0)
-  const geometry = useMemo(() => new THREE.TorusGeometry(radius * 1.8, 0.02, 8, 48), [radius])
+  const geometry = useMemo(() => new THREE.TorusGeometry(radius, thickness, 8, 64), [radius, thickness])
   const material = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.4, toneMapped: false }),
-    []
+    () => new THREE.MeshBasicMaterial({ color, transparent: true, opacity, toneMapped: false }),
+    [color, opacity]
   )
   useFrame((_, delta) => {
     if (!ringRef.current) return
-    scaleRef.current = THREE.MathUtils.lerp(scaleRef.current, 1, 0.12)
+    scaleRef.current = THREE.MathUtils.lerp(scaleRef.current, 1, 0.1)
     ringRef.current.scale.setScalar(scaleRef.current)
-    ringRef.current.rotation.z += delta * 0.4
+    ringRef.current.rotation.z += delta * speed
   })
   return <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]} geometry={geometry} material={material} />
+}
+
+function DoubleSelectionRings({ radius }) {
+  return (
+    <>
+      <OrbitalRing radius={radius * 1.8} color="#FFFFFF" opacity={0.35} speed={0.4} />
+      <OrbitalRing radius={radius * 2.3} color="#22D3EE" opacity={0.55} speed={-0.22} thickness={0.025} />
+    </>
+  )
 }
 
 const NodeMesh = memo(function NodeMesh({
@@ -36,6 +45,8 @@ const NodeMesh = memo(function NodeMesh({
     [project.id]
   )
   const { color, emi: baseEmissive } = useMemo(() => nodeMatProps(project.sroi), [project.sroi])
+  const baseColor = useMemo(() => new THREE.Color(color), [color])
+  const cyanColor = useMemo(() => new THREE.Color('#22D3EE'), [])
 
   const geometry = useMemo(() => new THREE.SphereGeometry(radius, 32, 32), [radius])
   const material = useMemo(() => new THREE.MeshPhysicalMaterial({
@@ -101,9 +112,15 @@ const NodeMesh = memo(function NodeMesh({
     const liveMul = 1 + Math.sin(t * 0.4 + idHash) * 0.12
     const stateMul = brainHovered ? 0.7 : 2.5
     const focusBoost = (hovered || selected) ? 1.5 : 1.0
+
+    // Color lerp: cyan when selected, base color otherwise
+    const colorSpeed = Math.min(1, delta * 4)
+    material.color.lerp(selected ? cyanColor : baseColor, colorSpeed)
+    material.emissive.lerp(selected ? cyanColor : baseColor, colorSpeed)
+
     material.emissiveIntensity = THREE.MathUtils.lerp(
       material.emissiveIntensity,
-      baseEmissive * stateMul * liveMul * focusBoost,
+      selected ? 1.8 : baseEmissive * stateMul * liveMul * focusBoost,
       Math.min(1, delta * 5)
     )
 
@@ -125,7 +142,7 @@ const NodeMesh = memo(function NodeMesh({
         onClick={(e) => { e.stopPropagation(); clickPulseRef.current = 1.0; onClick(project.id) }}
       />
 
-      {selected && <SelectionRing radius={radius} />}
+      {selected && <DoubleSelectionRings radius={radius} />}
 
       {(hovered || selected) && (
         <Html
