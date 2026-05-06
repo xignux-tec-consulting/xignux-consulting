@@ -160,7 +160,7 @@ export default function App() {
       {!isProjectDashOpen && (
         <Sidebar
           activeView={activeView}
-          onChangeView={setActiveView}
+          setView={setActiveView}
           legendOpen={legendOpen}
           setLegendOpen={setLegendOpen}
           controlsOpen={controlsOpen}

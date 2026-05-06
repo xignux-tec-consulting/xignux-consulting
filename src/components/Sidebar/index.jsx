@@ -5,7 +5,7 @@ import {
 
 const NAV_ITEMS = [
   { id: 'graph',     icon: Network,        label: 'Constelación' },
-  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard portafolio' },
+  { id: 'portfolio', icon: LayoutDashboard, label: 'Dashboard portafolio' },
   { id: 'proxies',   icon: Database,        label: 'Base de proxies' },
   { id: 'bench',     icon: TrendingUp,      label: 'Benchmarks' },
   { id: 'optimize',  icon: Target,          label: 'Optimización' },
