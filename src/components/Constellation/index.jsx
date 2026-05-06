@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react'
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
@@ -14,8 +14,24 @@ function SceneInner({
   showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
 }) {
   const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
+  // Pre-compute radii once — stable unless projects change
+  const radii = useMemo(
+    () => projects.map((p) => 0.3 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.4),
+    [projects]
+  )
+
   const [brainHovered, setBrainHovered] = useState(false)
+  // brainHoveredRef lets NodeMesh read the value in useFrame without triggering re-renders
+  const brainHoveredRef = useRef(false)
   const dispersionRef = useRef(0)
+
+  // Stable handlers — created once, no new references on SceneInner re-renders
+  // NodeMesh (React.memo'd) won't re-render just because SceneInner re-renders
+  const handleHover = useCallback((id) => { setHoveredId(id) }, [setHoveredId])
+  const handleUnhover = useCallback((id) => { setHoveredId((h) => (h === id ? null : h)) }, [setHoveredId])
+  const handleSelect = useCallback((id) => { onSelect(id) }, [onSelect])
+  const onBrainEnter = useCallback(() => { brainHoveredRef.current = true; setBrainHovered(true) }, [])
+  const onBrainLeave = useCallback(() => { brainHoveredRef.current = false; setBrainHovered(false) }, [])
 
   return (
     <>
@@ -27,11 +43,10 @@ function SceneInner({
       <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
 
       <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
-      <mesh
-        onPointerEnter={() => setBrainHovered(true)}
-        onPointerLeave={() => setBrainHovered(false)}
-      >
-        <sphereGeometry args={[8, 32, 32]} />
+
+      {/* Invisible hit-detection sphere for brain hover — 8×8 is enough for raycasting */}
+      <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
+        <sphereGeometry args={[8, 8, 8]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
@@ -49,15 +64,15 @@ function SceneInner({
           key={p.id}
           project={p}
           position={positions[i]}
-          radius={0.3 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.4}
+          radius={radii[i]}
           hovered={hoveredId === p.id}
           selected={selectedId === p.id}
           dimmed={!!selectedId && selectedId !== p.id}
-          brainHovered={brainHovered}
+          brainHoveredRef={brainHoveredRef}
           dispersionRef={dispersionRef}
-          onHover={() => setHoveredId(p.id)}
-          onUnhover={() => setHoveredId((h) => (h === p.id ? null : h))}
-          onClick={() => onSelect(p.id)}
+          onHover={handleHover}
+          onUnhover={handleUnhover}
+          onClick={handleSelect}
           recentChange={recentChange}
         />
       ))}
@@ -117,6 +132,7 @@ export default function Constellation({
   const controlsRef = useRef()
   const idleTimer = useRef(null)
 
+  // [] — OrbitControls ref is populated by the time this effect runs (after R3F commit)
   useEffect(() => {
     const ctrl = controlsRef.current
     if (!ctrl) return
@@ -128,7 +144,7 @@ export default function Constellation({
     ctrl.addEventListener('start', onStart)
     ctrl.addEventListener('end', onEnd)
     return () => { ctrl.removeEventListener('start', onStart); ctrl.removeEventListener('end', onEnd) }
-  }, [controlsRef.current])
+  }, [])
 
   return (
     <Canvas
