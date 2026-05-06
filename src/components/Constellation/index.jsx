@@ -11,7 +11,7 @@ import { projectPosition } from './utils'
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
-  showConnections, autoRotate, controlsRef, recentChange, cameraTarget,
+  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, darkMode,
 }) {
   const positions = useMemo(() => projects.map((p) => projectPosition(p)), [projects])
   const [brainHovered, setBrainHovered] = useState(false)
@@ -19,14 +19,14 @@ function SceneInner({
 
   return (
     <>
-      <fog attach="fog" args={['#0a0a0f', 26, 70]} />
+      <fog attach="fog" args={[darkMode ? '#0a0a0f' : '#0d1220', 26, 70]} />
 
-      <ambientLight intensity={0.15} color="#1E293B" />
-      <directionalLight position={[10, 10, 15]} intensity={0.5} color="#E0E7FF" />
-      <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
-      <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
+      <ambientLight intensity={darkMode ? 0.15 : 0.45} color={darkMode ? '#1E293B' : '#E0ECFF'} />
+      <directionalLight position={[10, 10, 15]} intensity={darkMode ? 0.5 : 0.8} color="#E0E7FF" />
+      <directionalLight position={[-10, -5, -10]} intensity={darkMode ? 0.2 : 0.3} color="#F59E0B" />
+      <pointLight position={[0, 0, 5]} intensity={darkMode ? 0.4 : 0.7} color="#FFFFFF" distance={30} />
 
-      <BrainHalo count={3000} isHovered={brainHovered} dispersionRef={dispersionRef} />
+      <BrainHalo count={3000} isHovered={brainHovered} dispersionRef={dispersionRef} darkMode={darkMode} />
       <mesh
         onPointerEnter={() => setBrainHovered(true)}
         onPointerLeave={() => setBrainHovered(false)}
@@ -35,13 +35,14 @@ function SceneInner({
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      <Stars radius={120} depth={80} count={1500} factor={2} saturation={0.1} fade speed={0.3} />
+      <Stars radius={120} depth={80} count={darkMode ? 1500 : 800} factor={2} saturation={darkMode ? 0.1 : 0.3} fade speed={0.3} />
 
       <ConnectionsLayer
         projects={projects}
         positions={positions}
         showConnections={showConnections}
         selectedId={selectedId}
+        darkMode={darkMode}
       />
 
       {projects.map((p, i) => (
@@ -110,7 +111,7 @@ function SceneInner({
 
 export default function Constellation({
   projects, selectedId, onSelect, onDeselect,
-  showConnections = true, recentChange, cameraTarget, onProjectAnchor,
+  showConnections = true, recentChange, cameraTarget, onProjectAnchor, darkMode = true,
 }) {
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
@@ -135,7 +136,7 @@ export default function Constellation({
       camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
       gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
       dpr={[1, 2]}
-      style={{ background: 'transparent' }}
+      style={{ background: darkMode ? '#0A0E1A' : '#0d1422' }}
     >
       {onProjectAnchor && (
         <NodeProjector
@@ -156,6 +157,7 @@ export default function Constellation({
         controlsRef={controlsRef}
         recentChange={recentChange}
         cameraTarget={cameraTarget}
+        darkMode={darkMode}
       />
     </Canvas>
   )

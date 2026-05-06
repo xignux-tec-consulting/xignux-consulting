@@ -131,6 +131,7 @@ export default function App() {
             onSelect={handleSelect}
             onDeselect={handleDeselect}
             onResetCamera={(fn) => { resetCameraRef.current = fn }}
+            darkMode={darkMode}
           />
         </div>
 

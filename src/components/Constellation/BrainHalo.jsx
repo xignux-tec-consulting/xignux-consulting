@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { getSoftParticleTexture, generateBrainPositions } from './utils'
 
-export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
+export default function BrainHalo({ count = 3000, isHovered, dispersionRef, darkMode = true }) {
   const groupRef = useRef()
   const pointsRef = useRef()
   const localDispersion = useRef(0)
@@ -54,9 +54,9 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
         <pointsMaterial
           map={getSoftParticleTexture()}
           size={0.18}
-          color="#3B82F6"
+          color={darkMode ? '#3B82F6' : '#60A5FA'}
           transparent
-          opacity={0.85}
+          opacity={darkMode ? 0.85 : 1.0}
           sizeAttenuation
           depthWrite={false}
           alphaTest={0.001}
