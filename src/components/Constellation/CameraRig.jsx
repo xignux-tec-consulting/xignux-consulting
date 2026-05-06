@@ -58,6 +58,9 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
   const nodePos = useRef(new THREE.Vector3())
   const camDir = useRef(new THREE.Vector3())
   const camTarget = useRef(new THREE.Vector3())
+  const rightVec = useRef(new THREE.Vector3())
+  const upVec = useRef(new THREE.Vector3(0, 1, 0))
+  const lookAtTarget = useRef(new THREE.Vector3())
 
   useFrame((_, delta) => {
     if (!selectedId || !positions || !projects) return
@@ -74,8 +77,12 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
 
     const speed = Math.min(1, delta * 1.8)
     camera.position.lerp(camTarget.current, speed)
-    // Directly orient camera — no controls.update() which would override the lerp
-    camera.lookAt(nodePos.current)
+
+    // Offset lookAt right by 1.5 units so node appears in the visible area center
+    // (compensates for the ~420px right panel). right = -normalize(camDir × worldUp)
+    rightVec.current.crossVectors(camDir.current, upVec.current).normalize().negate()
+    lookAtTarget.current.copy(nodePos.current).addScaledVector(rightVec.current, 1.5)
+    camera.lookAt(lookAtTarget.current)
 
     // Keep target in sync for when OrbitControls re-enables on deselect
     if (controlsRef?.current) {
