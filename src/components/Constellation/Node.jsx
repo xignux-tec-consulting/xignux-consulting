@@ -128,7 +128,13 @@ const NodeMesh = memo(function NodeMesh({
       {selected && <SelectionRing radius={radius} />}
 
       {(hovered || selected) && (
-        <Html center distanceFactor={12} zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
+        <Html
+          center
+          position={[0, radius + 0.9, 0]}
+          distanceFactor={12}
+          zIndexRange={[100, 0]}
+          style={{ pointerEvents: 'none' }}
+        >
           <div className="node-tooltip">
             <div className="node-tooltip-name">{project.name}</div>
             <div className="node-tooltip-meta">
@@ -136,6 +142,7 @@ const NodeMesh = memo(function NodeMesh({
               <span style={{ opacity: 0.5 }}>·</span>
               <span className="mono">{fmtMXN(project.investment)}</span>
             </div>
+            <div className="node-tooltip-arrow" />
           </div>
         </Html>
       )}
