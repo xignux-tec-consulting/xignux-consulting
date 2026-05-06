@@ -42,7 +42,7 @@ function SceneInner({
       <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
       <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
 
-      <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} selectedId={selectedId} />
+      <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
 
       {/* Invisible hit-detection sphere for brain hover — 8×8 is enough for raycasting */}
       <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
