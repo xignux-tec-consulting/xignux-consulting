@@ -25,6 +25,7 @@ export default function App() {
   const [controlsOpen, setControlsOpen] = useState(true)
 
   const resetCameraRef = useRef(null)
+  const transitionLockRef = useRef(false)
 
   const selectedProject = projects.find((p) => p.id === selectedId) || null
   const openDashProject = projects.find((p) => p.id === openDashFor) || null
@@ -40,6 +41,23 @@ export default function App() {
     setNodeAnchor(null)
     setCameraTarget(null)
   }, [])
+
+  const handleGroupByChange = useCallback((newMode) => {
+    if (newMode === groupBy) return
+    if (transitionLockRef.current) return
+    transitionLockRef.current = true
+
+    if (selectedId) {
+      handleDeselect()
+      setTimeout(() => {
+        setGroupBy(newMode)
+        setTimeout(() => { transitionLockRef.current = false }, 1500)
+      }, 350)
+    } else {
+      setGroupBy(newMode)
+      setTimeout(() => { transitionLockRef.current = false }, 1500)
+    }
+  }, [groupBy, selectedId, handleDeselect])
 
   const handleJumpTo = useCallback((id) => {
     setSelectedId(id)
@@ -186,7 +204,7 @@ export default function App() {
             showConnections={showConnections}
             setShowConnections={setShowConnections}
             groupBy={groupBy}
-            setGroupBy={setGroupBy}
+            setGroupBy={handleGroupByChange}
             onResetCamera={() => resetCameraRef.current?.()}
           />
         )}
