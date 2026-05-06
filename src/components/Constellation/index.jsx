@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
@@ -8,6 +8,14 @@ import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
 import { CameraRig, BrainHoverCamera, NodeProjector } from './CameraRig'
 import { projectPosition } from './utils'
+
+function SceneBackground({ darkMode }) {
+  const { gl } = useThree()
+  useEffect(() => {
+    gl.setClearColor(darkMode ? '#0A0E1A' : '#0d1422', 1)
+  }, [darkMode, gl])
+  return null
+}
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
@@ -19,6 +27,7 @@ function SceneInner({
 
   return (
     <>
+      <SceneBackground darkMode={darkMode} />
       <fog attach="fog" args={[darkMode ? '#0a0a0f' : '#0d1220', 26, 70]} />
 
       <ambientLight intensity={darkMode ? 0.15 : 0.45} color={darkMode ? '#1E293B' : '#E0ECFF'} />
@@ -131,12 +140,14 @@ export default function Constellation({
     return () => { ctrl.removeEventListener('start', onStart); ctrl.removeEventListener('end', onEnd) }
   }, [controlsRef.current])
 
+  const bgColor = darkMode ? '#0A0E1A' : '#0d1422'
+
   return (
     <Canvas
       camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
-      gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
+      gl={{ antialias: true, powerPreference: 'high-performance', alpha: false, clearColor: bgColor }}
       dpr={[1, 2]}
-      style={{ background: darkMode ? '#0A0E1A' : '#0d1422' }}
+      style={{ background: bgColor, transition: 'background 0.3s' }}
     >
       {onProjectAnchor && (
         <NodeProjector
