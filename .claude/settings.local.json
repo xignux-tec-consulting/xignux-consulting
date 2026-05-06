@@ -12,7 +12,12 @@
       "Bash(Start-Sleep 4)",
       "Bash(Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing -TimeoutSec 5)",
       "Bash(Select-Object -ExpandProperty StatusCode)",
-      "PowerShell(Set-Location \"c:\\\\Users\\\\emizg\\\\GithHub\\\\xignux-consulting\"; $proc = Start-Process -NoNewWindow -PassThru -FilePath \"npm\" -ArgumentList \"run\",\"dev\"; Start-Sleep 5; try { $r = Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing -TimeoutSec 5; \"HTTP $\\($r.StatusCode\\)\" } catch { \"Error: $_\" }; Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue)"
+      "PowerShell(Set-Location \"c:\\\\Users\\\\emizg\\\\GithHub\\\\xignux-consulting\"; $proc = Start-Process -NoNewWindow -PassThru -FilePath \"npm\" -ArgumentList \"run\",\"dev\"; Start-Sleep 5; try { $r = Invoke-WebRequest -Uri \"http://localhost:5173\" -UseBasicParsing -TimeoutSec 5; \"HTTP $\\($r.StatusCode\\)\" } catch { \"Error: $_\" }; Stop-Process -Id $proc.Id -Force -ErrorAction SilentlyContinue)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'fix\\(controls\\): centra barra inferior con FM x transform *)",
+      "Bash(git commit -m 'feat\\(constellation\\): agrupacion funcional arquetipo/sroi/inversion con lerp *)",
+      "Bash(git push *)",
+      "Bash(git commit *)"
     ]
   }
 }
