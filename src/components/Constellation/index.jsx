@@ -7,13 +7,13 @@ import BrainHalo from './BrainHalo'
 import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
 import { CameraRig, BrainHoverCamera, NodeProjector } from './CameraRig'
-import { projectPosition } from './utils'
+import { computePositions } from './utils'
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
-  showConnections, autoRotate, controlsRef, recentChange, cameraTarget,
+  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
 }) {
-  const positions = useMemo(() => projects.map((p) => projectPosition(p)), [projects])
+  const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
   const [brainHovered, setBrainHovered] = useState(false)
   const dispersionRef = useRef(0)
 
@@ -26,7 +26,7 @@ function SceneInner({
       <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
       <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
 
-      <BrainHalo count={3000} isHovered={brainHovered} dispersionRef={dispersionRef} />
+      <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
       <mesh
         onPointerEnter={() => setBrainHovered(true)}
         onPointerLeave={() => setBrainHovered(false)}
@@ -35,7 +35,7 @@ function SceneInner({
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      <Stars radius={120} depth={80} count={1500} factor={2} saturation={0.1} fade speed={0.3} />
+      <Stars radius={120} depth={80} count={700} factor={2} saturation={0.1} fade speed={0.3} />
 
       <ConnectionsLayer
         projects={projects}
@@ -93,16 +93,16 @@ function SceneInner({
         maxDistance={50}
       />
 
-      <EffectComposer multisampling={4}>
+      <EffectComposer multisampling={0}>
         <Bloom
-          intensity={0.7}
+          intensity={0.65}
           luminanceThreshold={0.25}
           luminanceSmoothing={0.7}
-          kernelSize={KernelSize.MEDIUM}
+          kernelSize={KernelSize.SMALL}
           mipmapBlur
         />
         <Vignette offset={0.3} darkness={0.55} eskil={false} blendFunction={BlendFunction.NORMAL} />
-        <Noise opacity={0.025} blendFunction={BlendFunction.OVERLAY} />
+        <Noise opacity={0.02} blendFunction={BlendFunction.OVERLAY} />
       </EffectComposer>
     </>
   )
@@ -110,7 +110,7 @@ function SceneInner({
 
 export default function Constellation({
   projects, selectedId, onSelect, onDeselect,
-  showConnections = true, recentChange, cameraTarget, onProjectAnchor,
+  showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor,
 }) {
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
@@ -133,8 +133,8 @@ export default function Constellation({
   return (
     <Canvas
       camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
-      gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
-      dpr={[1, 2]}
+      gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
+      dpr={[1, 1.5]}
       style={{ background: 'transparent' }}
     >
       {onProjectAnchor && (
@@ -156,6 +156,7 @@ export default function Constellation({
         controlsRef={controlsRef}
         recentChange={recentChange}
         cameraTarget={cameraTarget}
+        groupBy={groupBy}
       />
     </Canvas>
   )

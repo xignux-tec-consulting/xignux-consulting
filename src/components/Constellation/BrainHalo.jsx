@@ -19,29 +19,34 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
     return g
   }, [positions])
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!pointsRef.current) return
+
     const target = isHovered ? 1 : 0
-    const speed = isHovered ? delta * 1.0 : delta * 1.2
-    localDispersion.current += (target - localDispersion.current) * Math.min(1, speed)
+    const prevDisp = localDispersion.current
+    localDispersion.current += (target - localDispersion.current) * Math.min(1, delta * (isHovered ? 1.0 : 1.2))
     const t = localDispersion.current
     const eased = 1 - Math.pow(1 - t, 3)
     if (dispersionRef) dispersionRef.current = eased
 
-    const arr = pointsRef.current.geometry.attributes.position.array
-    for (let i = 0; i < arr.length / 3; i++) {
-      arr[i * 3]     = THREE.MathUtils.lerp(targetIdle[i * 3],     targetDispersed[i * 3],     eased)
-      arr[i * 3 + 1] = THREE.MathUtils.lerp(targetIdle[i * 3 + 1], targetDispersed[i * 3 + 1], eased)
-      arr[i * 3 + 2] = THREE.MathUtils.lerp(targetIdle[i * 3 + 2], targetDispersed[i * 3 + 2], eased)
+    // Only push to GPU when dispersion is actually moving
+    const isMoving = Math.abs(t - prevDisp) > 0.0003
+    if (isMoving) {
+      const arr = pointsRef.current.geometry.attributes.position.array
+      for (let i = 0; i < count; i++) {
+        arr[i * 3]     = THREE.MathUtils.lerp(targetIdle[i * 3],     targetDispersed[i * 3],     eased)
+        arr[i * 3 + 1] = THREE.MathUtils.lerp(targetIdle[i * 3 + 1], targetDispersed[i * 3 + 1], eased)
+        arr[i * 3 + 2] = THREE.MathUtils.lerp(targetIdle[i * 3 + 2], targetDispersed[i * 3 + 2], eased)
+      }
+      pointsRef.current.geometry.attributes.position.needsUpdate = true
+      const mat = pointsRef.current.material
+      if (mat) {
+        mat.size = THREE.MathUtils.lerp(0.18, 0.08, eased)
+        mat.opacity = THREE.MathUtils.lerp(0.85, 0.35, eased)
+      }
     }
-    pointsRef.current.geometry.attributes.position.needsUpdate = true
 
-    const mat = pointsRef.current.material
-    if (mat) {
-      mat.size = THREE.MathUtils.lerp(0.18, 0.08, eased)
-      mat.opacity = THREE.MathUtils.lerp(0.85, 0.35, eased)
-    }
-
+    // Rotation continues always (cheap, no buffer update needed)
     if (groupRef.current) {
       if (groupRef.current.rotation.y === 0) groupRef.current.rotation.y = -0.3
       groupRef.current.rotation.y += delta * 0.05 * (1 - eased)
