@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Network, LayoutList } from 'lucide-react'
 import Constellation from './components/Constellation'
 import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
@@ -179,6 +180,49 @@ export default function App() {
           <BackChip onClick={handleDeselect} />
         )}
       </AnimatePresence>
+
+      {/* Mode toggle — top center, always visible except inside project drill-down */}
+      {!isProjectDashOpen && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+          <div
+            className="flex items-center gap-0.5 p-1 rounded-full"
+            style={{
+              background: 'rgba(10,14,26,0.82)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              boxShadow: '0 4px 24px -8px rgba(0,0,0,0.6)',
+            }}
+          >
+            {[
+              { id: 'graph',     label: 'Explorar', Icon: Network    },
+              { id: 'portfolio', label: 'Decidir',  Icon: LayoutList },
+            ].map(({ id, label, Icon }) => {
+              const active = activeView === id
+              return (
+                <motion.button
+                  key={id}
+                  onClick={() => setActiveView(id)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors relative"
+                  style={{ color: active ? '#fff' : 'rgba(255,255,255,0.45)', position: 'relative' }}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  {active && (
+                    <motion.div
+                      layoutId="view-pill"
+                      className="absolute inset-0 rounded-full"
+                      style={{ background: 'rgba(46,117,182,0.55)', border: '1px solid rgba(46,117,182,0.5)' }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  <Icon className="w-3.5 h-3.5 relative z-10" />
+                  <span className="relative z-10">{label}</span>
+                </motion.button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Sidebar */}
       {!isProjectDashOpen && (

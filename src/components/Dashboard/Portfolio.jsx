@@ -223,7 +223,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
   /* ─── render ─────────────────────────────────────────────────── */
   return (
     <div className="absolute inset-0 overflow-y-auto" style={{ background: th.pageBg, transition: 'background 0.3s' }}>
-      <div className="max-w-[1440px] mx-auto px-8 py-8">
+      <div className="max-w-[1440px] mx-auto px-8 pt-16 pb-8">
 
         {/* Header */}
         <motion.header {...cardEntry} transition={{ duration: 0.4 }} className="flex items-end justify-between mb-6">
@@ -238,13 +238,9 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               <span className="mono font-semibold" style={{ color: sroiColor(tot.sroi) }}>{tot.sroi.toFixed(2)}x</span>
             </p>
           </div>
-          <button
-            onClick={onBackToGraph}
-            className="text-xs px-3 py-2 rounded-xl flex items-center gap-2 transition"
-            style={{ background: 'rgba(46,117,182,0.12)', border: '1px solid rgba(46,117,182,0.3)', color: '#5B9BD5' }}
-          >
-            <Network className="w-3.5 h-3.5" /> Volver al grafo
-          </button>
+          <div className="text-xs mono px-3 py-1.5 rounded-xl" style={{ background: 'rgba(46,117,182,0.08)', border: '1px solid rgba(46,117,182,0.2)', color: '#5B9BD5' }}>
+            Modo Decidir
+          </div>
         </motion.header>
 
         {/* Tab nav */}
@@ -424,15 +420,15 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               <thead>
                 <tr style={{ color: th.textMuted, borderBottom: `1px solid ${th.tableBorder}` }}>
                   {[
-                    { k: 'id',         l: 'ID'          },
-                    { k: 'name',       l: 'Iniciativa'  },
-                    { k: 'archetype',  l: 'Arq.'        },
-                    { k: 'investment', l: 'Inversión'   },
-                    { k: 'vBruto',     l: 'Valor bruto' },
-                    { k: 'vAjustado',  l: 'Ajustado'   },
-                    { k: 'sroi',       l: 'SROI'        },
-                    { k: 'category',   l: 'Cat.'        },
-                    { k: null,         l: 'Acción'      },
+                    { k: 'id',                   l: 'ID'            },
+                    { k: 'name',                 l: 'Iniciativa'    },
+                    { k: 'archetype',            l: 'Arq.'          },
+                    { k: 'investment',           l: 'Inversión'     },
+                    { k: 'vAjustado',            l: 'Ajustado'      },
+                    { k: 'sroi',                 l: 'SROI'          },
+                    { k: 'direct_beneficiaries', l: 'Beneficiarios' },
+                    { k: 'category',             l: 'Categoría'     },
+                    { k: null,                   l: 'Decisión'      },
                   ].map((h) => (
                     <th
                       key={h.k || h.l}
@@ -447,9 +443,13 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 </tr>
               </thead>
               <tbody>
-                {sortedProjects.map((p, idx) => {
+                {sortedProjects.map((p) => {
                   const arch = ARCHETYPES[p.archetype]
-                  const q = QUADRANT[p.quadrant] || QUADRANT.REVISAR
+                  const decision = p.category === 'ALTO'
+                    ? { label: 'Escalar',    color: '#10B981' }
+                    : p.category === 'MEDIO'
+                    ? { label: 'Mantener',   color: '#F59E0B' }
+                    : { label: 'Reevaluar',  color: '#EF4444' }
                   return (
                     <tr
                       key={p.id}
@@ -460,29 +460,32 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                       onMouseLeave={(e) => (e.currentTarget.style.background = '')}
                     >
                       <td className="py-3 px-2 mono text-[11px]" style={{ color: th.textFaint }}>{p.id}</td>
-                      <td className="py-3 px-2 font-medium group-hover:text-[#5B9BD5] transition max-w-[200px]" style={{ color: th.textPrimary }}>
+                      <td className="py-3 px-2 font-medium group-hover:text-[#5B9BD5] transition max-w-[180px]" style={{ color: th.textPrimary }}>
                         <span className="truncate block">{p.name}</span>
                       </td>
                       <td className="py-3 px-2">
                         <span className="mono text-[10px] px-1.5 py-0.5 rounded-md" style={{ background: arch.color + '22', color: arch.color }}>
-                          {p.archetype}
+                          {p.archetype} · {arch.name.split(' ')[0]}
                         </span>
                       </td>
                       <td className="py-3 px-2 mono" style={{ color: th.textPrimary }}>{fmtMXN(p.investment)}</td>
-                      <td className="py-3 px-2 mono text-[11px]" style={{ color: th.textMuted }}>{fmtMXN(p.vBruto)}</td>
                       <td className="py-3 px-2 mono font-semibold" style={{ color: th.textPrimary }}>{fmtMXN(p.vAjustado)}</td>
                       <td className="py-3 px-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-16 h-1.5 rounded-full overflow-hidden" style={{ background: th.trackBg }}>
+                          <div className="w-14 h-1.5 rounded-full overflow-hidden" style={{ background: th.trackBg }}>
                             <div className="h-full rounded-full" style={{ width: `${Math.min(100, (p.sroi / 3.5) * 100)}%`, background: sroiColor(p.sroi) }} />
                           </div>
                           <span className="mono font-semibold text-[11px]" style={{ color: sroiColor(p.sroi) }}>{p.sroi.toFixed(2)}x</span>
                         </div>
                       </td>
+                      <td className="py-3 px-2 mono text-[11px]" style={{ color: th.textPrimary }}>
+                        {p.direct_beneficiaries.toLocaleString('es-MX')}
+                      </td>
                       <td className="py-3 px-2"><SroiBadge sroi={p.sroi} /></td>
                       <td className="py-3 px-2">
-                        <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md font-medium" style={{ background: q.color + '1a', color: q.color, border: `1px solid ${q.color}33` }}>
-                          <q.Icon className="w-3 h-3" /> {q.label}
+                        <span className="inline-flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-md font-semibold" style={{ background: decision.color + '18', color: decision.color, border: `1px solid ${decision.color}44` }}>
+                          <span className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: decision.color }} />
+                          {decision.label}
                         </span>
                       </td>
                     </tr>
@@ -491,18 +494,26 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               </tbody>
             </table>
             <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${th.tableBorder}` }}>
-              <div className="grid grid-cols-3 gap-4 text-[11px]" style={{ color: th.textMuted }}>
+              <div className="grid grid-cols-4 gap-4 text-[11px]" style={{ color: th.textMuted }}>
                 <div>
                   <span className="font-semibold" style={{ color: th.textSecondary }}>Inversión total: </span>
                   {fmtMXNFull(sortedProjects.reduce((a, p) => a + p.investment, 0))}
                 </div>
                 <div>
-                  <span className="font-semibold" style={{ color: th.textSecondary }}>Valor bruto total: </span>
-                  {fmtMXN(sortedProjects.reduce((a, p) => a + p.vBruto, 0))}
+                  <span className="font-semibold" style={{ color: th.textSecondary }}>Valor ajustado: </span>
+                  {fmtMXN(sortedProjects.reduce((a, p) => a + p.vAjustado, 0))}
                 </div>
                 <div>
-                  <span className="font-semibold" style={{ color: th.textSecondary }}>Valor ajustado total: </span>
-                  {fmtMXN(sortedProjects.reduce((a, p) => a + p.vAjustado, 0))}
+                  <span className="font-semibold" style={{ color: th.textSecondary }}>Beneficiarios: </span>
+                  {sortedProjects.reduce((a, p) => a + p.direct_beneficiaries, 0).toLocaleString('es-MX')}
+                </div>
+                <div className="flex gap-3">
+                  {[{ l: 'Escalar', c: '#10B981' }, { l: 'Mantener', c: '#F59E0B' }, { l: 'Reevaluar', c: '#EF4444' }].map(({ l, c }) => (
+                    <span key={l} className="flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full" style={{ background: c }} />
+                      <span style={{ color: c }}>{l}</span>
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
