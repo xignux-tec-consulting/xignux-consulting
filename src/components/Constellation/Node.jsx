@@ -182,28 +182,29 @@ const NodeMesh = memo(function NodeMesh({
         </Html>
       )}
 
-      <Html
-        center
-        position={[0, -(radius + 0.55), 0]}
-        distanceFactor={12}
-        zIndexRange={[50, 0]}
-        style={{ pointerEvents: 'none' }}
-      >
-        <div style={{
-          color: 'rgba(255,255,255,0.82)',
-          fontSize: '10px',
-          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
-          fontWeight: 500,
-          whiteSpace: 'nowrap',
-          letterSpacing: '-0.01em',
-          textShadow: '0 1px 6px rgba(0,0,0,0.98)',
-          opacity: (brainHovered && !dimmed && !selected) ? 1 : 0,
-          transform: (brainHovered && !dimmed && !selected) ? 'translateY(0px)' : 'translateY(5px)',
-          transition: 'opacity 0.35s ease, transform 0.35s ease',
-        }}>
-          {project.name.length > 18 ? project.name.slice(0, 17) + '…' : project.name}
-        </div>
-      </Html>
+      {brainHovered && !dimmed && !selected && (
+        <Html
+          center
+          position={[0, -(radius + 0.55), 0]}
+          distanceFactor={12}
+          zIndexRange={[50, 0]}
+          style={{ pointerEvents: 'none' }}
+        >
+          <div style={{
+            color: 'rgba(255,255,255,0.82)',
+            fontSize: '10px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+            letterSpacing: '-0.01em',
+            textShadow: '0 1px 6px rgba(0,0,0,0.98)',
+            pointerEvents: 'none',
+            animation: 'nodeLabelFadeIn 0.35s ease forwards',
+          }}>
+            {project.name.length > 18 ? project.name.slice(0, 17) + '…' : project.name}
+          </div>
+        </Html>
+      )}
     </group>
   )
 })

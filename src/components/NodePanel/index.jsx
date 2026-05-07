@@ -38,7 +38,7 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
   }
 
   const arch = ARCHETYPES[project.archetype]
-  const benchmark = arch.benchmark
+  const benchmark = arch.benchmarkMid
   const diag =
     project.sroi >= benchmark * 0.85 && project.sroi <= benchmark * 1.4
       ? { label: 'EN RANGO', color: '#10B981' }
