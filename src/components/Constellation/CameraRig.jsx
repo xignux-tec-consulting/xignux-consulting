@@ -36,18 +36,59 @@ export function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
 }
 
 export function BrainHoverCamera({ brainHovered, cameraTarget, controlsRef }) {
-  const { camera } = useThree()
-  const targetPos = useRef(new THREE.Vector3(0, 1, 28))
   const zeroVec = useRef(new THREE.Vector3(0, 0, 0))
-  useFrame((state, delta) => {
-    if (cameraTarget) return
-    targetPos.current.set(0, brainHovered ? 0 : 1, brainHovered ? 16 : 28)
-    const lerpAmt = Math.min(1, delta * 1.2)
-    camera.position.lerp(targetPos.current, lerpAmt)
-    camera.lookAt(0, 0, 0)
+  useFrame((_, delta) => {
+    // When brain hovered: OrbitControls takes full control — no animation here to avoid conflict
+    if (brainHovered || cameraTarget) return
+    // When idle: gently re-center the orbit target toward origin (doesn't touch camera position)
     if (controlsRef?.current) {
-      controlsRef.current.target.lerp(zeroVec.current, lerpAmt)
-      controlsRef.current.update()
+      controlsRef.current.target.lerp(zeroVec.current, Math.min(1, delta * 0.25))
+    }
+  })
+  return null
+}
+
+const PANEL_WIDTH_PX = 420
+const NODE_CAM_DIST = 5
+
+export function NodeZoomCamera({ selectedId, projects, positions, controlsRef }) {
+  const { camera, size } = useThree()
+  const nodePos = useRef(new THREE.Vector3())
+  const camDir = useRef(new THREE.Vector3())
+  const camTarget = useRef(new THREE.Vector3())
+  const rightVec = useRef(new THREE.Vector3())
+  const upVec = useRef(new THREE.Vector3(0, 1, 0))
+  const lookAtTarget = useRef(new THREE.Vector3())
+
+  useFrame((_, delta) => {
+    if (!selectedId || !positions || !projects) return
+    const idx = projects.findIndex((p) => p.id === selectedId)
+    if (idx < 0) return
+
+    const pos = positions[idx]
+    nodePos.current.set(pos[0], pos[1], pos[2])
+
+    // Camera sits 5 units radially outward from the node (away from origin)
+    const dist = nodePos.current.length() || 0.001
+    camDir.current.copy(nodePos.current).multiplyScalar(1 / dist)
+    camTarget.current.copy(nodePos.current).addScaledVector(camDir.current, NODE_CAM_DIST)
+
+    const speed = Math.min(1, delta * 1.8)
+    camera.position.lerp(camTarget.current, speed)
+
+    // Shift lookAt right so node appears centered in the visible area (excluding right panel).
+    // worldWidth at node depth = 2 * tan(fov/2) * distance
+    const fovRad = (camera.fov * Math.PI) / 180
+    const worldWidth = 2 * Math.tan(fovRad / 2) * NODE_CAM_DIST
+    const panelOffsetWorld = (PANEL_WIDTH_PX / 2 / size.width) * worldWidth
+    // Camera right = -normalize(camDir × worldUp)
+    rightVec.current.crossVectors(camDir.current, upVec.current).normalize().negate()
+    lookAtTarget.current.copy(nodePos.current).addScaledVector(rightVec.current, panelOffsetWorld)
+    camera.lookAt(lookAtTarget.current)
+
+    // Keep target in sync for when OrbitControls re-enables on deselect
+    if (controlsRef?.current) {
+      controlsRef.current.target.copy(nodePos.current)
     }
   })
   return null

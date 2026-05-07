@@ -21,23 +21,11 @@ export default function App() {
   const [recentChange, setRecentChange] = useState(null)
   const [cameraTarget, setCameraTarget] = useState(null)
   const [openDashFor, setOpenDashFor] = useState(null)
-  const [dashPreviousView, setDashPreviousView] = useState('graph')
   const [legendOpen, setLegendOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(true)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [darkMode, setDarkMode] = useState(true)
 
   const resetCameraRef = useRef(null)
-
-  // Apply theme class to root element
-  useEffect(() => {
-    const root = document.documentElement
-    if (darkMode) {
-      root.classList.remove('light')
-    } else {
-      root.classList.add('light')
-    }
-  }, [darkMode])
+  const transitionLockRef = useRef(false)
 
   const selectedProject = projects.find((p) => p.id === selectedId) || null
   const openDashProject = projects.find((p) => p.id === openDashFor) || null
@@ -54,6 +42,29 @@ export default function App() {
     setCameraTarget(null)
   }, [])
 
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') handleDeselect() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [handleDeselect])
+
+  const handleGroupByChange = useCallback((newMode) => {
+    if (newMode === groupBy) return
+    if (transitionLockRef.current) return
+    transitionLockRef.current = true
+
+    if (selectedId) {
+      handleDeselect()
+      setTimeout(() => {
+        setGroupBy(newMode)
+        setTimeout(() => { transitionLockRef.current = false }, 1500)
+      }, 350)
+    } else {
+      setGroupBy(newMode)
+      setTimeout(() => { transitionLockRef.current = false }, 1500)
+    }
+  }, [groupBy, selectedId, handleDeselect])
+
   const handleJumpTo = useCallback((id) => {
     setSelectedId(id)
     setNodeAnchor(null)
@@ -64,7 +75,8 @@ export default function App() {
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id !== id) return p
-        return recomputeProject(p, adj)
+        const updated = recomputeProject(p, adj)
+        return updated
       })
     )
     setRecentChange(id)
@@ -88,155 +100,134 @@ export default function App() {
   }, [])
 
   const handleOpenProjectDash = useCallback((id) => {
-    setDashPreviousView(activeView)
     setOpenDashFor(id)
-  }, [activeView])
-  const handleCloseProjectDash = useCallback(() => setOpenDashFor(null), [])
+  }, [])
+
+  const handleCloseProjectDash = useCallback(() => {
+    setOpenDashFor(null)
+  }, [])
 
   const sidebarExtras = activeView === 'graph' && selectedProject
-    ? [{ id: 'dash-project', icon: 'dashboard', label: 'Dashboard proyecto', onClick: () => handleOpenProjectDash(selectedId) }]
+    ? [{ icon: 'dashboard', label: 'Dashboard', onClick: () => handleOpenProjectDash(selectedId) }]
     : []
 
   const isPortfolioView = activeView === 'portfolio'
   const isProjectDashOpen = !!openDashProject
 
   return (
-    <div
-      className="w-screen h-screen overflow-hidden flex"
-      style={{ background: darkMode ? '#0A0E1A' : '#F0F4FA' }}
-    >
-      {/* Sidebar — ocupa su propio espacio en el flex row */}
+    <div className="w-screen h-screen overflow-hidden relative" style={{ background: '#0A0E1A' }}>
+      {/* 3D Constellation (always mounted, hidden behind overlays) */}
+      <div
+        className="absolute inset-0"
+        style={{ visibility: isPortfolioView ? 'hidden' : 'visible' }}
+      >
+        <Constellation
+          projects={projects}
+          selectedId={selectedId}
+          recentChange={recentChange}
+          showConnections={showConnections}
+          groupBy={groupBy}
+          onSelect={handleSelect}
+          onDeselect={handleDeselect}
+          onResetCamera={(fn) => { resetCameraRef.current = fn }}
+        />
+      </div>
+
+      {/* Portfolio Overview */}
+      <AnimatePresence>
+        {isPortfolioView && (
+          <PortfolioDashboard
+            projects={projects}
+            onOpenProject={(id) => {
+              setActiveView('graph')
+              handleSelect(id)
+              handleOpenProjectDash(id)
+            }}
+            onBackToGraph={() => setActiveView('graph')}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Project Drill-down */}
+      <AnimatePresence>
+        {isProjectDashOpen && (
+          <ProjectDashboard
+            project={openDashProject}
+            projects={projects}
+            onBack={handleCloseProjectDash}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Node detail panel (shown in graph view when a node is selected) */}
+      <AnimatePresence>
+        {!isPortfolioView && !isProjectDashOpen && selectedProject && (
+          <NodePanel
+            project={selectedProject}
+            projects={projects}
+            anchor={nodeAnchor}
+            onClose={handleDeselect}
+            onJumpTo={handleJumpTo}
+            onOpenDashboard={() => handleOpenProjectDash(selectedId)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Back chip (graph view when node selected) */}
+      <AnimatePresence>
+        {!isPortfolioView && !isProjectDashOpen && selectedProject && (
+          <BackChip onClick={handleDeselect} />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
       {!isProjectDashOpen && (
         <Sidebar
           activeView={activeView}
-          setView={setActiveView}
+          onChangeView={setActiveView}
+          legendOpen={legendOpen}
+          setLegendOpen={setLegendOpen}
+          controlsOpen={controlsOpen}
+          setControlsOpen={setControlsOpen}
           extras={sidebarExtras}
-          collapsed={sidebarCollapsed}
-          setCollapsed={setSidebarCollapsed}
-          darkMode={darkMode}
-          setDarkMode={setDarkMode}
         />
       )}
 
-      {/* Main content area */}
-      <div className="flex-1 relative overflow-hidden">
+      {/* Archetype legend popover */}
+      <AnimatePresence>
+        {legendOpen && !isProjectDashOpen && (
+          <ArchetypeLegend open={legendOpen} onClose={() => setLegendOpen(false)} />
+        )}
+      </AnimatePresence>
 
-        {/* 3D Constellation */}
-        <div
-          className="absolute inset-0"
-          style={{ visibility: isPortfolioView ? 'hidden' : 'visible' }}
-        >
-          <Constellation
+      {/* Bottom controls strip */}
+      <AnimatePresence>
+        {!isPortfolioView && !isProjectDashOpen && controlsOpen && (
+          <BottomControls
             projects={projects}
-            selectedId={selectedId}
-            recentChange={recentChange}
+            open={controlsOpen}
+            setOpen={setControlsOpen}
             showConnections={showConnections}
+            setShowConnections={setShowConnections}
             groupBy={groupBy}
-            onSelect={handleSelect}
-            onDeselect={handleDeselect}
-            onResetCamera={(fn) => { resetCameraRef.current = fn }}
-            darkMode={darkMode}
-          />
-        </div>
-
-        {/* Portfolio Overview */}
-        <AnimatePresence>
-          {isPortfolioView && !isProjectDashOpen && (
-            <PortfolioDashboard
-              projects={projects}
-              darkMode={darkMode}
-              onOpenProject={(id) => {
-                setActiveView('graph')
-                handleSelect(id)
-                handleOpenProjectDash(id)
-              }}
-              onBackToGraph={() => setActiveView('graph')}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Project Drill-down */}
-        <AnimatePresence>
-          {isProjectDashOpen && (
-            <ProjectDashboard
-              project={openDashProject}
-              projects={projects}
-              darkMode={darkMode}
-              previousView={dashPreviousView}
-              onBack={() => {
-                handleCloseProjectDash()
-                setActiveView(dashPreviousView)
-              }}
-              onBackToGraph={() => {
-                handleCloseProjectDash()
-                setActiveView('graph')
-              }}
-              onBackToPortfolio={() => {
-                handleCloseProjectDash()
-                setActiveView('portfolio')
-              }}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Node detail panel */}
-        <AnimatePresence>
-          {!isPortfolioView && !isProjectDashOpen && selectedProject && (
-            <NodePanel
-              project={selectedProject}
-              projects={projects}
-              anchor={nodeAnchor}
-              onClose={handleDeselect}
-              onJumpTo={handleJumpTo}
-              onOpenDashboard={() => handleOpenProjectDash(selectedId)}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Back chip */}
-        <AnimatePresence>
-          {!isPortfolioView && !isProjectDashOpen && selectedProject && (
-            <BackChip onClick={handleDeselect} />
-          )}
-        </AnimatePresence>
-
-        {/* Archetype legend */}
-        <AnimatePresence>
-          {legendOpen && !isProjectDashOpen && (
-            <ArchetypeLegend open={legendOpen} onClose={() => setLegendOpen(false)} />
-          )}
-        </AnimatePresence>
-
-        {/* Bottom controls */}
-        <AnimatePresence>
-          {!isPortfolioView && !isProjectDashOpen && controlsOpen && (
-            <BottomControls
-              projects={projects}
-              open={controlsOpen}
-              setOpen={setControlsOpen}
-              showConnections={showConnections}
-              setShowConnections={setShowConnections}
-              groupBy={groupBy}
-              setGroupBy={setGroupBy}
-              onResetCamera={() => resetCameraRef.current?.()}
-            />
-          )}
-        </AnimatePresence>
-
-        {/* Chat panel */}
-        {!isProjectDashOpen && (
-          <ChatPanel
-            collapsed={chatCollapsed}
-            setCollapsed={setChatCollapsed}
-            projects={projects}
-            selectedId={selectedId}
-            onSelectProject={handleJumpTo}
-            applyAdjustment={applyAdjustment}
-            applyOptimization={applyOptimization}
-            darkMode={darkMode}
+            setGroupBy={handleGroupByChange}
+            onResetCamera={() => resetCameraRef.current?.()}
           />
         )}
-      </div>
+      </AnimatePresence>
+
+      {/* Chat panel */}
+      {!isProjectDashOpen && (
+        <ChatPanel
+          collapsed={chatCollapsed}
+          setCollapsed={setChatCollapsed}
+          projects={projects}
+          selectedId={selectedId}
+          onSelectProject={handleJumpTo}
+          applyAdjustment={applyAdjustment}
+          applyOptimization={applyOptimization}
+        />
+      )}
     </div>
   )
 }

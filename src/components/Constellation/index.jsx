@@ -1,34 +1,22 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react'
-import { Canvas, useThree } from '@react-three/fiber'
+import { Canvas } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
-import * as THREE from 'three'
 import BrainHalo from './BrainHalo'
 import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
-import { CameraRig, BrainHoverCamera, NodeProjector } from './CameraRig'
+import { CameraRig, BrainHoverCamera, NodeProjector, NodeZoomCamera } from './CameraRig'
 import { computePositions } from './utils'
-
-function SceneBackground({ darkMode }) {
-  const { gl, scene } = useThree()
-  useEffect(() => {
-    const color = darkMode ? '#0A0E1A' : '#0d1422'
-    gl.setClearColor(color, 1)
-    scene.background = new THREE.Color(color)
-    scene.fog = new THREE.Fog(darkMode ? '#0a0a0f' : '#0d1422', 26, 70)
-  }, [darkMode, gl, scene])
-  return null
-}
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
-  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy, darkMode,
+  showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
 }) {
   const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
   // Pre-compute radii once — stable unless projects change
   const radii = useMemo(
-    () => projects.map((p) => 0.3 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.4),
+    () => projects.map((p) => 0.2 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.3),
     [projects]
   )
 
@@ -45,22 +33,33 @@ function SceneInner({
   const onBrainEnter = useCallback(() => { brainHoveredRef.current = true; setBrainHovered(true) }, [])
   const onBrainLeave = useCallback(() => { brainHoveredRef.current = false; setBrainHovered(false) }, [])
 
+  // When a node is selected, force-clear brain hover (pointer events don't always fire onLeave
+  // when clicking a node that's inside the brain detection sphere)
+  useEffect(() => {
+    if (selectedId) {
+      brainHoveredRef.current = false
+      setBrainHovered(false)
+    }
+  }, [selectedId])
+
   return (
     <>
-      <SceneBackground darkMode={darkMode} />
+      <fog attach="fog" args={['#0a0a0f', 26, 70]} />
 
-      <ambientLight intensity={darkMode ? 0.15 : 0.45} color={darkMode ? '#1E293B' : '#E0ECFF'} />
-      <directionalLight position={[10, 10, 15]} intensity={darkMode ? 0.5 : 0.8} color="#E0E7FF" />
-      <directionalLight position={[-10, -5, -10]} intensity={darkMode ? 0.2 : 0.3} color="#F59E0B" />
-      <pointLight position={[0, 0, 5]} intensity={darkMode ? 0.4 : 0.7} color="#FFFFFF" distance={30} />
+      <ambientLight intensity={0.15} color="#1E293B" />
+      <directionalLight position={[10, 10, 15]} intensity={0.5} color="#E0E7FF" />
+      <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
+      <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
 
       <BrainHalo count={1800} isHovered={brainHovered} dispersionRef={dispersionRef} />
 
-      {/* Invisible hit-detection sphere for brain hover — 8×8 is enough for raycasting */}
-      <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
-        <sphereGeometry args={[8, 8, 8]} />
-        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
-      </mesh>
+      {/* Invisible hit-detection sphere — unmounted during node selection to prevent stuck hover state */}
+      {!selectedId && (
+        <mesh onPointerEnter={onBrainEnter} onPointerLeave={onBrainLeave}>
+          <sphereGeometry args={[8, 8, 8]} />
+          <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+        </mesh>
+      )}
 
       <Stars radius={120} depth={80} count={700} factor={2} saturation={0.1} fade speed={0.3} />
 
@@ -69,7 +68,7 @@ function SceneInner({
         positions={positions}
         showConnections={showConnections}
         selectedId={selectedId}
-        darkMode={darkMode}
+        groupBy={groupBy}
       />
 
       {projects.map((p, i) => (
@@ -81,6 +80,7 @@ function SceneInner({
           hovered={hoveredId === p.id}
           selected={selectedId === p.id}
           dimmed={!!selectedId && selectedId !== p.id}
+          brainHovered={brainHovered}
           brainHoveredRef={brainHoveredRef}
           dispersionRef={dispersionRef}
           onHover={handleHover}
@@ -101,6 +101,13 @@ function SceneInner({
         controlsRef={controlsRef}
       />
 
+      <NodeZoomCamera
+        selectedId={selectedId}
+        projects={projects}
+        positions={positions}
+        controlsRef={controlsRef}
+      />
+
       <BrainHoverCamera
         brainHovered={brainHovered}
         cameraTarget={cameraTarget}
@@ -109,16 +116,16 @@ function SceneInner({
 
       <OrbitControls
         ref={controlsRef}
-        enabled={!brainHovered}
+        enabled={!selectedId}
         enableZoom
         enablePan={false}
-        autoRotate={autoRotate && !brainHovered}
-        autoRotateSpeed={0.2}
+        autoRotate={autoRotate && !brainHovered && !selectedId}
+        autoRotateSpeed={0.15}
         zoomSpeed={0.6}
         enableDamping
         dampingFactor={0.05}
-        minDistance={12}
-        maxDistance={50}
+        minDistance={10}
+        maxDistance={35}
       />
 
       <EffectComposer multisampling={0}>
@@ -138,7 +145,7 @@ function SceneInner({
 
 export default function Constellation({
   projects, selectedId, onSelect, onDeselect,
-  showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor, darkMode = true,
+  showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor,
 }) {
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
@@ -161,10 +168,10 @@ export default function Constellation({
 
   return (
     <Canvas
-      camera={{ position: [0, 1, 28], fov: 45, near: 0.1, far: 200 }}
+      camera={{ position: [0, 1, 18], fov: 45, near: 0.1, far: 200 }}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
       dpr={[1, 1.5]}
-      style={{ background: darkMode ? '#0A0E1A' : '#0d1422' }}
+      style={{ background: 'transparent' }}
     >
       {onProjectAnchor && (
         <NodeProjector
@@ -186,7 +193,6 @@ export default function Constellation({
         recentChange={recentChange}
         cameraTarget={cameraTarget}
         groupBy={groupBy}
-        darkMode={darkMode}
       />
     </Canvas>
   )

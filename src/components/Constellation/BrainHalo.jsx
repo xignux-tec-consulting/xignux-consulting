@@ -53,7 +53,13 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef, dark
       }
       pointsRef.current.geometry.attributes.position.needsUpdate = true
       material.size = THREE.MathUtils.lerp(0.18, 0.08, eased)
-      material.opacity = THREE.MathUtils.lerp(0.85, 0.35, eased)
+    }
+
+    const targetOpacity = isHovered
+      ? THREE.MathUtils.lerp(0.85, 0.35, eased)
+      : 0.85
+    if (Math.abs(material.opacity - targetOpacity) > 0.001) {
+      material.opacity = THREE.MathUtils.lerp(material.opacity, targetOpacity, Math.min(1, delta * 2))
     }
 
     // Rotation continues always (cheap, no buffer update needed)

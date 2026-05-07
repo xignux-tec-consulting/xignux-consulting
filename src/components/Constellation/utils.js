@@ -36,8 +36,8 @@ export const computePositions = (projects, groupBy) => {
       const total = countByArch[p.archetype]
       const spread = 0.65
       const angle = base + ((total > 1 ? idx / (total - 1) : 0.5) - 0.5) * spread
-      const R = 4.2 + (seed(p) / 100) * 1.2
-      const y = (seed2(p) / 100 - 0.5) * 3.5
+      const R = 1.5 + (seed(p) / 100) * 1.5
+      const y = (seed2(p) / 100 - 0.5) * 2.0
       return [Math.cos(angle) * R, y, Math.sin(angle) * R]
     })
   }
@@ -46,24 +46,24 @@ export const computePositions = (projects, groupBy) => {
     const maxInv = Math.max(...projects.map((p) => p.investment))
     return projects.map((p) => {
       const norm = p.investment / maxInv
-      const R = 2 + (1 - norm) * 6
+      const R = 1.0 + (1 - norm) * 2.5
       const angle = (seed(p) / 100) * Math.PI * 2
-      const y = (seed2(p) / 100 - 0.5) * 3
+      const y = (seed2(p) / 100 - 0.5) * 2.0
       return [Math.cos(angle) * R, y, Math.sin(angle) * R]
     })
   }
 
   // 'sroi' — concentric rings by category (default)
-  const radiusMap = { ALTO: 1.8, MEDIO: 4.5, BAJO: 7.5 }
+  const radiusMap = { ALTO: 1.0, MEDIO: 2.5, BAJO: 3.5 }
   const idxByCat = {}
   const countByCat = {}
   projects.forEach((p) => { countByCat[p.category] = (countByCat[p.category] || 0) + 1 })
   return projects.map((p) => {
-    const R = radiusMap[p.category] ?? 5
+    const R = radiusMap[p.category] ?? 3.0
     const idx = idxByCat[p.category] = (idxByCat[p.category] ?? -1) + 1
     const total = countByCat[p.category]
     const angle = (idx / Math.max(1, total)) * Math.PI * 2
-    const y = (seed(p) / 100 - 0.5) * 2.5
+    const y = (seed(p) / 100 - 0.5) * 2.0
     return [Math.cos(angle) * R, y, Math.sin(angle) * R]
   })
 }

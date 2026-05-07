@@ -42,7 +42,7 @@ export const fmtMXNFull = (n) =>
 export const sroiColor = (sroi) => {
   if (sroi > 2) return '#10B981'
   if (sroi >= 1) return '#F59E0B'
-  return '#EF4444'
+  return '#7F1D1D'
 }
 
 export const sroiCategory = (sroi) =>

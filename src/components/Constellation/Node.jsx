@@ -4,31 +4,41 @@ import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { nodeMatProps } from './utils'
 import { fmtMXN } from '../../lib/sroi'
+import { ARCHETYPES } from '../../data/projects'
 
-// Imperative geometry — never reconciled on re-render
-function SelectionRing({ radius }) {
+function OrbitalRing({ radius, color, opacity, speed, thickness = 0.018 }) {
   const ringRef = useRef()
   const scaleRef = useRef(0)
-  const geometry = useMemo(() => new THREE.TorusGeometry(radius * 1.8, 0.02, 8, 48), [radius])
+  const geometry = useMemo(() => new THREE.TorusGeometry(radius, thickness, 8, 64), [radius, thickness])
   const material = useMemo(
-    () => new THREE.MeshBasicMaterial({ color: '#FFFFFF', transparent: true, opacity: 0.4, toneMapped: false }),
-    []
+    () => new THREE.MeshBasicMaterial({ color, transparent: true, opacity, toneMapped: false }),
+    [color, opacity]
   )
   useFrame((_, delta) => {
     if (!ringRef.current) return
-    scaleRef.current = THREE.MathUtils.lerp(scaleRef.current, 1, 0.12)
+    scaleRef.current = THREE.MathUtils.lerp(scaleRef.current, 1, 0.1)
     ringRef.current.scale.setScalar(scaleRef.current)
-    ringRef.current.rotation.z += delta * 0.4
+    ringRef.current.rotation.z += delta * speed
   })
   return <mesh ref={ringRef} rotation={[Math.PI / 2, 0, 0]} geometry={geometry} material={material} />
 }
 
+function DoubleSelectionRings({ radius }) {
+  return (
+    <>
+      <OrbitalRing radius={radius * 1.8} color="#FFFFFF" opacity={0.35} speed={0.4} />
+      <OrbitalRing radius={radius * 2.3} color="#22D3EE" opacity={0.55} speed={-0.22} thickness={0.025} />
+    </>
+  )
+}
+
 const NodeMesh = memo(function NodeMesh({
   project, position, radius, hovered, selected, dimmed,
-  brainHoveredRef, dispersionRef, onHover, onUnhover, onClick, recentChange,
+  brainHovered, brainHoveredRef, dispersionRef, onHover, onUnhover, onClick, recentChange,
 }) {
   const groupRef = useRef()
   const meshRef = useRef()
+  const clickPulseRef = useRef(0)
 
   const phase = useMemo(() => Math.random() * Math.PI * 2, [])
   const idHash = useMemo(
@@ -36,9 +46,9 @@ const NodeMesh = memo(function NodeMesh({
     [project.id]
   )
   const { color, emi: baseEmissive } = useMemo(() => nodeMatProps(project.sroi), [project.sroi])
+  const baseColor = useMemo(() => new THREE.Color(color), [color])
+  const cyanColor = useMemo(() => new THREE.Color('#22D3EE'), [])
 
-  // Imperative geometry and material — created once, no JSX reconciliation,
-  // no conflict between initial JSX props and useFrame mutations
   const geometry = useMemo(() => new THREE.SphereGeometry(radius, 32, 32), [radius])
   const material = useMemo(() => new THREE.MeshPhysicalMaterial({
     color,
@@ -54,7 +64,6 @@ const NodeMesh = memo(function NodeMesh({
     side: THREE.FrontSide,
   }), [color, baseEmissive])
 
-  // Current world position — smooth lerp toward target when groupBy changes
   const posVec = useRef(new THREE.Vector3(...position))
   const targetVec = useMemo(
     () => new THREE.Vector3(...position),
@@ -63,7 +72,7 @@ const NodeMesh = memo(function NodeMesh({
   )
 
   useFrame((state, delta) => {
-    // Position lerp (always — smooth groupBy transitions)
+    // Position lerp (smooth groupBy transitions)
     if (groupRef.current) {
       posVec.current.lerp(targetVec, Math.min(1, delta * 2.5))
       groupRef.current.position.copy(posVec.current)
@@ -72,17 +81,29 @@ const NodeMesh = memo(function NodeMesh({
     if (!meshRef.current) return
     const t = state.clock.elapsedTime
 
-    // Dimmed nodes: minimal work — just scale back to neutral
+    // Color lerp runs every frame regardless of dimmed state — ensures deselected nodes revert
+    const colorSpeed = Math.min(1, delta * 4)
+    material.color.lerp(selected ? cyanColor : baseColor, colorSpeed)
+    material.emissive.lerp(selected ? cyanColor : baseColor, colorSpeed)
+
+    // Dimmed nodes: attenuate opacity + scale back — focus mode
     if (dimmed) {
-      const cur = meshRef.current.scale.x
-      if (Math.abs(cur - 1) > 0.001)
-        meshRef.current.scale.setScalar(THREE.MathUtils.lerp(cur, 1, 0.1))
+      meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, 0.9, Math.min(1, delta * 4)))
+      material.opacity = THREE.MathUtils.lerp(material.opacity, 0.15, Math.min(1, delta * 3))
+      material.emissiveIntensity = THREE.MathUtils.lerp(material.emissiveIntensity, baseEmissive * 0.3, Math.min(1, delta * 3))
       return
     }
 
-    // Scale (breathe + hover/select + pulse on data change)
+    // Scale: breathe + hover/select + click pulse + data change pulse
     const breathe = 1 + Math.sin(t * 0.3 + phase) * 0.02
     let targetScale = (hovered || selected) ? 1.3 * breathe : breathe
+
+    // Click pulse: fast visual acknowledgment, ref-based (no re-render)
+    if (clickPulseRef.current > 0.005) {
+      clickPulseRef.current *= 0.78
+      targetScale *= (1 + clickPulseRef.current * 0.55)
+    }
+
     let pulseMul = 1
     if (recentChange && (recentChange.id === project.id || recentChange.id === 'ALL')) {
       const age = t - recentChange.t
@@ -92,14 +113,22 @@ const NodeMesh = memo(function NodeMesh({
     const curScale = meshRef.current.scale.x
     meshRef.current.scale.setScalar(THREE.MathUtils.lerp(curScale, targetScale * pulseMul, 0.12))
 
-    // Material animation — read brainHovered from ref (no re-render needed when brain is hovered)
+    // Material animation
     const brainHovered = brainHoveredRef?.current ?? false
     const liveMul = 1 + Math.sin(t * 0.4 + idHash) * 0.12
     const stateMul = brainHovered ? 0.7 : 2.5
     const focusBoost = (hovered || selected) ? 1.5 : 1.0
-    material.emissiveIntensity = baseEmissive * stateMul * liveMul * focusBoost
+
+    material.emissiveIntensity = THREE.MathUtils.lerp(
+      material.emissiveIntensity,
+      selected ? 1.8 : baseEmissive * stateMul * liveMul * focusBoost,
+      Math.min(1, delta * 5)
+    )
+
+    // Opacity: selected stays bright; others follow dispersion
     const d = dispersionRef?.current ?? 0
-    material.opacity = THREE.MathUtils.lerp(0.55, 0.92, d)
+    const targetOpacity = selected ? 0.95 : THREE.MathUtils.lerp(0.55, 0.92, d)
+    material.opacity = THREE.MathUtils.lerp(material.opacity, targetOpacity, Math.min(1, delta * 4))
     material.roughness = THREE.MathUtils.lerp(0.25, 0.15, d)
   })
 
@@ -109,25 +138,72 @@ const NodeMesh = memo(function NodeMesh({
         ref={meshRef}
         geometry={geometry}
         material={material}
-        onPointerOver={(e) => { e.stopPropagation(); onHover(project.id); document.body.style.cursor = 'pointer' }}
-        onPointerOut={() => { onUnhover(project.id); document.body.style.cursor = 'auto' }}
-        onClick={(e) => { e.stopPropagation(); onClick(project.id) }}
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          if (dimmed) return
+          onHover(project.id)
+          document.body.style.cursor = 'pointer'
+        }}
+        onPointerOut={() => {
+          onUnhover(project.id)
+          document.body.style.cursor = 'auto'
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (dimmed) return
+          clickPulseRef.current = 1.0
+          onClick(project.id)
+        }}
       />
 
-      {selected && <SelectionRing radius={radius} />}
+      {selected && <DoubleSelectionRings radius={radius} />}
 
       {(hovered || selected) && (
-        <Html center distanceFactor={12} zIndexRange={[100, 0]} style={{ pointerEvents: 'none' }}>
+        <Html
+          center
+          position={[0, radius + 0.9, 0]}
+          distanceFactor={12}
+          zIndexRange={[100, 0]}
+          style={{ pointerEvents: 'none' }}
+        >
           <div className="node-tooltip">
             <div className="node-tooltip-name">{project.name}</div>
             <div className="node-tooltip-meta">
               <span className="mono" style={{ color }}>{project.sroi.toFixed(2)}x</span>
               <span style={{ opacity: 0.5 }}>·</span>
               <span className="mono">{fmtMXN(project.investment)}</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span style={{ color: ARCHETYPES[project.archetype]?.color, opacity: 0.9 }}>
+                {ARCHETYPES[project.archetype]?.name ?? project.archetype}
+              </span>
             </div>
+            <div className="node-tooltip-arrow" />
           </div>
         </Html>
       )}
+
+      <Html
+        center
+        position={[0, -(radius + 0.55), 0]}
+        distanceFactor={12}
+        zIndexRange={[50, 0]}
+        style={{ pointerEvents: 'none' }}
+      >
+        <div style={{
+          color: 'rgba(255,255,255,0.82)',
+          fontSize: '10px',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+          fontWeight: 500,
+          whiteSpace: 'nowrap',
+          letterSpacing: '-0.01em',
+          textShadow: '0 1px 6px rgba(0,0,0,0.98)',
+          opacity: (brainHovered && !dimmed && !selected) ? 1 : 0,
+          transform: (brainHovered && !dimmed && !selected) ? 'translateY(0px)' : 'translateY(5px)',
+          transition: 'opacity 0.35s ease, transform 0.35s ease',
+        }}>
+          {project.name.length > 18 ? project.name.slice(0, 17) + '…' : project.name}
+        </div>
+      </Html>
     </group>
   )
 })
