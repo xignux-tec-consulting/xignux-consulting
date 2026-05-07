@@ -128,6 +128,7 @@ export default function App() {
           recentChange={recentChange}
           showConnections={showConnections}
           groupBy={groupBy}
+          paused={isPortfolioView || isProjectDashOpen}
           onSelect={handleSelect}
           onDeselect={handleDeselect}
           onResetCamera={(fn) => { resetCameraRef.current = fn }}

@@ -146,6 +146,7 @@ function SceneInner({
 export default function Constellation({
   projects, selectedId, onSelect, onDeselect,
   showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor,
+  paused = false,
 }) {
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
@@ -171,6 +172,7 @@ export default function Constellation({
       camera={{ position: [0, 1, 18], fov: 45, near: 0.1, far: 200 }}
       gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
       dpr={[1, 1.5]}
+      frameloop={paused ? 'never' : 'always'}
       style={{ background: 'transparent' }}
     >
       {onProjectAnchor && (
