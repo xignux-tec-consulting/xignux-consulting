@@ -15,26 +15,26 @@ const QUICK_CHIPS = ['Top 3 SROI', 'Resumen portafolio', 'Comparar arquetipos', 
 
 function mkTh(dark) {
   return {
-    panelBg:      dark ? 'rgba(19,25,41,0.88)'        : 'rgba(255,255,255,0.92)',
-    panelBorder:  dark ? 'rgba(255,255,255,0.08)'     : 'rgba(0,0,0,0.09)',
-    botBubbleBg:  dark ? '#1F2937'                    : '#EFF3FA',
-    botBubbleText:dark ? '#F5F7FA'                    : '#0F172A',
-    inputBg:      dark ? '#1a2236'                    : '#F1F5FB',
-    inputBorder:  dark ? '#1F2937'                    : '#CBD5E1',
-    inputText:    dark ? '#F5F7FA'                    : '#0F172A',
-    placeholder:  dark ? '#5e6c87'                    : '#94A3B8',
-    headerBorder: dark ? 'rgba(255,255,255,0.08)'     : 'rgba(0,0,0,0.08)',
+    panelBg:      dark ? '#111827'                    : 'rgba(255,255,255,0.92)',
+    panelBorder:  dark ? '#1E293B'                    : 'rgba(0,0,0,0.09)',
+    botBubbleBg:  dark ? '#1A2035'                    : '#EFF3FA',
+    botBubbleText:dark ? '#E8ECF2'                    : '#0F172A',
+    inputBg:      dark ? '#1A2035'                    : '#F1F5FB',
+    inputBorder:  dark ? '#1E293B'                    : '#CBD5E1',
+    inputText:    dark ? '#E8ECF2'                    : '#0F172A',
+    placeholder:  dark ? '#8594A8'                    : '#94A3B8',
+    headerBorder: dark ? '#1E293B'                    : 'rgba(0,0,0,0.08)',
     metaText:     dark ? '#94A3B8'                    : '#64748b',
-    chipBg:       dark ? 'rgba(255,255,255,0.04)'     : 'rgba(0,0,0,0.04)',
-    chipBorder:   dark ? 'rgba(255,255,255,0.08)'     : 'rgba(0,0,0,0.09)',
+    chipBg:       dark ? '#111827'                    : 'rgba(0,0,0,0.04)',
+    chipBorder:   dark ? '#1E293B'                    : 'rgba(0,0,0,0.09)',
     chipText:     dark ? '#94A3B8'                    : '#475569',
-    tableBorder:  dark ? '#1F2937'                    : '#E2E8F0',
+    tableBorder:  dark ? '#1E293B'                    : '#E2E8F0',
     tableHeadBg:  'rgba(46,117,182,0.12)',
     tableHeadText:dark ? '#94A3B8'                    : '#475569',
-    actionAlt:    dark ? 'rgba(255,255,255,0.06)'     : 'rgba(0,0,0,0.05)',
-    actionAltBorder: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
-    actionAltText:dark ? '#F5F7FA'                    : '#0F172A',
-    titleText:    dark ? '#F5F7FA'                    : '#0F172A',
+    actionAlt:    dark ? '#1A2035'                    : 'rgba(0,0,0,0.05)',
+    actionAltBorder: dark ? '#1E293B'                : 'rgba(0,0,0,0.08)',
+    actionAltText:dark ? '#E8ECF2'                    : '#0F172A',
+    titleText:    dark ? '#E8ECF2'                    : '#0F172A',
   }
 }
 
@@ -120,7 +120,7 @@ function ChatBubble({ msg, onAction, onProjectClick, th }) {
         className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed ${isUser ? 'rounded-br-sm' : 'rounded-bl-sm'}`}
         style={
           isUser
-            ? { background: 'linear-gradient(135deg,#2E75B6,#1f5285)', color: '#fff' }
+            ? { background: '#2E75B6', color: '#fff' }
             : { background: th.botBubbleBg, color: th.botBubbleText }
         }
       >
@@ -296,8 +296,8 @@ export default function ChatPanel({
         onClick={() => setCollapsed(false)}
         className="fixed right-5 bottom-5 z-[60] w-14 h-14 rounded-full flex items-center justify-center shadow-2xl"
         style={{
-          background: 'linear-gradient(135deg, #2E75B6, #1f5285)',
-          boxShadow: '0 8px 32px -4px rgba(46,117,182,0.5), 0 0 0 1px rgba(255,255,255,0.1)',
+          background: '#2E75B6',
+          boxShadow: '0 8px 24px -4px rgba(46,117,182,0.4)',
         }}
         aria-label="Abrir chat IA"
       >
@@ -319,13 +319,9 @@ export default function ChatPanel({
         className="fixed right-5 bottom-5 w-[380px] z-[60] flex flex-col rounded-2xl overflow-hidden"
         style={{
           height: 'min(620px, calc(100vh - 60px))',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
           background: th.panelBg,
           border: `1px solid ${th.panelBorder}`,
-          boxShadow: darkMode
-            ? '0 24px 60px -20px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.05)'
-            : '0 12px 40px -16px rgba(0,0,0,0.2)',
+          boxShadow: '0 16px 48px -12px rgba(0,0,0,0.6)',
         }}
       >
         {/* Header */}
@@ -381,7 +377,7 @@ export default function ChatPanel({
             <button
               key={c}
               onClick={() => send(c)}
-              className="text-[10px] px-2 py-1 rounded-md transition hover:scale-[1.03] active:scale-[0.97]"
+              className="text-[11px] px-2 py-1 rounded-md transition hover:scale-[1.03] active:scale-[0.97]"
               style={{
                 background: th.chipBg,
                 border: `1px solid ${th.chipBorder}`,
