@@ -12,23 +12,23 @@ const entry = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } }
 
 function mkTh(dark) {
   return {
-    pageBg:       dark ? 'rgba(10,14,26,0.97)'   : '#F0F4FA',
-    cardBg:       dark ? 'rgba(19,25,41,0.85)'    : 'rgba(255,255,255,0.9)',
-    cardBorder:   dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
-    textPrimary:  dark ? '#F5F7FA'                : '#0F172A',
+    pageBg:       dark ? '#0A0E1A'                : '#F0F4FA',
+    cardBg:       dark ? '#111827'                : 'rgba(255,255,255,0.9)',
+    cardBorder:   dark ? '#1E293B'                : 'rgba(0,0,0,0.07)',
+    textPrimary:  dark ? '#E8ECF2'                : '#0F172A',
     textSecondary:dark ? '#94A3B8'                : '#475569',
-    textMuted:    dark ? '#64748b'                : '#94A3B8',
-    tableBorder:  dark ? '#1F2937'                : '#E2E8F0',
-    trackBg:      dark ? '#1F2937'                : '#E2E8F0',
-    chartGrid:    dark ? '#1F2937'                : '#E2E8F0',
+    textMuted:    dark ? '#8594A8'                : '#94A3B8',
+    tableBorder:  dark ? '#1E293B'                : '#E2E8F0',
+    trackBg:      dark ? '#1E293B'                : '#E2E8F0',
+    chartGrid:    dark ? '#1E293B'                : '#E2E8F0',
     chartAxis:    dark ? '#94A3B8'                : '#475569',
-    tooltipBg:    dark ? '#131929'                : '#ffffff',
-    tooltipBorder:dark ? '#1F2937'                : '#E2E8F0',
-    tooltipText:  dark ? '#F5F7FA'                : '#0F172A',
-    backBtn:      dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-    backBtnBorder:dark ? 'rgba(255,255,255,0.1)'  : 'rgba(0,0,0,0.1)',
-    crumbText:    dark ? '#94A3B8'                : '#64748b',
-    shadow:       dark ? '0 4px 20px -8px rgba(0,0,0,0.5)' : '0 4px 16px -6px rgba(0,0,0,0.1)',
+    tooltipBg:    dark ? '#111827'                : '#ffffff',
+    tooltipBorder:dark ? '#1E293B'                : '#E2E8F0',
+    tooltipText:  dark ? '#E8ECF2'                : '#0F172A',
+    backBtn:      dark ? '#111827'                : 'rgba(0,0,0,0.05)',
+    backBtnBorder:dark ? '#1E293B'                : 'rgba(0,0,0,0.1)',
+    crumbText:    dark ? '#94A3B8'                : '#8594A8',
+    shadow:       dark ? '0 4px 16px -6px rgba(0,0,0,0.4)' : '0 4px 16px -6px rgba(0,0,0,0.1)',
   }
 }
 
@@ -95,7 +95,7 @@ function AdjustmentBar({ label, value, color, th, delay = 0 }) {
             animate={{ width: `${pct}%` }}
             transition={{ duration: 0.6, delay: delay + 0.15, ease: 'easeOut' }}
             className="h-full rounded-full"
-            style={{ background: `linear-gradient(90deg, ${color}88, ${color})` }}
+            style={{ background: color }}
           />
         </div>
       </div>
@@ -192,11 +192,11 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
           <div className="flex items-end justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <span className="text-[10px] mono px-2.5 py-1 rounded-md font-medium"
+                <span className="text-[11px] mono px-2.5 py-1 rounded-md font-medium"
                   style={{ background: arch.color + '22', color: arch.color, border: `1px solid ${arch.color}44` }}>
                   {project.id} · Arquetipo {project.archetype}
                 </span>
-                <span className="text-[10px] mono px-2.5 py-1 rounded-md font-medium"
+                <span className="text-[11px] mono px-2.5 py-1 rounded-md font-medium"
                   style={{ background: sroiColor(project.sroi) + '22', color: sroiColor(project.sroi), border: `1px solid ${sroiColor(project.sroi)}44` }}>
                   {project.category}
                 </span>
@@ -218,7 +218,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
             return (
               <Card key={k.label} th={th} delay={0.04 * (i + 1)} className="relative overflow-hidden">
                 <div className="flex items-start justify-between mb-2">
-                  <span className="text-[10px] mono uppercase tracking-wider font-medium" style={{ color: th.textMuted }}>
+                  <span className="text-[11px] mono uppercase tracking-wider font-medium" style={{ color: th.textMuted }}>
                     {k.label}
                   </span>
                   <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: k.iconColor + '18' }}>
@@ -278,10 +278,10 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                           <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: th.trackBg }}>
                             <div className="h-full rounded-full" style={{
                               width: `${pct}%`,
-                              background: `linear-gradient(90deg, #2E75B6, #5B9BD5)`,
+                              background: '#2E75B6',
                             }} />
                           </div>
-                          <span className="mono text-[10px] w-9 text-right" style={{ color: th.textMuted }}>
+                          <span className="mono text-[11px] w-9 text-right" style={{ color: th.textMuted }}>
                             {pct.toFixed(0)}%
                           </span>
                         </div>
@@ -322,7 +322,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                   −{Math.round(combinedAdj * 100)}%
                 </span>
               </div>
-              <p className="text-[10px] mt-2 leading-relaxed" style={{ color: th.textMuted }}>
+              <p className="text-[11px] mt-2 leading-relaxed" style={{ color: th.textMuted }}>
                 Del valor bruto de {fmtMXN(project.vBruto)}, se retiene el {Math.round((1 - combinedAdj) * 100)}%
                 como valor social ajustado: {fmtMXN(project.vAjustado)}.
               </p>
@@ -371,7 +371,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
               </ResponsiveContainer>
             </div>
 
-            <div className="flex items-center gap-5 mt-3 text-[10px]" style={{ color: th.textMuted }}>
+            <div className="flex items-center gap-5 mt-3 text-[11px]" style={{ color: th.textMuted }}>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#2E75B6' }} /> Valor bruto
               </span>
@@ -408,7 +408,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                     animate={{ width: `${Math.min((project.sroi / Math.max(project.sroi, portfolio.sroi, 2)) * 100, 100)}%` }}
                     transition={{ duration: 0.7, delay: 0.55, ease: 'easeOut' }}
                     className="h-full rounded-full"
-                    style={{ background: `linear-gradient(90deg, ${sroiColor(project.sroi)}88, ${sroiColor(project.sroi)})` }}
+                    style={{ background: sroiColor(project.sroi) }}
                   />
                 </div>
               </div>
@@ -429,7 +429,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                     animate={{ width: `${Math.min((portfolio.sroi / Math.max(project.sroi, portfolio.sroi, 2)) * 100, 100)}%` }}
                     transition={{ duration: 0.7, delay: 0.6, ease: 'easeOut' }}
                     className="h-full rounded-full"
-                    style={{ background: `linear-gradient(90deg, ${sroiColor(portfolio.sroi)}88, ${sroiColor(portfolio.sroi)})` }}
+                    style={{ background: sroiColor(portfolio.sroi) }}
                   />
                 </div>
               </div>
@@ -452,7 +452,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                 }}>
                   {project.sroi >= portfolio.sroi ? '+' : ''}{(project.sroi - portfolio.sroi).toFixed(2)}x
                 </span>
-                <div className="text-[10px] mt-1" style={{ color: th.textMuted }}>
+                <div className="text-[11px] mt-1" style={{ color: th.textMuted }}>
                   {project.sroi >= portfolio.sroi
                     ? 'Por encima del promedio'
                     : 'Por debajo del promedio'}
@@ -463,11 +463,11 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
             {/* Context stats */}
             <div className="mt-4 pt-3 grid grid-cols-2 gap-3" style={{ borderTop: `1px solid ${th.tableBorder}` }}>
               <div>
-                <div className="text-[10px] mono uppercase" style={{ color: th.textMuted }}>Inversión port.</div>
+                <div className="text-[11px] mono uppercase" style={{ color: th.textMuted }}>Inversión port.</div>
                 <div className="mono text-xs font-semibold mt-0.5" style={{ color: th.textPrimary }}>{fmtMXN(portfolio.inv)}</div>
               </div>
               <div>
-                <div className="text-[10px] mono uppercase" style={{ color: th.textMuted }}>Proyectos</div>
+                <div className="text-[11px] mono uppercase" style={{ color: th.textMuted }}>Proyectos</div>
                 <div className="mono text-xs font-semibold mt-0.5" style={{ color: th.textPrimary }}>{portfolio.count}</div>
               </div>
             </div>
