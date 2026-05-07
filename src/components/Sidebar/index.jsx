@@ -61,61 +61,34 @@ function IconBtn({ it, active, onClick }) {
 
 export default function Sidebar({ activeView, setView, extras = [] }) {
   return (
-    <>
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="fixed left-4 top-4 z-30 h-12 px-3 rounded-2xl flex items-center justify-center"
-        style={{ ...glassBtn(false), minWidth: '48px' }}
-      >
-        <img
-          src="/logo.png"
-          alt="XIGNUX"
-          style={{ height: '22px', width: 'auto', objectFit: 'contain', opacity: 0.92 }}
+    <motion.nav
+      initial={{ x: -30, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.6, delay: 0.3 }}
+      className="fixed left-4 z-30 flex flex-col gap-2"
+      style={{ top: '50%', transform: 'translateY(-50%)' }}
+    >
+      {NAV_ITEMS.map((it) => (
+        <IconBtn
+          key={it.id}
+          it={it}
+          active={activeView === it.id}
+          onClick={() => setView(it.id)}
         />
-      </motion.div>
+      ))}
 
-      <motion.nav
-        initial={{ x: -30, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-        className="fixed left-4 z-30 flex flex-col gap-2"
-        style={{ top: '25%', transform: 'translateY(-50%)' }}
-      >
-        {NAV_ITEMS.map((it) => (
-          <IconBtn
-            key={it.id}
-            it={it}
-            active={activeView === it.id}
-            onClick={() => setView(it.id)}
-          />
-        ))}
+      {extras.length > 0 && (
+        <div className="my-1 mx-auto w-6 h-px" style={{ background: 'rgba(255,255,255,0.12)' }} />
+      )}
 
-        {extras.length > 0 && (
-          <div className="my-1 mx-auto w-6 h-px" style={{ background: 'rgba(255,255,255,0.12)' }} />
-        )}
-
-        {extras.map((ex) => (
-          <IconBtn
-            key={ex.id}
-            it={ex}
-            active={ex.active}
-            onClick={ex.onClick}
-          />
-        ))}
-      </motion.nav>
-
-      <motion.button
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
-        whileHover={{ scale: 1.05 }}
-        className="fixed left-4 bottom-4 z-30 w-12 h-12 rounded-2xl flex items-center justify-center text-sm font-semibold"
-        style={{ ...glassBtn(false), color: 'rgba(255,255,255,0.85)' }}
-      >
-        MR
-      </motion.button>
-    </>
+      {extras.map((ex) => (
+        <IconBtn
+          key={ex.id}
+          it={ex}
+          active={ex.active}
+          onClick={ex.onClick}
+        />
+      ))}
+    </motion.nav>
   )
 }
