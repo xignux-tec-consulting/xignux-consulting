@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import {
-  Network, LayoutDashboard, Database, TrendingUp, Target, Settings, Sparkles,
+  Network, LayoutDashboard, Database, TrendingUp, Target, Settings,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
@@ -66,10 +66,14 @@ export default function Sidebar({ activeView, setView, extras = [] }) {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="fixed left-4 top-4 z-30 w-12 h-12 rounded-2xl flex items-center justify-center"
-        style={glassBtn(false)}
+        className="fixed left-4 top-4 z-30 h-12 px-3 rounded-2xl flex items-center justify-center"
+        style={{ ...glassBtn(false), minWidth: '48px' }}
       >
-        <Sparkles className="w-5 h-5" style={{ color: '#5B9BD5' }} />
+        <img
+          src="/logo.png"
+          alt="XIGNUX"
+          style={{ height: '22px', width: 'auto', objectFit: 'contain', opacity: 0.92 }}
+        />
       </motion.div>
 
       <motion.nav

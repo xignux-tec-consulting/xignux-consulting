@@ -26,11 +26,26 @@ html, body, #root {
 }
 
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+    "Helvetica Neue", Arial, sans-serif;
   background: var(--bg-0);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "kern" 1, "liga" 1;
+  text-rendering: optimizeLegibility;
+}
+
+/* Títulos: tracking apretado como Apple */
+h1, h2, h3, h4 {
+  letter-spacing: -0.022em;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+/* Números tabulares: alineación limpia en tablas y KPIs */
+.tabular, table, .mono {
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Scrollbar ──────────────────────────────── */
@@ -41,7 +56,8 @@ body {
 
 /* ── Typography ─────────────────────────────── */
 .mono {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.01em;
 }
 
 /* ── Glass utilities ────────────────────────── */
@@ -113,7 +129,8 @@ body {
   font-size: 10px;
   color: #94A3B8;
   margin-top: 3px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  font-variant-numeric: tabular-nums;
 }
 
 .node-tooltip-arrow {
@@ -160,7 +177,7 @@ body {
 .chip-link {
   display: inline-block;
   font-size: 11px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace;
   padding: 1px 6px;
   border-radius: 4px;
   background: rgba(46, 117, 182, 0.2);

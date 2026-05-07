@@ -17,7 +17,14 @@
       "Bash(git commit -m 'fix\\(controls\\): centra barra inferior con FM x transform *)",
       "Bash(git commit -m 'feat\\(constellation\\): agrupacion funcional arquetipo/sroi/inversion con lerp *)",
       "Bash(git push *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(python -c \"import fitz; doc=fitz.open\\('Docs/TecConsulting Xignux Pantallas.pdf'\\); print\\(f'Páginas: {doc.page_count}'\\); [print\\(f'--- P{i+1} ---\\\\n{doc[i].get_text\\(\\)}'\\) for i in range\\(min\\(3,doc.page_count\\)\\)]\")",
+      "Bash(node -e \"const fs=require\\('fs'\\); const buf=fs.readFileSync\\('Docs/TecConsulting Xignux Pantallas.pdf'\\); const text=buf.toString\\('latin1'\\); const matches=text.match\\(/\\\\\\(\\([^\\\\\\)]{3,}\\)\\\\\\)/g\\); if\\(matches\\) console.log\\(matches.slice\\(0,200\\).join\\('\\\\n'\\)\\); else console.log\\('No text extracted'\\)\")",
+      "Bash(where gswin64c *)",
+      "Bash(where gswin32c *)",
+      "Bash(where mutool *)",
+      "Bash(where pdftotext *)",
+      "Bash(copy \"c:\\\\Users\\\\emizg\\\\GithHub\\\\xignux-consulting\\\\Docs\\\\logo.png\" \"c:\\\\Users\\\\emizg\\\\GithHub\\\\xignux-consulting\\\\public\\\\logo.png\")"
     ]
   }
 }

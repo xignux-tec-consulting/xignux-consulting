@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import Constellation from './components/Constellation'
 import Sidebar from './components/Sidebar'
@@ -41,6 +41,12 @@ export default function App() {
     setNodeAnchor(null)
     setCameraTarget(null)
   }, [])
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') handleDeselect() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [handleDeselect])
 
   const handleGroupByChange = useCallback((newMode) => {
     if (newMode === groupBy) return

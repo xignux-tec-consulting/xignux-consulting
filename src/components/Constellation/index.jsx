@@ -80,6 +80,7 @@ function SceneInner({
           hovered={hoveredId === p.id}
           selected={selectedId === p.id}
           dimmed={!!selectedId && selectedId !== p.id}
+          brainHovered={brainHovered}
           brainHoveredRef={brainHoveredRef}
           dispersionRef={dispersionRef}
           onHover={handleHover}
@@ -115,11 +116,11 @@ function SceneInner({
 
       <OrbitControls
         ref={controlsRef}
-        enabled={!brainHovered && !selectedId}
+        enabled={!selectedId}
         enableZoom
         enablePan={false}
         autoRotate={autoRotate && !brainHovered && !selectedId}
-        autoRotateSpeed={0.2}
+        autoRotateSpeed={0.15}
         zoomSpeed={0.6}
         enableDamping
         dampingFactor={0.05}

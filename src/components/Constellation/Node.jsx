@@ -4,6 +4,7 @@ import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { nodeMatProps } from './utils'
 import { fmtMXN } from '../../lib/sroi'
+import { ARCHETYPES } from '../../data/projects'
 
 function OrbitalRing({ radius, color, opacity, speed, thickness = 0.018 }) {
   const ringRef = useRef()
@@ -33,7 +34,7 @@ function DoubleSelectionRings({ radius }) {
 
 const NodeMesh = memo(function NodeMesh({
   project, position, radius, hovered, selected, dimmed,
-  brainHoveredRef, dispersionRef, onHover, onUnhover, onClick, recentChange,
+  brainHovered, brainHoveredRef, dispersionRef, onHover, onUnhover, onClick, recentChange,
 }) {
   const groupRef = useRef()
   const meshRef = useRef()
@@ -137,9 +138,22 @@ const NodeMesh = memo(function NodeMesh({
         ref={meshRef}
         geometry={geometry}
         material={material}
-        onPointerOver={(e) => { e.stopPropagation(); onHover(project.id); document.body.style.cursor = 'pointer' }}
-        onPointerOut={() => { onUnhover(project.id); document.body.style.cursor = 'auto' }}
-        onClick={(e) => { e.stopPropagation(); clickPulseRef.current = 1.0; onClick(project.id) }}
+        onPointerOver={(e) => {
+          e.stopPropagation()
+          if (dimmed) return
+          onHover(project.id)
+          document.body.style.cursor = 'pointer'
+        }}
+        onPointerOut={() => {
+          onUnhover(project.id)
+          document.body.style.cursor = 'auto'
+        }}
+        onClick={(e) => {
+          e.stopPropagation()
+          if (dimmed) return
+          clickPulseRef.current = 1.0
+          onClick(project.id)
+        }}
       />
 
       {selected && <DoubleSelectionRings radius={radius} />}
@@ -158,11 +172,38 @@ const NodeMesh = memo(function NodeMesh({
               <span className="mono" style={{ color }}>{project.sroi.toFixed(2)}x</span>
               <span style={{ opacity: 0.5 }}>·</span>
               <span className="mono">{fmtMXN(project.investment)}</span>
+              <span style={{ opacity: 0.5 }}>·</span>
+              <span style={{ color: ARCHETYPES[project.archetype]?.color, opacity: 0.9 }}>
+                {ARCHETYPES[project.archetype]?.name ?? project.archetype}
+              </span>
             </div>
             <div className="node-tooltip-arrow" />
           </div>
         </Html>
       )}
+
+      <Html
+        center
+        position={[0, -(radius + 0.55), 0]}
+        distanceFactor={12}
+        zIndexRange={[50, 0]}
+        style={{ pointerEvents: 'none' }}
+      >
+        <div style={{
+          color: 'rgba(255,255,255,0.82)',
+          fontSize: '10px',
+          fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
+          fontWeight: 500,
+          whiteSpace: 'nowrap',
+          letterSpacing: '-0.01em',
+          textShadow: '0 1px 6px rgba(0,0,0,0.98)',
+          opacity: (brainHovered && !dimmed && !selected) ? 1 : 0,
+          transform: (brainHovered && !dimmed && !selected) ? 'translateY(0px)' : 'translateY(5px)',
+          transition: 'opacity 0.35s ease, transform 0.35s ease',
+        }}>
+          {project.name.length > 18 ? project.name.slice(0, 17) + '…' : project.name}
+        </div>
+      </Html>
     </group>
   )
 })

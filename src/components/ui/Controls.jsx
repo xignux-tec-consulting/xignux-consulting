@@ -257,7 +257,7 @@ export function ArchetypeLegend({ open, onClose }) {
             <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#F59E0B' }} />1–2x
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#EF4444' }} />&lt; 1x
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: '#7F1D1D' }} />&lt; 1x
           </span>
         </div>
       </div>
