@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Network, LayoutList } from 'lucide-react'
+import { MessageSquare } from 'lucide-react'
 import Constellation from './components/Constellation'
 import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
@@ -16,14 +16,14 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null)
   const [nodeAnchor, setNodeAnchor] = useState(null)
   const [activeView, setActiveView] = useState('graph')
-  const [chatCollapsed, setChatCollapsed] = useState(false)
+  const [chatCollapsed, setChatCollapsed] = useState(true)
   const [showConnections, setShowConnections] = useState(true)
   const [groupBy, setGroupBy] = useState('sroi')
   const [recentChange, setRecentChange] = useState(null)
-  const [cameraTarget, setCameraTarget] = useState(null)
   const [openDashFor, setOpenDashFor] = useState(null)
   const [legendOpen, setLegendOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(true)
+  const [nodeInfoVisible, setNodeInfoVisible] = useState(true)
 
   const resetCameraRef = useRef(null)
   const transitionLockRef = useRef(false)
@@ -31,16 +31,16 @@ export default function App() {
   const selectedProject = projects.find((p) => p.id === selectedId) || null
   const openDashProject = projects.find((p) => p.id === openDashFor) || null
 
-  const handleSelect = useCallback((id, anchor) => {
+  const handleSelect = useCallback((id) => {
     setSelectedId(id)
-    setNodeAnchor(anchor || null)
-    setCameraTarget(id)
+    setNodeAnchor(null)
+    setNodeInfoVisible(true)
   }, [])
 
   const handleDeselect = useCallback(() => {
     setSelectedId(null)
     setNodeAnchor(null)
-    setCameraTarget(null)
+    setNodeInfoVisible(true)
   }, [])
 
   useEffect(() => {
@@ -53,7 +53,6 @@ export default function App() {
     if (newMode === groupBy) return
     if (transitionLockRef.current) return
     transitionLockRef.current = true
-
     if (selectedId) {
       handleDeselect()
       setTimeout(() => {
@@ -69,15 +68,14 @@ export default function App() {
   const handleJumpTo = useCallback((id) => {
     setSelectedId(id)
     setNodeAnchor(null)
-    setCameraTarget(id)
+    setNodeInfoVisible(true)
   }, [])
 
   const applyAdjustment = useCallback((id, adj) => {
     setProjects((prev) =>
       prev.map((p) => {
         if (p.id !== id) return p
-        const updated = recomputeProject(p, adj)
-        return updated
+        return recomputeProject(p, adj)
       })
     )
     setRecentChange(id)
@@ -100,28 +98,17 @@ export default function App() {
     setTimeout(() => setRecentChange(null), 3000)
   }, [])
 
-  const handleOpenProjectDash = useCallback((id) => {
-    setOpenDashFor(id)
-  }, [])
-
-  const handleCloseProjectDash = useCallback(() => {
-    setOpenDashFor(null)
-  }, [])
-
-  const sidebarExtras = activeView === 'graph' && selectedProject
-    ? [{ icon: 'dashboard', label: 'Dashboard', onClick: () => handleOpenProjectDash(selectedId) }]
-    : []
+  const handleOpenProjectDash = useCallback((id) => { setOpenDashFor(id) }, [])
+  const handleCloseProjectDash = useCallback(() => { setOpenDashFor(null) }, [])
 
   const isPortfolioView = activeView === 'portfolio'
   const isProjectDashOpen = !!openDashProject
 
   return (
     <div className="w-screen h-screen overflow-hidden relative" style={{ background: '#0A0E1A' }}>
-      {/* 3D Constellation (always mounted, hidden behind overlays) */}
-      <div
-        className="absolute inset-0"
-        style={{ visibility: isPortfolioView ? 'hidden' : 'visible' }}
-      >
+
+      {/* 3D Constellation */}
+      <div className="absolute inset-0" style={{ visibility: isPortfolioView ? 'hidden' : 'visible' }}>
         <Constellation
           projects={projects}
           selectedId={selectedId}
@@ -131,6 +118,7 @@ export default function App() {
           onSelect={handleSelect}
           onDeselect={handleDeselect}
           onResetCamera={(fn) => { resetCameraRef.current = fn }}
+          onProjectAnchor={setNodeAnchor}
         />
       </div>
 
@@ -160,9 +148,9 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Node detail panel (shown in graph view when a node is selected) */}
+      {/* Node detail panel */}
       <AnimatePresence>
-        {!isPortfolioView && !isProjectDashOpen && selectedProject && (
+        {!isPortfolioView && !isProjectDashOpen && selectedProject && nodeInfoVisible && (
           <NodePanel
             project={selectedProject}
             projects={projects}
@@ -174,77 +162,34 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Back chip (graph view when node selected) */}
+      {/* Back chip */}
       <AnimatePresence>
         {!isPortfolioView && !isProjectDashOpen && selectedProject && (
           <BackChip onClick={handleDeselect} />
         )}
       </AnimatePresence>
 
-      {/* Mode toggle — top center, always visible except inside project drill-down */}
-      {!isProjectDashOpen && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
-          <div
-            className="flex items-center gap-0.5 p-1 rounded-full"
-            style={{
-              background: 'rgba(10,14,26,0.82)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(20px)',
-              WebkitBackdropFilter: 'blur(20px)',
-              boxShadow: '0 4px 24px -8px rgba(0,0,0,0.6)',
-            }}
-          >
-            {[
-              { id: 'graph',     label: 'Explorar', Icon: Network    },
-              { id: 'portfolio', label: 'Decidir',  Icon: LayoutList },
-            ].map(({ id, label, Icon }) => {
-              const active = activeView === id
-              return (
-                <motion.button
-                  key={id}
-                  onClick={() => setActiveView(id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors relative"
-                  style={{ color: active ? '#fff' : 'rgba(255,255,255,0.45)', position: 'relative' }}
-                  whileTap={{ scale: 0.96 }}
-                >
-                  {active && (
-                    <motion.div
-                      layoutId="view-pill"
-                      className="absolute inset-0 rounded-full"
-                      style={{ background: 'rgba(46,117,182,0.55)', border: '1px solid rgba(46,117,182,0.5)' }}
-                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                    />
-                  )}
-                  <Icon className="w-3.5 h-3.5 relative z-10" />
-                  <span className="relative z-10">{label}</span>
-                </motion.button>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Sidebar */}
+      {/* Sidebar — contiene modo toggle + info + leyenda */}
       {!isProjectDashOpen && (
         <Sidebar
           activeView={activeView}
           onChangeView={setActiveView}
+          nodeSelected={!!selectedProject}
+          nodeInfoActive={nodeInfoVisible}
+          onToggleNodeInfo={() => setNodeInfoVisible((v) => !v)}
           legendOpen={legendOpen}
-          setLegendOpen={setLegendOpen}
-          controlsOpen={controlsOpen}
-          setControlsOpen={setControlsOpen}
-          extras={sidebarExtras}
+          onToggleLegend={() => setLegendOpen((v) => !v)}
         />
       )}
 
-      {/* Archetype legend popover */}
+      {/* Archetype legend */}
       <AnimatePresence>
         {legendOpen && !isProjectDashOpen && (
           <ArchetypeLegend open={legendOpen} onClose={() => setLegendOpen(false)} />
         )}
       </AnimatePresence>
 
-      {/* Bottom controls strip */}
+      {/* Bottom controls */}
       <AnimatePresence>
         {!isPortfolioView && !isProjectDashOpen && controlsOpen && (
           <BottomControls
@@ -259,6 +204,43 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+
+      {/* Chat FAB — bottom right */}
+      {!isProjectDashOpen && (
+        <motion.button
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, type: 'spring', stiffness: 320, damping: 22 }}
+          onClick={() => setChatCollapsed((c) => !c)}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.94 }}
+          className="fixed bottom-4 right-4 z-40 w-11 h-11 rounded-2xl flex items-center justify-center"
+          style={{
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            background: chatCollapsed ? 'rgba(255,255,255,0.04)' : 'rgba(46,117,182,0.28)',
+            border: `1px solid ${chatCollapsed ? 'rgba(255,255,255,0.08)' : 'rgba(46,117,182,0.55)'}`,
+            boxShadow: chatCollapsed
+              ? '0 4px 16px -8px rgba(0,0,0,0.4)'
+              : '0 8px 32px -10px rgba(46,117,182,0.45)',
+            transition: 'background 0.2s, border-color 0.2s, box-shadow 0.2s',
+          }}
+          aria-label={chatCollapsed ? 'Abrir Chat IA' : 'Cerrar Chat IA'}
+        >
+          <MessageSquare
+            className="w-[18px] h-[18px]"
+            style={{ color: chatCollapsed ? 'rgba(255,255,255,0.5)' : '#F5F7FA' }}
+          />
+          {chatCollapsed && (
+            <motion.span
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ repeat: Infinity, repeatDelay: 3, duration: 0.6 }}
+              className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full"
+              style={{ background: '#10B981' }}
+            />
+          )}
+        </motion.button>
+      )}
 
       {/* Chat panel */}
       {!isProjectDashOpen && (

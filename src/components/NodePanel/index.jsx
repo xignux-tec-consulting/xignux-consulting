@@ -23,19 +23,8 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
   const PANEL_W = 380
   const MARGIN = 16
   const vw = typeof window !== 'undefined' ? window.innerWidth : 1440
-
-  let panelLeft = vw - PANEL_W - MARGIN
-  let panelTop = MARGIN + 8
-  let connectFromX = anchor ? anchor.edgeX : null
-  let connectToX = panelLeft
-  let side = 'right'
-
-  if (anchor && anchor.edgeX > vw - PANEL_W - 32 - MARGIN) {
-    side = 'left'
-    panelLeft = MARGIN
-    connectToX = panelLeft + PANEL_W
-    connectFromX = anchor.x - (anchor.edgeX - anchor.x)
-  }
+  const panelLeft = vw - PANEL_W - MARGIN
+  const panelTop = MARGIN + 8
 
   const arch = ARCHETYPES[project.archetype]
   const benchmark = arch.benchmarkMid
@@ -50,42 +39,11 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
 
   return (
     <>
-      {anchor && (
-        <svg
-          className="fixed inset-0 z-30 pointer-events-none"
-          style={{ width: '100vw', height: '100vh' }}
-        >
-          <defs>
-            <linearGradient id="connGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.7" />
-              <stop offset="100%" stopColor="#FFFFFF" stopOpacity="0.15" />
-            </linearGradient>
-          </defs>
-          <motion.path
-            initial={{ pathLength: 0, opacity: 0 }}
-            animate={{ pathLength: 1, opacity: 1 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            d={`M ${connectFromX} ${anchor.y} L ${connectToX} ${panelTop + 60}`}
-            stroke="url(#connGrad)"
-            strokeWidth="1.2"
-            fill="none"
-            strokeDasharray="3 3"
-          />
-          <motion.circle
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.3 }}
-            cx={connectToX} cy={panelTop + 60} r="3"
-            fill="#FFFFFF" opacity="0.6"
-          />
-        </svg>
-      )}
-
       <motion.div
-        initial={{ x: side === 'right' ? 30 : -30, opacity: 0, scale: 0.96 }}
-        animate={{ x: 0, opacity: 1, scale: 1 }}
-        exit={{ x: side === 'right' ? 40 : -40, opacity: 0, scale: 0.96 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+        initial={{ opacity: 0, scale: 0.96, y: 8 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 8 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
         className="fixed rounded-3xl overflow-hidden flex flex-col z-40"
         style={{
           left: `${panelLeft}px`,
