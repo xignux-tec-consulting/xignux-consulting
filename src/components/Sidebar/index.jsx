@@ -13,13 +13,11 @@ const NAV_ITEMS = [
 ]
 
 const glassBtn = (active) => ({
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  background: active ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.04)',
-  border: `1px solid ${active ? 'rgba(255,255,255,0.22)' : 'rgba(255,255,255,0.08)'}`,
+  background: active ? '#1A2035' : '#111827',
+  border: `1px solid ${active ? '#2E75B6' : '#1E293B'}`,
   boxShadow: active
-    ? '0 12px 40px -10px rgba(46,117,182,0.4)'
-    : '0 8px 24px -10px rgba(0,0,0,0.4)',
+    ? '0 4px 16px -4px rgba(46,117,182,0.25)'
+    : '0 4px 12px -4px rgba(0,0,0,0.3)',
   transition: 'background 0.25s, border-color 0.25s, box-shadow 0.25s',
 })
 
@@ -34,23 +32,21 @@ function IconBtn({ it, active, onClick }) {
       className="group relative w-12 h-12 rounded-2xl flex items-center justify-center"
       style={glassBtn(active)}
     >
-      <Icon className="w-[18px] h-[18px]" style={{ color: active ? '#F5F7FA' : 'rgba(255,255,255,0.6)' }} />
+      <Icon className="w-[18px] h-[18px]" style={{ color: active ? '#E8ECF2' : '#94A3B8' }} />
       {active && (
         <motion.span
           layoutId="sidebarActiveIndicator"
           className="absolute -left-2 top-1/2 -translate-y-1/2 w-1 h-6 rounded-full"
-          style={{ background: '#F5F7FA' }}
+          style={{ background: '#E8ECF2' }}
           transition={{ type: 'spring', stiffness: 400, damping: 30 }}
         />
       )}
       <span
         className="absolute left-[58px] whitespace-nowrap text-xs px-2.5 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200"
         style={{
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-          background: 'rgba(0,0,0,0.6)',
-          border: '1px solid rgba(255,255,255,0.1)',
-          color: 'rgba(255,255,255,0.92)',
+          background: '#111827',
+          border: '1px solid #1E293B',
+          color: '#E8ECF2',
         }}
       >
         {it.label ?? it.id}
@@ -78,7 +74,7 @@ export default function Sidebar({ activeView, setView, extras = [] }) {
       ))}
 
       {extras.length > 0 && (
-        <div className="my-1 mx-auto w-6 h-px" style={{ background: 'rgba(255,255,255,0.12)' }} />
+        <div className="my-1 mx-auto w-6 h-px" style={{ background: '#1E293B' }} />
       )}
 
       {extras.map((ex) => (
