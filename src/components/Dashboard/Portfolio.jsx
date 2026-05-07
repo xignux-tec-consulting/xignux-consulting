@@ -19,31 +19,31 @@ const cardEntry = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 
 // Theme helper — centralizes all color decisions so light mode works
 function mkTh(dark) {
   return {
-    cardBg:       dark ? 'rgba(15,20,35,0.85)'       : 'rgba(255,255,255,0.88)',
-    cardBorder:   dark ? 'rgba(255,255,255,0.06)'     : 'rgba(0,0,0,0.07)',
-    pageBg:       dark ? 'rgba(8,12,24,0.97)'         : '#F0F4FA',
-    tableBorder:  dark ? '#1e293b'                    : '#e2e8f0',
-    inputBg:      dark ? '#0f172a'                    : '#fff',
-    inputBorder:  dark ? '#1e293b'                    : '#e2e8f0',
-    chartGrid:    dark ? '#1e293b'                    : '#e2e8f0',
-    trackBg:      dark ? '#1e293b'                    : '#e2e8f0',
-    quadBg:       dark ? 'rgba(10,14,26,0.5)'         : 'rgba(235,242,255,0.6)',
-    quadDivider:  dark ? 'rgba(255,255,255,0.06)'     : 'rgba(0,0,0,0.07)',
-    limItemBg:    dark ? 'rgba(255,255,255,0.02)'     : 'rgba(0,0,0,0.02)',
-    limItemBorder:dark ? 'rgba(255,255,255,0.04)'     : 'rgba(0,0,0,0.06)',
-    textPrimary:  dark ? '#F5F7FA'                    : '#0F172A',
+    cardBg:       dark ? '#111827'                    : 'rgba(255,255,255,0.88)',
+    cardBorder:   dark ? '#1E293B'                    : 'rgba(0,0,0,0.07)',
+    pageBg:       dark ? '#0A0E1A'                    : '#F0F4FA',
+    tableBorder:  dark ? '#1E293B'                    : '#e2e8f0',
+    inputBg:      dark ? '#1A2035'                    : '#fff',
+    inputBorder:  dark ? '#1E293B'                    : '#e2e8f0',
+    chartGrid:    dark ? '#1E293B'                    : '#e2e8f0',
+    trackBg:      dark ? '#1E293B'                    : '#e2e8f0',
+    quadBg:       dark ? '#0F1628'                    : 'rgba(235,242,255,0.6)',
+    quadDivider:  dark ? '#1E293B'                    : 'rgba(0,0,0,0.07)',
+    limItemBg:    dark ? '#111827'                    : 'rgba(0,0,0,0.02)',
+    limItemBorder:dark ? '#1E293B'                    : 'rgba(0,0,0,0.06)',
+    textPrimary:  dark ? '#E8ECF2'                    : '#0F172A',
     textSecondary:dark ? '#94A3B8'                    : '#475569',
-    textMuted:    dark ? '#64748b'                    : '#94A3B8',
-    textFaint:    dark ? '#475569'                    : '#94A3B8',
-    tabBarBg:     dark ? 'rgba(15,20,35,0.6)'         : 'rgba(255,255,255,0.7)',
-    tabBarBorder: dark ? 'rgba(255,255,255,0.05)'     : 'rgba(0,0,0,0.07)',
+    textMuted:    dark ? '#8594A8'                    : '#94A3B8',
+    textFaint:    dark ? '#5A6A80'                    : '#94A3B8',
+    tabBarBg:     dark ? '#111827'                    : 'rgba(255,255,255,0.7)',
+    tabBarBorder: dark ? '#1E293B'                    : 'rgba(0,0,0,0.07)',
     tabActiveBg:  dark ? 'rgba(46,117,182,0.2)'       : 'rgba(46,117,182,0.1)',
     tabActiveBorder: dark ? 'rgba(46,117,182,0.35)'   : 'rgba(46,117,182,0.4)',
     tabActiveColor:  '#5B9BD5',
-    tabInactiveColor: dark ? '#64748b'                : '#94A3B8',
-    tooltipBg:    dark ? '#0f1423'                    : '#ffffff',
-    tooltipBorder:dark ? '#1e293b'                    : '#e2e8f0',
-    tooltipText:  dark ? '#F5F7FA'                    : '#0F172A',
+    tabInactiveColor: dark ? '#8594A8'                : '#94A3B8',
+    tooltipBg:    dark ? '#111827'                    : '#ffffff',
+    tooltipBorder:dark ? '#1E293B'                    : '#e2e8f0',
+    tooltipText:  dark ? '#E8ECF2'                    : '#0F172A',
   }
 }
 
@@ -55,10 +55,9 @@ function Card({ children, className = '', style = {}, delay = 0, noPad, dark }) 
       transition={{ duration: 0.35, delay, ease: 'easeOut' }}
       className={`rounded-2xl ${noPad ? '' : 'p-5'} ${className}`}
       style={{
-        background: isDark ? 'rgba(15,20,35,0.85)' : 'rgba(255,255,255,0.88)',
-        border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)'}`,
+        background: isDark ? '#111827' : 'rgba(255,255,255,0.88)',
+        border: `1px solid ${isDark ? '#1E293B' : 'rgba(0,0,0,0.07)'}`,
         boxShadow: isDark ? '0 8px 32px -12px rgba(0,0,0,0.5)' : '0 4px 20px -8px rgba(0,0,0,0.1)',
-        backdropFilter: 'blur(12px)',
         ...style,
       }}
     >
@@ -70,8 +69,8 @@ function Card({ children, className = '', style = {}, delay = 0, noPad, dark }) 
 function SectionTitle({ children, sub, th }) {
   return (
     <div className="mb-4">
-      <h2 className="text-sm font-semibold tracking-wide" style={{ color: th?.textPrimary || '#F5F7FA' }}>{children}</h2>
-      {sub && <p className="text-[11px] mt-0.5" style={{ color: th?.textMuted || '#64748b' }}>{sub}</p>}
+      <h2 className="text-sm font-semibold tracking-wide" style={{ color: th?.textPrimary || '#E8ECF2' }}>{children}</h2>
+      {sub && <p className="text-[11px] mt-0.5" style={{ color: th?.textMuted || '#8594A8' }}>{sub}</p>}
     </div>
   )
 }
@@ -80,8 +79,8 @@ function KpiChip({ label, value, sub, color, delay, dark }) {
   const isDark = dark !== false
   return (
     <Card delay={delay} dark={isDark} className="flex flex-col gap-1">
-      <span className="text-[10px] mono uppercase tracking-widest" style={{ color: isDark ? '#64748b' : '#94A3B8' }}>{label}</span>
-      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || (isDark ? '#F5F7FA' : '#0F172A') }}>{value}</span>
+      <span className="text-[11px] mono uppercase tracking-widest" style={{ color: isDark ? '#8594A8' : '#94A3B8' }}>{label}</span>
+      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || (isDark ? '#E8ECF2' : '#0F172A') }}>{value}</span>
       {sub && <span className="text-[11px]" style={{ color: isDark ? '#94A3B8' : '#475569' }}>{sub}</span>}
     </Card>
   )
@@ -540,7 +539,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                           <span className="mono px-1.5 py-0.5 rounded text-[10px]" style={{ background: v.color + '22', color: v.color }}>Arq. {k}</span>
                           {v.name}
                         </span>
-                        <div className="flex items-center gap-3 mono text-[10px]" style={{ color: '#64748b' }}>
+                        <div className="flex items-center gap-3 mono text-[10px]" style={{ color: '#8594A8' }}>
                           <span>Portafolio: <strong style={{ color: sroiColor(archSroi) }}>{archSroi.toFixed(2)}x</strong></span>
                           <span>Bench. medio: <strong style={{ color: '#94A3B8' }}>{bench.mid}x</strong></span>
                         </div>
@@ -800,13 +799,13 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   const catColor = {
                     DATOS: '#5B9BD5', METODOLOGÍA: '#F59E0B', PROXIES: '#ED7D31',
                     ATRIBUCIÓN: '#10B981', VERIFICACIÓN: '#A78BFA', CONTRAFACTUAL: '#EF4444',
-                  }[lim.cat] || '#64748b'
+                  }[lim.cat] || '#8594A8'
                   return (
                     <motion.div
                       key={i}
                       className="flex gap-4 py-3 px-4 rounded-xl cursor-pointer"
                       style={{ background: th.limItemBg, border: `1px solid ${th.limItemBorder}` }}
-                      whileHover={{ background: darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}
+                      whileHover={{ background: darkMode ? '#1A2035' : 'rgba(0,0,0,0.03)' }}
                     >
                       <span className="mono text-[10px] px-2 py-0.5 h-fit rounded-md font-semibold flex-shrink-0 mt-0.5" style={{ background: catColor + '1a', color: catColor, border: `1px solid ${catColor}33` }}>
                         {lim.cat}
