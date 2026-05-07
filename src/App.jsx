@@ -16,7 +16,7 @@ export default function App() {
   const [selectedId, setSelectedId] = useState(null)
   const [nodeAnchor, setNodeAnchor] = useState(null)
   const [activeView, setActiveView] = useState('graph')
-  const [chatCollapsed, setChatCollapsed] = useState(false)
+  const [chatCollapsed, setChatCollapsed] = useState(true)
   const [showConnections, setShowConnections] = useState(true)
   const [groupBy, setGroupBy] = useState('sroi')
   const [recentChange, setRecentChange] = useState(null)
@@ -24,6 +24,7 @@ export default function App() {
   const [openDashFor, setOpenDashFor] = useState(null)
   const [legendOpen, setLegendOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(true)
+  const [nodeInfoVisible, setNodeInfoVisible] = useState(true)
 
   const resetCameraRef = useRef(null)
   const transitionLockRef = useRef(false)
@@ -35,6 +36,7 @@ export default function App() {
     setSelectedId(id)
     setNodeAnchor(anchor || null)
     setCameraTarget(id)
+    setNodeInfoVisible(true)
   }, [])
 
   const handleDeselect = useCallback(() => {
@@ -128,6 +130,7 @@ export default function App() {
           recentChange={recentChange}
           showConnections={showConnections}
           groupBy={groupBy}
+          paused={isPortfolioView || isProjectDashOpen}
           onSelect={handleSelect}
           onDeselect={handleDeselect}
           onResetCamera={(fn) => { resetCameraRef.current = fn }}
@@ -162,7 +165,7 @@ export default function App() {
 
       {/* Node detail panel (shown in graph view when a node is selected) */}
       <AnimatePresence>
-        {!isPortfolioView && !isProjectDashOpen && selectedProject && (
+        {!isPortfolioView && !isProjectDashOpen && selectedProject && nodeInfoVisible && (
           <NodePanel
             project={selectedProject}
             projects={projects}
@@ -196,6 +199,9 @@ export default function App() {
           activeView={activeView}
           setView={setActiveView}
           extras={sidebarExtras}
+          nodeSelected={!!selectedProject}
+          nodeInfoActive={nodeInfoVisible}
+          onToggleNodeInfo={() => setNodeInfoVisible((v) => !v)}
         />
       )}
 

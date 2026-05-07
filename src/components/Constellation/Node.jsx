@@ -34,7 +34,7 @@ function DoubleSelectionRings({ radius }) {
 
 const NodeMesh = memo(function NodeMesh({
   project, position, radius, hovered, selected, dimmed,
-  brainHovered, brainHoveredRef, dispersionRef, onHover, onUnhover, onClick, recentChange,
+  onHover, onUnhover, onClick, recentChange,
 }) {
   const groupRef = useRef()
   const meshRef = useRef()
@@ -113,23 +113,17 @@ const NodeMesh = memo(function NodeMesh({
     const curScale = meshRef.current.scale.x
     meshRef.current.scale.setScalar(THREE.MathUtils.lerp(curScale, targetScale * pulseMul, 0.12))
 
-    // Material animation
-    const brainHovered = brainHoveredRef?.current ?? false
     const liveMul = 1 + Math.sin(t * 0.4 + idHash) * 0.12
-    const stateMul = brainHovered ? 0.7 : 2.5
     const focusBoost = (hovered || selected) ? 1.5 : 1.0
 
     material.emissiveIntensity = THREE.MathUtils.lerp(
       material.emissiveIntensity,
-      selected ? 1.8 : baseEmissive * stateMul * liveMul * focusBoost,
+      selected ? 1.8 : baseEmissive * 2.5 * liveMul * focusBoost,
       Math.min(1, delta * 5)
     )
 
-    // Opacity: selected stays bright; others follow dispersion
-    const d = dispersionRef?.current ?? 0
-    const targetOpacity = selected ? 0.95 : THREE.MathUtils.lerp(0.55, 0.92, d)
+    const targetOpacity = selected ? 0.95 : dimmed ? 0.4 : 0.88
     material.opacity = THREE.MathUtils.lerp(material.opacity, targetOpacity, Math.min(1, delta * 4))
-    material.roughness = THREE.MathUtils.lerp(0.25, 0.15, d)
   })
 
   return (
@@ -182,29 +176,6 @@ const NodeMesh = memo(function NodeMesh({
         </Html>
       )}
 
-      {brainHovered && !dimmed && !selected && (
-        <Html
-          center
-          position={[0, -(radius + 0.55), 0]}
-          distanceFactor={12}
-          zIndexRange={[50, 0]}
-          style={{ pointerEvents: 'none' }}
-        >
-          <div style={{
-            color: 'rgba(255,255,255,0.82)',
-            fontSize: '10px',
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif',
-            fontWeight: 500,
-            whiteSpace: 'nowrap',
-            letterSpacing: '-0.01em',
-            textShadow: '0 1px 6px rgba(0,0,0,0.98)',
-            pointerEvents: 'none',
-            animation: 'nodeLabelFadeIn 0.35s ease forwards',
-          }}>
-            {project.name.length > 18 ? project.name.slice(0, 17) + '…' : project.name}
-          </div>
-        </Html>
-      )}
     </group>
   )
 })

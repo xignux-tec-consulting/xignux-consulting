@@ -1,5 +1,4 @@
 import { useState, useMemo } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   Network, Filter, ArrowUpDown, ChevronDown, ChevronRight,
   TrendingUp, TrendingDown, Minus, AlertTriangle, Info,
@@ -14,8 +13,6 @@ import { ARCHETYPES } from '../../data/projects'
 import { portfolioTotals, fmtMXN, fmtMXNFull, sroiColor } from '../../lib/sroi'
 
 /* ─── primitives ─────────────────────────────────────────────────── */
-const cardEntry = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } }
-
 // Theme helper — centralizes all color decisions so light mode works
 function mkTh(dark) {
   return {
@@ -47,12 +44,10 @@ function mkTh(dark) {
   }
 }
 
-function Card({ children, className = '', style = {}, delay = 0, noPad, dark }) {
+function Card({ children, className = '', style = {}, noPad, dark }) {
   const isDark = dark !== false
   return (
-    <motion.div
-      {...cardEntry}
-      transition={{ duration: 0.35, delay, ease: 'easeOut' }}
+    <div
       className={`rounded-2xl ${noPad ? '' : 'p-5'} ${className}`}
       style={{
         background: isDark ? 'rgba(15,20,35,0.85)' : 'rgba(255,255,255,0.88)',
@@ -63,7 +58,7 @@ function Card({ children, className = '', style = {}, delay = 0, noPad, dark }) 
       }}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -150,7 +145,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
   const [filterArch, setFilterArch] = useState('ALL')
   const [activeTab, setActiveTab]   = useState('overview')
   const [expandedLim, setExpandedLim] = useState(null)
-  const th = mkTh(darkMode)
+  const th = useMemo(() => mkTh(darkMode), [darkMode])
 
   const tabs = [
     { id: 'overview',     label: 'Resumen ejecutivo' },
@@ -172,11 +167,11 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
     return arr
   }, [projects, sortKey, sortDir, filterArch])
 
-  const distData = [
+  const distData = useMemo(() => [
     { name: 'Alto (≥2x)',  value: tot.dist.ALTO  || 0, color: '#10B981' },
     { name: 'Medio (1–2x)', value: tot.dist.MEDIO || 0, color: '#F59E0B' },
     { name: 'Bajo (<1x)',  value: tot.dist.BAJO  || 0, color: '#EF4444' },
-  ]
+  ], [tot.dist.ALTO, tot.dist.MEDIO, tot.dist.BAJO])
 
   const archetypeBar = useMemo(() =>
     Object.entries(ARCHETYPES).map(([k, v]) => {
@@ -212,13 +207,15 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
     })),
   [projects])
 
-  const tt = {
-    contentStyle: { background: th.tooltipBg, border: `1px solid ${th.tooltipBorder}`, borderRadius: 10, fontSize: 11, padding: '8px 12px' },
-    itemStyle: { color: th.tooltipText },
-    labelStyle: { color: th.textMuted, marginBottom: 4 },
-    cursor: { stroke: '#2E75B6', strokeWidth: 1, strokeDasharray: '3 3' },
-  }
-  const ttBar = { ...tt, cursor: { fill: 'rgba(46,117,182,0.08)' } }
+  const { tt, ttBar } = useMemo(() => {
+    const _tt = {
+      contentStyle: { background: th.tooltipBg, border: `1px solid ${th.tooltipBorder}`, borderRadius: 10, fontSize: 11, padding: '8px 12px' },
+      itemStyle: { color: th.tooltipText },
+      labelStyle: { color: th.textMuted, marginBottom: 4 },
+      cursor: { stroke: '#2E75B6', strokeWidth: 1, strokeDasharray: '3 3' },
+    }
+    return { tt: _tt, ttBar: { ..._tt, cursor: { fill: 'rgba(46,117,182,0.08)' } } }
+  }, [th])
 
   /* ─── render ─────────────────────────────────────────────────── */
   return (
@@ -226,7 +223,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
       <div className="max-w-[1440px] mx-auto px-8 pt-16 pb-8">
 
         {/* Header */}
-        <motion.header {...cardEntry} transition={{ duration: 0.4 }} className="flex items-end justify-between mb-6">
+        <header className="flex items-end justify-between mb-6">
           <div>
             <div className="text-[10px] mono uppercase tracking-[0.25em] mb-1" style={{ color: th.textFaint }}>
               XIGNUX · Portafolio RSC · 2024
@@ -241,7 +238,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
           <div className="text-xs mono px-3 py-1.5 rounded-xl" style={{ background: 'rgba(46,117,182,0.08)', border: '1px solid rgba(46,117,182,0.2)', color: '#5B9BD5' }}>
             Modo Decidir
           </div>
-        </motion.header>
+        </header>
 
         {/* Tab nav */}
         <div className="flex gap-1 mb-6 p-1 rounded-xl" style={{ background: th.tabBarBg, border: `1px solid ${th.tabBarBorder}` }}>
@@ -454,10 +451,8 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     <tr
                       key={p.id}
                       onClick={() => onOpenProject(p.id)}
-                      className="cursor-pointer transition group"
+                      className="cursor-pointer transition group hover:bg-[rgba(46,117,182,0.06)]"
                       style={{ borderBottom: `1px solid ${th.tableBorder}` }}
-                      onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(46,117,182,0.06)')}
-                      onMouseLeave={(e) => (e.currentTarget.style.background = '')}
                     >
                       <td className="py-3 px-2 mono text-[11px]" style={{ color: th.textFaint }}>{p.id}</td>
                       <td className="py-3 px-2 font-medium group-hover:text-[#5B9BD5] transition max-w-[180px]" style={{ color: th.textPrimary }}>
@@ -802,17 +797,16 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     ATRIBUCIÓN: '#10B981', VERIFICACIÓN: '#A78BFA', CONTRAFACTUAL: '#EF4444',
                   }[lim.cat] || '#64748b'
                   return (
-                    <motion.div
+                    <div
                       key={i}
-                      className="flex gap-4 py-3 px-4 rounded-xl cursor-pointer"
+                      className="flex gap-4 py-3 px-4 rounded-xl cursor-pointer transition-colors hover:bg-white/[0.04]"
                       style={{ background: th.limItemBg, border: `1px solid ${th.limItemBorder}` }}
-                      whileHover={{ background: darkMode ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)' }}
                     >
                       <span className="mono text-[10px] px-2 py-0.5 h-fit rounded-md font-semibold flex-shrink-0 mt-0.5" style={{ background: catColor + '1a', color: catColor, border: `1px solid ${catColor}33` }}>
                         {lim.cat}
                       </span>
                       <p className="text-[12px] leading-relaxed" style={{ color: th.textSecondary }}>{lim.text}</p>
-                    </motion.div>
+                    </div>
                   )
                 })}
               </div>
