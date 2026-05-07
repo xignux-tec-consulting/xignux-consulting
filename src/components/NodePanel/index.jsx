@@ -8,7 +8,7 @@ function MiniBar({ value, max, color, label }) {
     <div>
       <div className="flex justify-between text-[11px] mb-1" style={{ color: '#94A3B8' }}>
         <span>{label}</span>
-        <span className="mono" style={{ color: '#F5F7FA' }}>{Math.round(value * 100)}%</span>
+        <span className="mono" style={{ color: '#E8ECF2' }}>{Math.round(value * 100)}%</span>
       </div>
       <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#1F2937' }}>
         <div className="h-full rounded-full" style={{ width: `${(value / max) * 100}%`, background: color }} />
@@ -91,12 +91,10 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
           left: `${panelLeft}px`,
           top: `${panelTop}px`,
           width: `${PANEL_W}px`,
-          maxHeight: 'calc(100vh - 48px)',
-          backdropFilter: 'blur(24px)',
-          WebkitBackdropFilter: 'blur(24px)',
-          background: 'rgba(19,25,41,0.55)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 24px 60px -20px rgba(0,0,0,0.6)',
+          maxHeight: 'calc(100vh - 88px)',
+          background: '#111827',
+          border: '1px solid #1E293B',
+          boxShadow: '0 16px 48px -12px rgba(0,0,0,0.5)',
         }}
       >
         <div className="p-5 border-b hairline">
@@ -128,8 +126,8 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
               { label: 'Valor ajustado', val: fmtMXN(project.vAjustado) },
               { label: 'Beneficiarios',  val: project.direct_beneficiaries.toLocaleString('es-MX') },
             ].map((k) => (
-              <div key={k.label} className="rounded-lg p-3" style={{ background: '#1a2236', border: '1px solid #1F2937' }}>
-                <div className="text-[10px] uppercase tracking-wider" style={{ color: '#94A3B8' }}>{k.label}</div>
+              <div key={k.label} className="rounded-lg p-3" style={{ background: '#1A2035', border: '1px solid #1E293B' }}>
+                <div className="text-[11px] uppercase tracking-wider" style={{ color: '#94A3B8' }}>{k.label}</div>
                 <div className="text-base font-semibold mt-1 mono">{k.val}</div>
               </div>
             ))}
@@ -139,13 +137,13 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
             <div className="text-xs font-semibold mb-2 tracking-wide" style={{ color: '#94A3B8' }}>OUTCOMES</div>
             <div className="space-y-2">
               {project.outcomes.map((o, i) => (
-                <div key={i} className="rounded-lg p-3" style={{ background: '#1a2236', border: '1px solid #1F2937' }}>
+                <div key={i} className="rounded-lg p-3" style={{ background: '#1A2035', border: '1px solid #1E293B' }}>
                   <div className="text-sm">{o.description}</div>
                   <div className="text-[11px] mono mt-1" style={{ color: '#94A3B8' }}>
                     {o.qty.toLocaleString('es-MX')} × {fmtMXN(o.proxy)} = {fmtMXN(o.gross)}
                   </div>
                   <div className="h-1 rounded-full mt-2 overflow-hidden" style={{ background: '#0A0E1A' }}>
-                    <div className="h-full" style={{ width: `${(o.gross / totalGross) * 100}%`, background: 'linear-gradient(90deg,#2E75B6,#5B9BD5)' }} />
+                    <div className="h-full" style={{ width: `${(o.gross / totalGross) * 100}%`, background: '#2E75B6' }} />
                   </div>
                 </div>
               ))}
@@ -162,10 +160,10 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
             </div>
           </div>
 
-          <div className="rounded-lg p-4" style={{ background: '#1a2236', border: '1px solid #1F2937' }}>
+          <div className="rounded-lg p-4" style={{ background: '#1A2035', border: '1px solid #1E293B' }}>
             <div className="flex justify-between items-start mb-2">
               <div>
-                <div className="text-[10px] uppercase tracking-wider" style={{ color: '#94A3B8' }}>Benchmark sectorial</div>
+                <div className="text-[11px] uppercase tracking-wider" style={{ color: '#94A3B8' }}>Benchmark sectorial</div>
                 <div className="text-sm font-semibold mono mt-0.5">{benchmark.toFixed(2)}x · Arquetipo {project.archetype}</div>
               </div>
               <span className="text-[10px] mono px-2 py-1 rounded" style={{ background: diag.color + '22', color: diag.color, border: `1px solid ${diag.color}55` }}>
@@ -174,7 +172,7 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
             </div>
             <div className="relative h-1.5 rounded-full mt-3" style={{ background: '#0A0E1A' }}>
               <div className="absolute top-0 h-full rounded-full" style={{ left: 0, width: `${Math.min(100, (project.sroi / 4) * 100)}%`, background: sroiColor(project.sroi) }} />
-              <div className="absolute -top-1 w-px h-3.5" style={{ left: `${(benchmark / 4) * 100}%`, background: '#F5F7FA' }} />
+              <div className="absolute -top-1 w-px h-3.5" style={{ left: `${(benchmark / 4) * 100}%`, background: '#E8ECF2' }} />
             </div>
             <div className="flex justify-between text-[10px] mono mt-1" style={{ color: '#94A3B8' }}>
               <span>0x</span><span>2x</span><span>4x</span>
@@ -185,7 +183,7 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
             <div className="text-xs font-semibold mb-2 tracking-wide" style={{ color: '#94A3B8' }}>STAKEHOLDERS</div>
             <div className="flex flex-wrap gap-1.5">
               {project.stakeholders.map((s) => (
-                <span key={s} className="text-[11px] px-2 py-1 rounded-md" style={{ background: '#1a2236', border: '1px solid #1F2937', color: '#F5F7FA' }}>
+                <span key={s} className="text-[11px] px-2 py-1 rounded-md" style={{ background: '#1A2035', border: '1px solid #1E293B', color: '#E8ECF2' }}>
                   {s}
                 </span>
               ))}
