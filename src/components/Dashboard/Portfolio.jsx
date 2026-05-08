@@ -14,46 +14,44 @@ import { portfolioTotals, fmtMXN, fmtMXNFull, sroiColor } from '../../lib/sroi'
 
 /* ─── primitives ─────────────────────────────────────────────────── */
 // Theme helper — centralizes all color decisions so light mode works
-function mkTh(dark) {
+function mkTh() {
   return {
-    cardBg:       dark ? 'rgba(15,20,35,0.85)'       : 'rgba(255,255,255,0.88)',
-    cardBorder:   dark ? 'rgba(255,255,255,0.06)'     : 'rgba(0,0,0,0.07)',
-    pageBg:       dark ? 'rgba(8,12,24,0.97)'         : '#F0F4FA',
-    tableBorder:  dark ? '#1e293b'                    : '#e2e8f0',
-    inputBg:      dark ? '#0f172a'                    : '#fff',
-    inputBorder:  dark ? '#1e293b'                    : '#e2e8f0',
-    chartGrid:    dark ? '#1e293b'                    : '#e2e8f0',
-    trackBg:      dark ? '#1e293b'                    : '#e2e8f0',
-    quadBg:       dark ? 'rgba(10,14,26,0.5)'         : 'rgba(235,242,255,0.6)',
-    quadDivider:  dark ? 'rgba(255,255,255,0.06)'     : 'rgba(0,0,0,0.07)',
-    limItemBg:    dark ? 'rgba(255,255,255,0.02)'     : 'rgba(0,0,0,0.02)',
-    limItemBorder:dark ? 'rgba(255,255,255,0.04)'     : 'rgba(0,0,0,0.06)',
-    textPrimary:  dark ? '#F5F7FA'                    : '#0F172A',
-    textSecondary:dark ? '#94A3B8'                    : '#475569',
-    textMuted:    dark ? '#64748b'                    : '#94A3B8',
-    textFaint:    dark ? '#475569'                    : '#94A3B8',
-    tabBarBg:     dark ? 'rgba(15,20,35,0.6)'         : 'rgba(255,255,255,0.7)',
-    tabBarBorder: dark ? 'rgba(255,255,255,0.05)'     : 'rgba(0,0,0,0.07)',
-    tabActiveBg:  dark ? 'rgba(46,117,182,0.2)'       : 'rgba(46,117,182,0.1)',
-    tabActiveBorder: dark ? 'rgba(46,117,182,0.35)'   : 'rgba(46,117,182,0.4)',
-    tabActiveColor:  '#5B9BD5',
-    tabInactiveColor: dark ? '#64748b'                : '#94A3B8',
-    tooltipBg:    dark ? '#0f1423'                    : '#ffffff',
-    tooltipBorder:dark ? '#1e293b'                    : '#e2e8f0',
-    tooltipText:  dark ? '#F5F7FA'                    : '#0F172A',
+    cardBg:       '#FFFFFF',
+    cardBorder:   '#E5E0DA',
+    pageBg:       '#F8F6F3',
+    tableBorder:  '#E5E0DA',
+    inputBg:      '#FFFFFF',
+    inputBorder:  '#E5E0DA',
+    chartGrid:    '#E5E0DA',
+    trackBg:      '#E5E0DA',
+    quadBg:       'rgba(248,246,243,0.8)',
+    quadDivider:  '#E5E0DA',
+    limItemBg:    '#F8F6F3',
+    limItemBorder:'#E5E0DA',
+    textPrimary:  '#1A1A1A',
+    textSecondary:'#666666',
+    textMuted:    '#999999',
+    textFaint:    '#999999',
+    tabBarBg:     '#FFFFFF',
+    tabBarBorder: '#E5E0DA',
+    tabActiveBg:  'rgba(232,82,14,0.08)',
+    tabActiveBorder: 'rgba(232,82,14,0.25)',
+    tabActiveColor:  '#E8520E',
+    tabInactiveColor: '#999999',
+    tooltipBg:    '#FFFFFF',
+    tooltipBorder:'#E5E0DA',
+    tooltipText:  '#1A1A1A',
   }
 }
 
-function Card({ children, className = '', style = {}, noPad, dark }) {
-  const isDark = dark !== false
+function Card({ children, className = '', style = {}, noPad }) {
   return (
     <div
       className={`rounded-2xl ${noPad ? '' : 'p-5'} ${className}`}
       style={{
-        background: isDark ? 'rgba(15,20,35,0.85)' : 'rgba(255,255,255,0.88)',
-        border: `1px solid ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.07)'}`,
-        boxShadow: isDark ? '0 8px 32px -12px rgba(0,0,0,0.5)' : '0 4px 20px -8px rgba(0,0,0,0.1)',
-        backdropFilter: 'blur(12px)',
+        background: '#FFFFFF',
+        border: '1px solid #E5E0DA',
+        boxShadow: '0 2px 12px -4px rgba(0,0,0,0.06)',
         ...style,
       }}
     >
@@ -65,19 +63,18 @@ function Card({ children, className = '', style = {}, noPad, dark }) {
 function SectionTitle({ children, sub, th }) {
   return (
     <div className="mb-4">
-      <h2 className="text-sm font-semibold tracking-wide" style={{ color: th?.textPrimary || '#F5F7FA' }}>{children}</h2>
-      {sub && <p className="text-[11px] mt-0.5" style={{ color: th?.textMuted || '#64748b' }}>{sub}</p>}
+      <h2 className="text-sm font-semibold tracking-wide" style={{ color: th?.textPrimary || '#1A1A1A' }}>{children}</h2>
+      {sub && <p className="text-[11px] mt-0.5" style={{ color: th?.textMuted || '#999999' }}>{sub}</p>}
     </div>
   )
 }
 
-function KpiChip({ label, value, sub, color, delay, dark }) {
-  const isDark = dark !== false
+function KpiChip({ label, value, sub, color, delay }) {
   return (
-    <Card delay={delay} dark={isDark} className="flex flex-col gap-1">
-      <span className="text-[10px] mono uppercase tracking-widest" style={{ color: isDark ? '#64748b' : '#94A3B8' }}>{label}</span>
-      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || (isDark ? '#F5F7FA' : '#0F172A') }}>{value}</span>
-      {sub && <span className="text-[11px]" style={{ color: isDark ? '#94A3B8' : '#475569' }}>{sub}</span>}
+    <Card delay={delay} className="flex flex-col gap-1">
+      <span className="text-[10px] mono uppercase tracking-widest" style={{ color: '#999999' }}>{label}</span>
+      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || '#1A1A1A' }}>{value}</span>
+      {sub && <span className="text-[11px]" style={{ color: '#666666' }}>{sub}</span>}
     </Card>
   )
 }
@@ -150,14 +147,14 @@ const LIMITATIONS = [
 ]
 
 /* ─── main component ─────────────────────────────────────────────── */
-export default function PortfolioDashboard({ projects, onOpenProject, onBackToGraph, darkMode = true }) {
+export default function PortfolioDashboard({ projects, onOpenProject, onBackToGraph }) {
   const tot = portfolioTotals(projects)
   const [sortKey, setSortKey]       = useState('sroi')
   const [sortDir, setSortDir]       = useState('desc')
   const [filterArch, setFilterArch] = useState('ALL')
   const [activeTab, setActiveTab]   = useState('overview')
   const [expandedLim, setExpandedLim] = useState(null)
-  const th = useMemo(() => mkTh(darkMode), [darkMode])
+  const th = useMemo(() => mkTh(), [])
 
   const tabs = [
     { id: 'overview',     label: 'Resumen ejecutivo' },
@@ -224,9 +221,9 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
       contentStyle: { background: th.tooltipBg, border: `1px solid ${th.tooltipBorder}`, borderRadius: 10, fontSize: 11, padding: '8px 12px' },
       itemStyle: { color: th.tooltipText },
       labelStyle: { color: th.textMuted, marginBottom: 4 },
-      cursor: { stroke: '#2E75B6', strokeWidth: 1, strokeDasharray: '3 3' },
+      cursor: { stroke: '#E8520E', strokeWidth: 1, strokeDasharray: '3 3' },
     }
-    return { tt: _tt, ttBar: { ..._tt, cursor: { fill: 'rgba(46,117,182,0.08)' } } }
+    return { tt: _tt, ttBar: { ..._tt, cursor: { fill: 'rgba(232,82,14,0.06)' } } }
   }, [th])
 
   /* ─── render ─────────────────────────────────────────────────── */
@@ -247,7 +244,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               <span className="mono font-semibold" style={{ color: sroiColor(tot.sroi) }}>{tot.sroi.toFixed(2)}x</span>
             </p>
           </div>
-          <div className="text-xs mono px-3 py-1.5 rounded-xl" style={{ background: 'rgba(46,117,182,0.08)', border: '1px solid rgba(46,117,182,0.2)', color: '#5B9BD5' }}>
+          <div className="text-xs mono px-3 py-1.5 rounded-xl" style={{ background: 'rgba(232,82,14,0.06)', border: '1px solid rgba(232,82,14,0.2)', color: '#E8520E' }}>
             Modo Decidir
           </div>
         </header>
@@ -275,15 +272,15 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
           <div className="space-y-4">
             {/* KPI row */}
             <div className="grid grid-cols-4 gap-4">
-              <KpiChip dark={darkMode} delay={0.05} label="SROI Portafolio" value={`${tot.sroi.toFixed(2)}x`} color={sroiColor(tot.sroi)} sub="Valor ajustado / Inversión" />
-              <KpiChip dark={darkMode} delay={0.10} label="Inversión total" value={fmtMXN(tot.inv)} sub="MXN · 2024" />
-              <KpiChip dark={darkMode} delay={0.15} label="Valor social ajustado" value={fmtMXN(tot.adj)} sub={`${((tot.adj / tot.inv - 1) * 100).toFixed(0)}% sobre inversión`} color="#10B981" />
-              <KpiChip dark={darkMode} delay={0.20} label="Beneficiarios directos" value={projects.reduce((a, p) => a + p.direct_beneficiaries, 0).toLocaleString('es-MX')} sub="personas · 2024" />
+              <KpiChip delay={0.05} label="SROI Portafolio" value={`${tot.sroi.toFixed(2)}x`} color={sroiColor(tot.sroi)} sub="Valor ajustado / Inversión" />
+              <KpiChip delay={0.10} label="Inversión total" value={fmtMXN(tot.inv)} sub="MXN · 2024" />
+              <KpiChip delay={0.15} label="Valor social ajustado" value={fmtMXN(tot.adj)} sub={`${((tot.adj / tot.inv - 1) * 100).toFixed(0)}% sobre inversión`} color="#10B981" />
+              <KpiChip delay={0.20} label="Beneficiarios directos" value={projects.reduce((a, p) => a + p.direct_beneficiaries, 0).toLocaleString('es-MX')} sub="personas · 2024" />
             </div>
 
             {/* Distribution + SROI trend by archetype */}
             <div className="grid grid-cols-12 gap-4">
-              <Card delay={0.25} dark={darkMode} className="col-span-3">
+              <Card delay={0.25} className="col-span-3">
                 <SectionTitle th={th}>Distribución de impacto</SectionTitle>
                 <div className="flex flex-col items-center">
                   <div className="w-32 h-32">
@@ -332,7 +329,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 </div>
               </Card>
 
-              <Card delay={0.3} dark={darkMode} className="col-span-5">
+              <Card delay={0.3} className="col-span-5">
                 <SectionTitle th={th} sub="barra = portafolio · línea = benchmark medio sectorial">SROI por arquetipo vs. benchmark</SectionTitle>
                 <div className="h-[200px]">
                   <ResponsiveContainer>
@@ -342,7 +339,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                       <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} />
                       <Tooltip {...ttBar} formatter={(v) => v.toFixed(2) + 'x'} />
                       <Bar dataKey="sroi" name="SROI portafolio" radius={[4, 4, 0, 0]}
-                        activeBar={{ stroke: 'rgba(255,255,255,0.3)', strokeWidth: 2, fillOpacity: 1 }}
+                        activeBar={{ stroke: 'rgba(0,0,0,0.15)', strokeWidth: 2, fillOpacity: 1 }}
                       >
                         {archetypeBar.map((d, i) => <Cell key={i} fill={d.color} fillOpacity={0.75} />)}
                       </Bar>
@@ -357,7 +354,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 </p>
               </Card>
 
-              <Card delay={0.35} dark={darkMode} className="col-span-4">
+              <Card delay={0.35} className="col-span-4">
                 <SectionTitle th={th}>Top 5 iniciativas por SROI</SectionTitle>
                 <div className="space-y-3">
                   {top5.map((p, i) => (
@@ -365,7 +362,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                       <div className="flex justify-between items-center text-xs mb-1.5">
                         <span className="flex items-center gap-2">
                           <span className="mono text-[10px] w-5" style={{ color: th.textFaint }}>{i + 1}</span>
-                          <span className="group-hover:text-[#5B9BD5] transition truncate max-w-[160px]" style={{ color: th.textPrimary }}>{p.name}</span>
+                          <span className="group-hover:text-[#E8520E] transition truncate max-w-[160px]" style={{ color: th.textPrimary }}>{p.name}</span>
                         </span>
                         <span className="mono font-semibold flex-shrink-0 ml-2" style={{ color: sroiColor(p.sroi) }}>{p.sroi.toFixed(2)}x</span>
                       </div>
@@ -379,7 +376,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             </div>
 
             {/* Insights box */}
-            <Card delay={0.4} dark={darkMode}>
+            <Card delay={0.4}>
               <SectionTitle th={th}>Hallazgos principales del portafolio</SectionTitle>
               <div className="grid grid-cols-3 gap-6 text-xs" style={{ color: th.textSecondary }}>
                 <div>
@@ -407,7 +404,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
 
         {/* ── TAB: ranking ───────────────────────────────────────────── */}
         {activeTab === 'ranking' && (
-          <Card delay={0.05} dark={darkMode}>
+          <Card delay={0.05}>
             <div className="flex items-center justify-between mb-4">
               <SectionTitle th={th} sub="SROI ajustado con deadweight, attribution, displacement y drop-off">Ranking completo de iniciativas</SectionTitle>
               <div className="flex items-center gap-2">
@@ -442,7 +439,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     <th
                       key={h.k || h.l}
                       onClick={h.k ? () => toggleSort(h.k) : undefined}
-                      className={`text-left py-2.5 px-2 font-medium select-none ${h.k ? 'cursor-pointer hover:text-white transition' : ''}`}
+                      className={`text-left py-2.5 px-2 font-medium select-none ${h.k ? 'cursor-pointer hover:text-black transition' : ''}`}
                     >
                       {h.k ? (
                         <span className="inline-flex items-center gap-1">{h.l} <ArrowUpDown className="w-3 h-3 opacity-40" /></span>
@@ -463,11 +460,11 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     <tr
                       key={p.id}
                       onClick={() => onOpenProject(p.id)}
-                      className="cursor-pointer transition group hover:bg-[rgba(46,117,182,0.06)]"
+                      className="cursor-pointer transition group hover:bg-[rgba(232,82,14,0.04)]"
                       style={{ borderBottom: `1px solid ${th.tableBorder}` }}
                     >
                       <td className="py-3 px-2 mono text-[11px]" style={{ color: th.textFaint }}>{p.id}</td>
-                      <td className="py-3 px-2 font-medium group-hover:text-[#5B9BD5] transition max-w-[180px]" style={{ color: th.textPrimary }}>
+                      <td className="py-3 px-2 font-medium group-hover:text-[#E8520E] transition max-w-[180px]" style={{ color: th.textPrimary }}>
                         <span className="truncate block">{p.name}</span>
                       </td>
                       <td className="py-3 px-2">
@@ -530,7 +527,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
         {/* ── TAB: benchmarks ────────────────────────────────────────── */}
         {activeTab === 'benchmarks' && (
           <div className="space-y-4">
-            <Card delay={0.05} dark={darkMode}>
+            <Card delay={0.05}>
               <SectionTitle th={th} sub="Fuentes: Cemex Patrimonio Hoy · HACT UK · Iluméxico · Caso Metepec MX · BAMX · Social Value UK">Rangos SROI típicos por arquetipo</SectionTitle>
               <div className="space-y-3">
                 {Object.entries(ARCHETYPES).map(([k, v]) => {
@@ -547,7 +544,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                           <span className="mono px-1.5 py-0.5 rounded text-[10px]" style={{ background: v.color + '22', color: v.color }}>Arq. {k}</span>
                           {v.name}
                         </span>
-                        <div className="flex items-center gap-3 mono text-[10px]" style={{ color: '#64748b' }}>
+                        <div className="flex items-center gap-3 mono text-[10px]" style={{ color: '#999999' }}>
                           <span>Portafolio: <strong style={{ color: sroiColor(archSroi) }}>{archSroi.toFixed(2)}x</strong></span>
                           <span>Bench. medio: <strong style={{ color: '#94A3B8' }}>{bench.mid}x</strong></span>
                         </div>
@@ -577,7 +574,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               </div>
             </Card>
 
-            <Card delay={0.15} dark={darkMode}>
+            <Card delay={0.15}>
               <SectionTitle th={th} sub="Δ = SROI del proyecto menos benchmark medio del arquetipo">Posición de cada proyecto vs. benchmark medio</SectionTitle>
               <table className="w-full text-xs">
                 <thead>
@@ -629,7 +626,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               {Object.entries(QUADRANT).map(([k, v]) => {
                 const count = projects.filter((p) => p.quadrant === k).length
                 return (
-                  <Card key={k} delay={0.05} dark={darkMode} style={{ borderColor: v.color + '33' }}>
+                  <Card key={k} delay={0.05} style={{ borderColor: v.color + '33' }}>
                     <v.Icon className="w-5 h-5 mb-2" style={{ color: v.color }} />
                     <div className="text-sm font-semibold" style={{ color: v.color }}>{v.label}</div>
                     <div className="text-[11px] mt-1 mb-2" style={{ color: th.textMuted }}>{v.desc}</div>
@@ -641,7 +638,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             </div>
 
             {/* Visual quadrant plot */}
-            <Card delay={0.15} dark={darkMode}>
+            <Card delay={0.15}>
               <SectionTitle th={th} sub="Eje X = alineación estratégica (1–5) · Eje Y = SROI · tamaño = inversión relativa">Matriz 2×2 de priorización estratégica</SectionTitle>
               <div className="relative h-[360px] rounded-xl overflow-hidden" style={{ background: th.quadBg }}>
                 {/* quadrant dividers */}
@@ -691,7 +688,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             </Card>
 
             {/* Action table */}
-            <Card delay={0.3} dark={darkMode}>
+            <Card delay={0.3}>
               <SectionTitle th={th} sub="Basado en SROI, alineación estratégica, calidad de datos y escalabilidad">Decisiones estratégicas por proyecto</SectionTitle>
               <table className="w-full text-xs">
                 <thead>
@@ -737,7 +734,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             {/* 3 scenarios */}
             <div className="grid grid-cols-3 gap-4">
               {SCENARIOS.map((s, i) => (
-                <Card key={s.label} delay={0.05 * (i + 1)} dark={darkMode} style={{ borderColor: s.color + '33' }}>
+                <Card key={s.label} delay={0.05 * (i + 1)} style={{ borderColor: s.color + '33' }}>
                   <div className="text-[10px] mono uppercase tracking-widest mb-1" style={{ color: s.color }}>Escenario {s.label}</div>
                   <div className="text-3xl font-semibold mono mb-1" style={{ color: s.color }}>{s.sroi.toFixed(2)}x</div>
                   <div className="text-sm mono mb-3" style={{ color: th.textPrimary }}>{fmtMXN(s.adj)} ajustado</div>
@@ -747,7 +744,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             </div>
 
             {/* Scenario comparison bar */}
-            <Card delay={0.2} dark={darkMode}>
+            <Card delay={0.2}>
               <SectionTitle th={th} sub="Conservador (CSC = IEPS $68/tCO₂) · Base v8 ($173/tCO₂) · Optimista ($345/tCO₂)">Rango de SROI portafolio según escenario</SectionTitle>
               <div className="h-[200px]">
                 <ResponsiveContainer>
@@ -757,7 +754,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} domain={[0, 2]} />
                     <Tooltip {...ttBar} formatter={(v) => v.toFixed(2) + 'x'} />
                     <Bar dataKey="sroi" name="SROI portafolio" radius={[6, 6, 0, 0]}
-                      activeBar={{ stroke: 'rgba(255,255,255,0.3)', strokeWidth: 2, fillOpacity: 1 }}
+                      activeBar={{ stroke: 'rgba(0,0,0,0.15)', strokeWidth: 2, fillOpacity: 1 }}
                     >
                       {SCENARIOS.map((s, i) => <Cell key={i} fill={s.color} fillOpacity={0.8} />)}
                     </Bar>
@@ -767,8 +764,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               </div>
             </Card>
 
-            {/* 10 sensitivity variables */}
-            <Card delay={0.3} dark={darkMode}>
+            <Card delay={0.3}>
               <SectionTitle th={th} sub="Magnitud del impacto si el supuesto cambia respecto al valor base utilizado">10 variables más sensibles del modelo</SectionTitle>
               <div className="space-y-2">
                 {SENSITIVITY_VARS.map((v, i) => {
@@ -800,7 +796,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
         {/* ── TAB: limitations ───────────────────────────────────────── */}
         {activeTab === 'limitations' && (
           <div className="space-y-4">
-            <Card delay={0.05} dark={darkMode}>
+            <Card delay={0.05}>
               <SectionTitle th={th} sub="Reconocer incertidumbre explícitamente demuestra rigor analítico (15% peso en rúbrica)">Limitaciones metodológicas — transparencia del análisis</SectionTitle>
               <div className="space-y-2">
                 {LIMITATIONS.map((lim, i) => {
@@ -808,11 +804,11 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     DATOS: '#5B9BD5', METODOLOGÍA: '#F59E0B', PROXIES: '#ED7D31',
                     ATRIBUCIÓN: '#10B981', VERIFICACIÓN: '#A78BFA', CONTRAFACTUAL: '#EF4444',
                     EXTERNALIDADES: '#A78BFA',
-                  }[lim.cat] || '#64748b'
+                  }[lim.cat] || '#999999'
                   return (
                     <div
                       key={i}
-                      className="flex gap-4 py-3 px-4 rounded-xl cursor-pointer transition-colors hover:bg-white/[0.04]"
+                      className="flex gap-4 py-3 px-4 rounded-xl cursor-pointer transition-colors hover:bg-black/[0.02]"
                       style={{ background: th.limItemBg, border: `1px solid ${th.limItemBorder}` }}
                     >
                       <span className="mono text-[10px] px-2 py-0.5 h-fit rounded-md font-semibold flex-shrink-0 mt-0.5" style={{ background: catColor + '1a', color: catColor, border: `1px solid ${catColor}33` }}>
@@ -825,7 +821,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               </div>
             </Card>
 
-            <Card delay={0.2} dark={darkMode}>
+            <Card delay={0.2}>
               <SectionTitle th={th} sub="Valores utilizados para el escenario central · Modificables para análisis de sensibilidad">Supuestos clave del modelo base</SectionTitle>
               <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-xs">
                 {[
@@ -851,9 +847,9 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               </div>
             </Card>
 
-            <Card delay={0.35} dark={darkMode} style={{ borderColor: 'rgba(46,117,182,0.2)' }}>
+            <Card delay={0.35} style={{ borderColor: 'rgba(232,82,14,0.15)' }}>
               <div className="flex items-start gap-3">
-                <Info className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#5B9BD5' }} />
+                <Info className="w-4 h-4 mt-0.5 flex-shrink-0" style={{ color: '#E8520E' }} />
                 <p className="text-[12px] leading-relaxed" style={{ color: th.textSecondary }}>
                   <strong style={{ color: th.textPrimary }}>Principio rector del análisis: </strong>
                   "Un análisis SROI conservador, claro y defendible es siempre superior a uno alto pero cuestionable." — SROI Network Guide 2012.

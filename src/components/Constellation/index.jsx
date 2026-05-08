@@ -1,19 +1,20 @@
 import { useState, useRef, useMemo, useCallback, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Stars } from '@react-three/drei'
-import { EffectComposer, Bloom, Vignette, Noise } from '@react-three/postprocessing'
+import { OrbitControls } from '@react-three/drei'
+import { EffectComposer, Bloom, Noise } from '@react-three/postprocessing'
 import { BlendFunction, KernelSize } from 'postprocessing'
 import NodeMesh from './Node'
 import ConnectionsLayer from './Connections'
+import GroupRegions from './GroupRegions'
 import { CameraRig, NodeProjector, NodeZoomCamera } from './CameraRig'
-import { computePositions } from './utils'
+import { computePositions, getGroupRegions } from './utils'
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
   showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
 }) {
   const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
-  // Pre-compute radii once — stable unless projects change
+  const regions = useMemo(() => getGroupRegions(projects, positions, groupBy), [projects, positions, groupBy])
   const radii = useMemo(
     () => projects.map((p) => 0.2 + Math.max(0, Math.min(1, (p.investment - 200000) / (2000000 - 200000))) * 0.3),
     [projects]
@@ -25,14 +26,16 @@ function SceneInner({
 
   return (
     <>
-      <fog attach="fog" args={['#0a0a0f', 26, 70]} />
+      <fog attach="fog" args={['#F0EDE8', 40, 90]} />
+      <color attach="background" args={['#F0EDE8']} />
 
-      <ambientLight intensity={0.15} color="#1E293B" />
-      <directionalLight position={[10, 10, 15]} intensity={0.5} color="#E0E7FF" />
-      <directionalLight position={[-10, -5, -10]} intensity={0.2} color="#F59E0B" />
-      <pointLight position={[0, 0, 5]} intensity={0.4} color="#FFFFFF" distance={30} />
+      <ambientLight intensity={0.6} color="#FFFFFF" />
+      <directionalLight position={[10, 12, 15]} intensity={0.8} color="#FFF8F0" />
+      <directionalLight position={[-8, -4, -10]} intensity={0.3} color="#E8520E" />
+      <pointLight position={[0, 0, 6]} intensity={0.3} color="#FFFFFF" distance={30} />
+      <hemisphereLight args={['#FFF8F0', '#E5E0DA', 0.4]} />
 
-      <Stars radius={120} depth={80} count={300} factor={1.5} saturation={0} fade speed={0.2} />
+      {!selectedId && <GroupRegions regions={regions} groupBy={groupBy} />}
 
       <ConnectionsLayer
         projects={projects}
@@ -58,10 +61,6 @@ function SceneInner({
         />
       ))}
 
-      <mesh position={[0, 0, 0]} onPointerMissed={onDeselect}>
-        <boxGeometry args={[0.001, 0.001, 0.001]} />
-        <meshBasicMaterial transparent opacity={0} />
-      </mesh>
 
       <CameraRig
         targetPosition={cameraTarget?.position}
@@ -78,7 +77,7 @@ function SceneInner({
 
       <OrbitControls
         ref={controlsRef}
-        enabled={!selectedId}
+        enableRotate={!selectedId}
         enableZoom
         enablePan={false}
         autoRotate={autoRotate && !selectedId}
@@ -86,20 +85,19 @@ function SceneInner({
         zoomSpeed={0.6}
         enableDamping
         dampingFactor={0.05}
-        minDistance={10}
-        maxDistance={35}
+        minDistance={8}
+        maxDistance={45}
       />
 
       <EffectComposer multisampling={0}>
         <Bloom
-          intensity={0.65}
-          luminanceThreshold={0.25}
-          luminanceSmoothing={0.7}
+          intensity={0.3}
+          luminanceThreshold={0.6}
+          luminanceSmoothing={0.8}
           kernelSize={KernelSize.SMALL}
           mipmapBlur
         />
-        <Vignette offset={0.3} darkness={0.55} eskil={false} blendFunction={BlendFunction.NORMAL} />
-        <Noise opacity={0.02} blendFunction={BlendFunction.OVERLAY} />
+        <Noise opacity={0.015} blendFunction={BlendFunction.OVERLAY} />
       </EffectComposer>
     </>
   )
@@ -115,7 +113,6 @@ export default function Constellation({
   const controlsRef = useRef()
   const idleTimer = useRef(null)
 
-  // [] — OrbitControls ref is populated by the time this effect runs (after R3F commit)
   useEffect(() => {
     const ctrl = controlsRef.current
     if (!ctrl) return
@@ -131,11 +128,10 @@ export default function Constellation({
 
   return (
     <Canvas
-      camera={{ position: [0, 1, 14], fov: 45, near: 0.1, far: 200 }}
-      gl={{ antialias: false, powerPreference: 'high-performance', alpha: false }}
+      camera={{ position: [0, 4, 18], fov: 45, near: 0.1, far: 200 }}
+      gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
       dpr={[1, 1.5]}
       frameloop={paused ? 'never' : 'always'}
-      style={{ background: 'transparent' }}
     >
       {onProjectAnchor && (
         <NodeProjector

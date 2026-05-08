@@ -10,25 +10,25 @@ import { fmtMXN, sroiColor, portfolioTotals } from '../../lib/sroi'
 
 const entry = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } }
 
-function mkTh(dark) {
+function mkTh() {
   return {
-    pageBg:       dark ? 'rgba(10,14,26,0.97)'   : '#F0F4FA',
-    cardBg:       dark ? 'rgba(19,25,41,0.85)'    : 'rgba(255,255,255,0.9)',
-    cardBorder:   dark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.07)',
-    textPrimary:  dark ? '#F5F7FA'                : '#0F172A',
-    textSecondary:dark ? '#94A3B8'                : '#475569',
-    textMuted:    dark ? '#64748b'                : '#94A3B8',
-    tableBorder:  dark ? '#1F2937'                : '#E2E8F0',
-    trackBg:      dark ? '#1F2937'                : '#E2E8F0',
-    chartGrid:    dark ? '#1F2937'                : '#E2E8F0',
-    chartAxis:    dark ? '#94A3B8'                : '#475569',
-    tooltipBg:    dark ? '#131929'                : '#ffffff',
-    tooltipBorder:dark ? '#1F2937'                : '#E2E8F0',
-    tooltipText:  dark ? '#F5F7FA'                : '#0F172A',
-    backBtn:      dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)',
-    backBtnBorder:dark ? 'rgba(255,255,255,0.1)'  : 'rgba(0,0,0,0.1)',
-    crumbText:    dark ? '#94A3B8'                : '#64748b',
-    shadow:       dark ? '0 4px 20px -8px rgba(0,0,0,0.5)' : '0 4px 16px -6px rgba(0,0,0,0.1)',
+    pageBg:       '#F8F6F3',
+    cardBg:       '#FFFFFF',
+    cardBorder:   '#E5E0DA',
+    textPrimary:  '#1A1A1A',
+    textSecondary:'#666666',
+    textMuted:    '#999999',
+    tableBorder:  '#E5E0DA',
+    trackBg:      '#E5E0DA',
+    chartGrid:    '#E5E0DA',
+    chartAxis:    '#666666',
+    tooltipBg:    '#FFFFFF',
+    tooltipBorder:'#E5E0DA',
+    tooltipText:  '#1A1A1A',
+    backBtn:      '#FFFFFF',
+    backBtnBorder:'#E5E0DA',
+    crumbText:    '#666666',
+    shadow:       '0 2px 12px -4px rgba(0,0,0,0.06)',
   }
 }
 
@@ -106,8 +106,8 @@ function AdjustmentBar({ label, value, color, th, delay = 0 }) {
   )
 }
 
-export default function ProjectDashboard({ project, projects, onBack, onBackToGraph, onBackToPortfolio, previousView, darkMode = true }) {
-  const th = mkTh(darkMode)
+export default function ProjectDashboard({ project, projects, onBack, onBackToGraph, onBackToPortfolio, previousView }) {
+  const th = mkTh()
   const arch = ARCHETYPES[project.archetype]
 
   const portfolio = useMemo(() => portfolioTotals(projects), [projects])
@@ -126,7 +126,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
     const redDR = afterDP - afterDR
 
     return [
-      { name: 'Bruto',        label: 'Valor Bruto',   base: 0,       value: bruto,  color: '#2E75B6' },
+      { name: 'Bruto',        label: 'Valor Bruto',   base: 0,       value: bruto,  color: '#E8520E' },
       { name: 'Deadweight',   label: 'Deadweight',    base: afterDW, value: redDW,  color: '#EF4444', isReduction: true, pct: Math.round(dw * 100) },
       { name: 'Attribution',  label: 'Attribution',   base: afterAT, value: redAT,  color: '#F59E0B', isReduction: true, pct: Math.round(at * 100) },
       { name: 'Displacement', label: 'Displacement',  base: afterDP, value: redDP,  color: '#ED7D31', isReduction: true, pct: Math.round(dp * 100) },
@@ -144,9 +144,9 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
   const backLabel = previousView === 'portfolio' ? 'Volver al dashboard' : 'Volver al grafo'
 
   const kpis = [
-    { label: 'Inversión Total',     value: fmtMXN(project.investment),       sub: 'MXN · 2024',  icon: DollarSign, iconColor: '#2E75B6' },
+    { label: 'Inversión Total',     value: fmtMXN(project.investment),       sub: 'MXN · 2024',  icon: DollarSign, iconColor: '#E8520E' },
     { label: 'SROI',                value: project.sroi.toFixed(2) + 'x',    sub: 'Retorno social', icon: TrendingUp, iconColor: sroiColor(project.sroi), valueColor: sroiColor(project.sroi) },
-    { label: 'Valor Bruto',        value: fmtMXN(project.vBruto),           sub: 'Antes de ajustes', icon: BarChart3, iconColor: '#5B9BD5' },
+    { label: 'Valor Bruto',        value: fmtMXN(project.vBruto),           sub: 'Antes de ajustes', icon: BarChart3, iconColor: '#F0854A' },
     { label: 'Valor Ajustado',     value: fmtMXN(project.vAjustado),        sub: `${(project.vAjustado / project.vBruto * 100).toFixed(0)}% del bruto`, icon: Sparkles, iconColor: '#10B981' },
     { label: 'Beneficiarios',       value: project.direct_beneficiaries.toLocaleString('es-MX'), sub: 'personas directas', icon: Users, iconColor: '#F59E0B' },
   ]
@@ -278,7 +278,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                           <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: th.trackBg }}>
                             <div className="h-full rounded-full" style={{
                               width: `${pct}%`,
-                              background: `linear-gradient(90deg, #2E75B6, #5B9BD5)`,
+                              background: `linear-gradient(90deg, #E8520E, #F0854A)`,
                             }} />
                           </div>
                           <span className="mono text-[10px] w-9 text-right" style={{ color: th.textMuted }}>
@@ -373,7 +373,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
 
             <div className="flex items-center gap-5 mt-3 text-[10px]" style={{ color: th.textMuted }}>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#2E75B6' }} /> Valor bruto
+                <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#E8520E' }} /> Valor bruto
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm" style={{ background: '#EF4444', opacity: 0.75 }} /> Reducciones

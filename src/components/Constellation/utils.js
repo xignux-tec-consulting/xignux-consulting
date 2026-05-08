@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { ARCHETYPES } from '../../data/projects'
 
 // Stable seed from project id — no Math.random(), same result every call
 const seed = (p) => (p.id.charCodeAt(1) * 13 + p.id.charCodeAt(2) * 7) % 100
@@ -24,48 +25,110 @@ export const projectPosition = (p) => {
 }
 
 // Positions for all modes — deterministic (seed only from project id)
+const ARC_CENTERS = {
+  A: { angle: 0,              R: 4.5 },
+  B: { angle: Math.PI * 0.4,  R: 4.5 },
+  C: { angle: Math.PI * 0.8,  R: 4.5 },
+  D: { angle: Math.PI * 1.2,  R: 4.5 },
+  E: { angle: Math.PI * 1.6,  R: 4.5 },
+}
+
 export const computePositions = (projects, groupBy) => {
   if (groupBy === 'arquetipo') {
-    const arcAngles = { A: 0, B: Math.PI * 0.4, C: Math.PI, D: Math.PI * 1.4, E: Math.PI * 1.75 }
     const idxByArch = {}
     const countByArch = {}
     projects.forEach((p) => { countByArch[p.archetype] = (countByArch[p.archetype] || 0) + 1 })
     return projects.map((p) => {
-      const base = arcAngles[p.archetype] ?? 0
+      const center = ARC_CENTERS[p.archetype]
+      const cx = Math.cos(center.angle) * center.R
+      const cz = Math.sin(center.angle) * center.R
       const idx = idxByArch[p.archetype] = (idxByArch[p.archetype] ?? -1) + 1
       const total = countByArch[p.archetype]
-      const spread = 0.65
-      const angle = base + ((total > 1 ? idx / (total - 1) : 0.5) - 0.5) * spread
-      const R = 1.5 + (seed(p) / 100) * 1.5
-      const y = (seed2(p) / 100 - 0.5) * 2.0
-      return [Math.cos(angle) * R, y, Math.sin(angle) * R]
+      const localAngle = (idx / Math.max(1, total)) * Math.PI * 2
+      const localR = 0.6 + (seed(p) / 100) * 0.8
+      const y = (seed2(p) / 100 - 0.5) * 1.2
+      return [cx + Math.cos(localAngle) * localR, y, cz + Math.sin(localAngle) * localR]
     })
   }
 
-  if (groupBy === 'inversión') {
-    const maxInv = Math.max(...projects.map((p) => p.investment))
+  if (groupBy === 'inversion') {
+    const tiers = [
+      { test: (inv) => inv >= 1000000, R: 1.5 },
+      { test: (inv) => inv >= 400000,  R: 3.5 },
+      { test: () => true,             R: 5.5 },
+    ]
+    const idxByTier = {}
+    const countByTier = {}
+    projects.forEach((p) => {
+      const tier = tiers.findIndex((t) => t.test(p.investment))
+      countByTier[tier] = (countByTier[tier] || 0) + 1
+    })
     return projects.map((p) => {
-      const norm = p.investment / maxInv
-      const R = 1.0 + (1 - norm) * 2.5
-      const angle = (seed(p) / 100) * Math.PI * 2
-      const y = (seed2(p) / 100 - 0.5) * 2.0
+      const tier = tiers.findIndex((t) => t.test(p.investment))
+      const R = tiers[tier].R
+      const idx = idxByTier[tier] = (idxByTier[tier] ?? -1) + 1
+      const total = countByTier[tier]
+      const angle = (idx / Math.max(1, total)) * Math.PI * 2
+      const y = (seed(p) / 100 - 0.5) * 1.2
       return [Math.cos(angle) * R, y, Math.sin(angle) * R]
     })
   }
 
   // 'sroi' — concentric rings by category (default)
-  const radiusMap = { ALTO: 1.0, MEDIO: 2.5, BAJO: 3.5 }
+  const radiusMap = { ALTO: 1.5, MEDIO: 3.5, BAJO: 5.5 }
   const idxByCat = {}
   const countByCat = {}
   projects.forEach((p) => { countByCat[p.category] = (countByCat[p.category] || 0) + 1 })
   return projects.map((p) => {
-    const R = radiusMap[p.category] ?? 3.0
+    const R = radiusMap[p.category] ?? 4.0
     const idx = idxByCat[p.category] = (idxByCat[p.category] ?? -1) + 1
     const total = countByCat[p.category]
     const angle = (idx / Math.max(1, total)) * Math.PI * 2
-    const y = (seed(p) / 100 - 0.5) * 2.0
+    const y = (seed(p) / 100 - 0.5) * 1.2
     return [Math.cos(angle) * R, y, Math.sin(angle) * R]
   })
+}
+
+export const getGroupRegions = (projects, positions, groupBy) => {
+  if (groupBy === 'arquetipo') {
+    const groups = {}
+    projects.forEach((p, i) => {
+      if (!groups[p.archetype]) groups[p.archetype] = []
+      groups[p.archetype].push(positions[i])
+    })
+    return Object.entries(groups).map(([key, pts]) => {
+      const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length
+      const cz = pts.reduce((s, p) => s + p[2], 0) / pts.length
+      const maxDist = pts.reduce((m, p) => {
+        const dx = p[0] - cx, dz = p[2] - cz
+        return Math.max(m, Math.sqrt(dx * dx + dz * dz))
+      }, 0)
+      return {
+        center: [cx, -1.2, cz],
+        radius: maxDist + 0.9,
+        color: ARCHETYPES[key]?.color || '#888',
+        label: ARCHETYPES[key]?.name || key,
+      }
+    })
+  }
+
+  if (groupBy === 'sroi') {
+    return [
+      { center: [0, -1.2, 0], radius: 2.3,  color: '#10B981', label: 'SROI Alto (>2x)',   labelAngle: Math.PI * 0.5 },
+      { center: [0, -1.2, 0], radius: 4.3,  color: '#F59E0B', label: 'SROI Medio (1-2x)', labelAngle: Math.PI * 1.0 },
+      { center: [0, -1.2, 0], radius: 6.3,  color: '#7F1D1D', label: 'SROI Bajo (<1x)',   labelAngle: Math.PI * 1.5 },
+    ]
+  }
+
+  if (groupBy === 'inversion') {
+    return [
+      { center: [0, -1.2, 0], radius: 2.3, color: '#E8520E', label: '> $1M MXN',        labelAngle: Math.PI * 0.5 },
+      { center: [0, -1.2, 0], radius: 4.3, color: '#F59E0B', label: '$400K – $1M MXN',  labelAngle: Math.PI * 1.0 },
+      { center: [0, -1.2, 0], radius: 6.3, color: '#999999', label: '< $400K MXN',      labelAngle: Math.PI * 1.5 },
+    ]
+  }
+
+  return []
 }
 
 export const projectRadius = (p) => {

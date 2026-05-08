@@ -3,7 +3,7 @@ import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { getSoftParticleTexture, generateBrainPositions } from './utils'
 
-export default function BrainHalo({ count = 3000, isHovered, dispersionRef, darkMode = true }) {
+export default function BrainHalo({ count = 3000, isHovered, dispersionRef }) {
   const groupRef = useRef()
   const pointsRef = useRef()
   const localDispersion = useRef(0)
@@ -21,14 +21,14 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef, dark
 
   const material = useMemo(() => new THREE.PointsMaterial({
     map: getSoftParticleTexture(),
-    size: 0.18,
-    color: new THREE.Color('#3B82F6'),
+    size: 0.16,
+    color: new THREE.Color('#E8520E'),
     transparent: true,
-    opacity: 0.85,
+    opacity: 0.35,
     sizeAttenuation: true,
     depthWrite: false,
     alphaTest: 0.001,
-    blending: THREE.AdditiveBlending,
+    blending: THREE.NormalBlending,
     toneMapped: false,
   }), [])
 
@@ -52,10 +52,10 @@ export default function BrainHalo({ count = 3000, isHovered, dispersionRef, dark
         arr[i * 3 + 2] = targetIdle[i * 3 + 2] * scale
       }
       pointsRef.current.geometry.attributes.position.needsUpdate = true
-      material.size = THREE.MathUtils.lerp(0.18, 0.22, eased)
+      material.size = THREE.MathUtils.lerp(0.16, 0.2, eased)
     }
 
-    const targetOpacity = isHovered ? 1.0 : 0.85
+    const targetOpacity = isHovered ? 0.5 : 0.35
     if (Math.abs(material.opacity - targetOpacity) > 0.001) {
       material.opacity = THREE.MathUtils.lerp(material.opacity, targetOpacity, Math.min(1, delta * 3))
     }

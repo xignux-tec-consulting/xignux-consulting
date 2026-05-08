@@ -5,14 +5,12 @@ export default {
     extend: {
       fontFamily: {
         sans: [
-          '-apple-system', 'BlinkMacSystemFont',
-          '"SF Pro Display"', '"SF Pro Text"',
+          'Inter', '-apple-system', 'BlinkMacSystemFont',
           '"Helvetica Neue"', 'Arial', 'sans-serif',
         ],
         mono: [
-          'ui-monospace', '"SF Mono"',
-          '"Cascadia Code"', 'Menlo', 'Monaco',
-          'Consolas', 'monospace',
+          '"JetBrains Mono"', 'ui-monospace', '"SF Mono"',
+          'Menlo', 'Monaco', 'Consolas', 'monospace',
         ],
       },
       letterSpacing: {

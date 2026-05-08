@@ -35,66 +35,79 @@ export function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
   return null
 }
 
-const PANEL_WIDTH_PX = 420
-const NODE_CAM_DIST = 5
-const DEFAULT_POS = new THREE.Vector3(0, 1, 14)
+const NODE_CAM_DIST = 4.5
+const DEFAULT_POS = new THREE.Vector3(0, 4, 18)
 const ORIGIN = new THREE.Vector3(0, 0, 0)
+const PANEL_OFFSET_X = 1.5
 
 export function NodeZoomCamera({ selectedId, projects, positions, controlsRef }) {
-  const { camera, size } = useThree()
+  const { camera } = useThree()
   const nodePos = useRef(new THREE.Vector3())
-  const camDir = useRef(new THREE.Vector3())
   const camTarget = useRef(new THREE.Vector3())
-  const rightVec = useRef(new THREE.Vector3())
-  const upVec = useRef(new THREE.Vector3(0, 1, 0))
+  const approachDir = useRef(new THREE.Vector3())
   const lookAtTarget = useRef(new THREE.Vector3())
   const prevSelectedId = useRef(null)
   const returning = useRef(false)
+  const settled = useRef(false)
 
   useEffect(() => {
-    if (prevSelectedId.current && !selectedId) {
+    if (selectedId) {
+      returning.current = false
+      settled.current = false
+    } else if (prevSelectedId.current) {
       returning.current = true
+      settled.current = false
     }
     prevSelectedId.current = selectedId
   }, [selectedId])
 
   useFrame((_, delta) => {
     if (returning.current) {
-      const speed = Math.min(1, delta * 2.2)
+      const speed = Math.min(1, delta * 5)
       camera.position.lerp(DEFAULT_POS, speed)
+      camera.lookAt(ORIGIN)
       if (controlsRef?.current) {
-        controlsRef.current.target.lerp(ORIGIN, speed)
-        controlsRef.current.update()
+        controlsRef.current.target.copy(ORIGIN)
       }
-      if (camera.position.distanceTo(DEFAULT_POS) < 0.05) {
+      if (camera.position.distanceTo(DEFAULT_POS) < 0.2) {
         returning.current = false
+        camera.position.copy(DEFAULT_POS)
+        if (controlsRef?.current) {
+          controlsRef.current.target.copy(ORIGIN)
+          controlsRef.current.update()
+        }
       }
       return
     }
 
     if (!selectedId || !positions || !projects) return
+    if (settled.current) return
     const idx = projects.findIndex((p) => p.id === selectedId)
     if (idx < 0) return
 
     const pos = positions[idx]
     nodePos.current.set(pos[0], pos[1], pos[2])
 
-    const dist = nodePos.current.length() || 0.001
-    camDir.current.copy(nodePos.current).multiplyScalar(1 / dist)
-    camTarget.current.copy(nodePos.current).addScaledVector(camDir.current, NODE_CAM_DIST)
+    approachDir.current.copy(DEFAULT_POS).sub(nodePos.current).normalize()
+    camTarget.current.copy(nodePos.current).addScaledVector(approachDir.current, NODE_CAM_DIST)
 
-    const speed = Math.min(1, delta * 1.8)
+    lookAtTarget.current.set(pos[0] + PANEL_OFFSET_X, pos[1], pos[2])
+
+    const speed = Math.min(1, delta * 4)
     camera.position.lerp(camTarget.current, speed)
-
-    const fovRad = (camera.fov * Math.PI) / 180
-    const worldWidth = 2 * Math.tan(fovRad / 2) * NODE_CAM_DIST
-    const panelOffsetWorld = (PANEL_WIDTH_PX / 2 / size.width) * worldWidth
-    rightVec.current.crossVectors(camDir.current, upVec.current).normalize().negate()
-    lookAtTarget.current.copy(nodePos.current).addScaledVector(rightVec.current, panelOffsetWorld)
     camera.lookAt(lookAtTarget.current)
 
     if (controlsRef?.current) {
-      controlsRef.current.target.copy(nodePos.current)
+      controlsRef.current.target.copy(lookAtTarget.current)
+    }
+
+    if (camera.position.distanceTo(camTarget.current) < 0.1) {
+      settled.current = true
+      camera.position.copy(camTarget.current)
+      camera.lookAt(lookAtTarget.current)
+      if (controlsRef?.current) {
+        controlsRef.current.target.copy(lookAtTarget.current)
+      }
     }
   })
   return null

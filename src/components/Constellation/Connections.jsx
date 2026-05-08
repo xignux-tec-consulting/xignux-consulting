@@ -2,6 +2,7 @@ import { useRef, useMemo, useEffect } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Line } from '@react-three/drei'
 import * as THREE from 'three'
+import { ARCHETYPES } from '../../data/projects'
 
 export default function ConnectionsLayer({ projects, positions, showConnections, selectedId, groupBy }) {
   const lines = useMemo(() => {
@@ -17,7 +18,7 @@ export default function ConnectionsLayer({ projects, positions, showConnections,
     })
     const degree = new Array(projects.length).fill(0)
 
-    Object.values(byArch).forEach((idxs) => {
+    Object.entries(byArch).forEach(([arch, idxs]) => {
       const sorted = idxs
         .map((i) => ({ i, sroi: projects[i].sroi }))
         .sort((a, b) => b.sroi - a.sroi)
@@ -29,8 +30,9 @@ export default function ConnectionsLayer({ projects, positions, showConnections,
           const isTop = topIds.has(pa.id) && topIds.has(pb.id)
           result.push({
             from: positions[i], to: positions[j],
-            opacity: isTop ? 0.28 : 0.16,
-            width: isTop ? 0.7 : 0.5,
+            opacity: isTop ? 0.45 : 0.25,
+            width: isTop ? 1.2 : 0.8,
+            archColor: ARCHETYPES[arch]?.color || '#C0B8AE',
             ids: [pa.id, pb.id],
             key: `${pa.id}-${pb.id}`,
           })
@@ -46,7 +48,8 @@ export default function ConnectionsLayer({ projects, positions, showConnections,
       .forEach(({ p, i }) => {
         result.push({
           from: positions[i], to: [0, 0, 0],
-          opacity: 0.22, width: 0.6,
+          opacity: 0.35, width: 1.0,
+          archColor: '#E8520E',
           ids: [p.id, '__origin'],
           key: `origin-${p.id}`,
         })
@@ -98,10 +101,10 @@ export default function ConnectionsLayer({ projects, positions, showConnections,
             key={l.key}
             ref={(el) => { lineRefs.current[i] = el }}
             points={[l.from, l.to]}
-            color={involved ? '#FFFFFF' : '#CBD5E1'}
-            lineWidth={involved ? 1.6 : l.width || 0.6}
+            color={involved ? '#E8520E' : l.archColor || '#C0B8AE'}
+            lineWidth={involved ? 2.0 : l.width || 0.8}
             transparent
-            opacity={involved ? 0.8 : l.opacity || 0.2}
+            opacity={involved ? 0.85 : l.opacity || 0.25}
             toneMapped={false}
           />
         )

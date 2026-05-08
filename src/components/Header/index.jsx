@@ -5,16 +5,16 @@ import { portfolioTotals, fmtMXN, sroiColor } from '../../lib/sroi'
 function StatChip({ label, value, color }) {
   return (
     <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg"
-      style={{ background: 'rgba(46,117,182,0.08)', border: '1px solid rgba(46,117,182,0.18)' }}>
+      style={{ background: 'rgba(232,82,14,0.06)', border: '1px solid rgba(232,82,14,0.15)' }}>
       <span className="text-[11px] uppercase tracking-wider font-medium"
-        style={{ color: '#5B9BD5' }}>{label}</span>
+        style={{ color: '#E8520E' }}>{label}</span>
       <span className="text-[12px] mono font-semibold"
-        style={{ color: color || '#E8ECF2' }}>{value}</span>
+        style={{ color: color || '#1A1A1A' }}>{value}</span>
     </div>
   )
 }
 
-export default function Header({ projects, activeView, onChangeView }) {
+export default function Header({ projects, activeView, onChangeView, viewMode, onChangeViewMode }) {
   const { inv, sroi, count } = portfolioTotals(projects)
 
   return (
@@ -27,44 +27,50 @@ export default function Header({ projects, activeView, onChangeView }) {
       <div
         className="h-14 px-6 flex items-center"
         style={{
-          background: 'linear-gradient(90deg, rgba(10,14,26,0.97) 0%, rgba(14,20,36,0.97) 50%, rgba(10,14,26,0.97) 100%)',
-          borderBottom: '1px solid rgba(46,117,182,0.15)',
+          background: 'rgba(255,255,255,0.97)',
+          borderBottom: '1px solid #E5E0DA',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
         }}
       >
-        {/* ── Left: Logo + Brand ── */}
+        {/* Left: Logo + Brand */}
         <div className="flex items-center gap-3.5 min-w-0">
           <img
             src="/logo.png"
             alt="XIGNUX"
             className="flex-shrink-0"
-            style={{ height: 20, width: 'auto', objectFit: 'contain' }}
+            style={{
+              height: 20,
+              width: 'auto',
+              objectFit: 'contain',
+              filter: 'brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(4000%) hue-rotate(11deg) brightness(95%) contrast(100%)',
+            }}
           />
 
-          <div className="w-px h-6 flex-shrink-0" style={{ background: 'rgba(46,117,182,0.25)' }} />
+          <div className="w-px h-6 flex-shrink-0" style={{ background: '#E5E0DA' }} />
 
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-[14px] font-semibold tracking-tight" style={{ color: '#E8ECF2' }}>
+              <span className="text-[14px] font-semibold tracking-tight" style={{ color: '#1A1A1A' }}>
                 Impact Lens
               </span>
               <span className="text-[10px] mono px-1.5 py-0.5 rounded font-medium"
-                style={{ background: 'rgba(46,117,182,0.18)', color: '#5B9BD5', border: '1px solid rgba(46,117,182,0.3)' }}>
+                style={{ background: 'rgba(232,82,14,0.1)', color: '#E8520E', border: '1px solid rgba(232,82,14,0.25)' }}>
                 BETA
               </span>
             </div>
-            <span className="text-[11px] -mt-0.5 tracking-wide font-medium" style={{ color: '#5B9BD5' }}>
+            <span className="text-[11px] -mt-0.5 tracking-wide font-medium" style={{ color: '#E8520E' }}>
               Portafolio RSC
             </span>
           </div>
         </div>
 
-        {/* ── Center: Mode Toggle ── */}
+        {/* Center: Mode Toggle */}
         <div className="flex-1 flex justify-center">
           <div
             className="flex items-center gap-0.5 p-1 rounded-full"
             style={{
-              background: 'rgba(46,117,182,0.06)',
-              border: '1px solid rgba(46,117,182,0.15)',
+              background: '#F8F6F3',
+              border: '1px solid #E5E0DA',
             }}
           >
             {[
@@ -77,7 +83,7 @@ export default function Header({ projects, activeView, onChangeView }) {
                   key={id}
                   onClick={() => onChangeView(id)}
                   className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium relative"
-                  style={{ color: active ? '#fff' : '#5B9BD5' }}
+                  style={{ color: active ? '#fff' : '#666666' }}
                   whileTap={{ scale: 0.96 }}
                 >
                   {active && (
@@ -85,8 +91,8 @@ export default function Header({ projects, activeView, onChangeView }) {
                       layoutId="header-view-pill"
                       className="absolute inset-0 rounded-full"
                       style={{
-                        background: '#2E75B6',
-                        boxShadow: '0 2px 12px -2px rgba(46,117,182,0.5)',
+                        background: '#E8520E',
+                        boxShadow: '0 2px 12px -2px rgba(232,82,14,0.4)',
                       }}
                       transition={{ type: 'spring', stiffness: 380, damping: 32 }}
                     />
@@ -99,8 +105,40 @@ export default function Header({ projects, activeView, onChangeView }) {
           </div>
         </div>
 
-        {/* ── Right: Stats + Avatar ── */}
+        {/* Right: Stats + Avatar */}
         <div className="flex items-center gap-2.5">
+          {activeView === 'graph' && (
+            <div
+              className="flex items-center gap-0.5 p-0.5 rounded-full"
+              style={{ background: '#F8F6F3', border: '1px solid #E5E0DA' }}
+            >
+              {['3d', '2d'].map((m) => {
+                const active = viewMode === m
+                return (
+                  <motion.button
+                    key={m}
+                    onClick={() => onChangeViewMode(m)}
+                    className="relative px-3 py-1 rounded-full text-[11px] font-semibold mono"
+                    style={{ color: active ? '#fff' : '#666666' }}
+                    whileTap={{ scale: 0.96 }}
+                  >
+                    {active && (
+                      <motion.div
+                        layoutId="header-dim-pill"
+                        className="absolute inset-0 rounded-full"
+                        style={{ background: '#E8520E', boxShadow: '0 2px 10px -2px rgba(232,82,14,0.4)' }}
+                        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative z-10">{m.toUpperCase()}</span>
+                  </motion.button>
+                )
+              })}
+            </div>
+          )}
+
+          <div className="w-px h-6" style={{ background: '#E5E0DA' }} />
+
           <div className="hidden xl:flex items-center gap-2">
             <StatChip label="Proyectos" value={count} />
             <StatChip label="Inversión" value={fmtMXN(inv)} />
@@ -111,27 +149,21 @@ export default function Header({ projects, activeView, onChangeView }) {
             <StatChip label="SROI" value={sroi.toFixed(2) + 'x'} color={sroiColor(sroi)} />
           </div>
 
-          <div className="w-px h-6" style={{ background: 'rgba(46,117,182,0.25)' }} />
+          <div className="w-px h-6" style={{ background: '#E5E0DA' }} />
 
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="w-9 h-9 rounded-xl flex items-center justify-center text-[11px] font-semibold cursor-pointer"
             style={{
-              background: '#2E75B6',
+              background: '#E8520E',
               color: '#fff',
-              boxShadow: '0 2px 8px -2px rgba(46,117,182,0.5)',
+              boxShadow: '0 2px 8px -2px rgba(232,82,14,0.4)',
             }}
           >
             MR
           </motion.div>
         </div>
       </div>
-
-      {/* ── Accent line ── */}
-      <div className="h-px" style={{
-        background: 'linear-gradient(90deg, transparent 10%, #2E75B6 40%, #5B9BD5 50%, #2E75B6 60%, transparent 90%)',
-        opacity: 0.4,
-      }} />
     </motion.header>
   )
 }

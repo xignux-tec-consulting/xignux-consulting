@@ -5,9 +5,10 @@ import Constellation from './components/Constellation'
 import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
 import NodePanel from './components/NodePanel'
-import { BottomControls, ArchetypeLegend, BackChip } from './components/ui/Controls'
+import { GroupByPills, BottomControls, ArchetypeLegend, BackChip } from './components/ui/Controls'
 import PortfolioDashboard from './components/Dashboard/Portfolio'
 import ProjectDashboard from './components/Dashboard/Project'
+import Chalkboard from './components/Chalkboard'
 import { PROJECTS } from './data/projects'
 import { recomputeProject } from './lib/sroi'
 
@@ -25,6 +26,7 @@ export default function App() {
   const [legendOpen, setLegendOpen] = useState(false)
   const [controlsOpen, setControlsOpen] = useState(true)
   const [nodeInfoVisible, setNodeInfoVisible] = useState(true)
+  const [viewMode, setViewMode] = useState('3d')
 
   const resetCameraRef = useRef(null)
   const transitionLockRef = useRef(false)
@@ -118,11 +120,11 @@ export default function App() {
   const isProjectDashOpen = !!openDashProject
 
   return (
-    <div className="w-screen h-screen overflow-hidden relative" style={{ background: '#0A0E1A' }}>
-      {/* 3D Constellation (always mounted, hidden behind overlays) */}
+    <div className="w-screen h-screen overflow-hidden relative" style={{ background: '#FFFFFF' }}>
+      {/* 3D Constellation (always mounted, hidden behind overlays or 2D mode) */}
       <div
-        className="absolute inset-0"
-        style={{ visibility: isPortfolioView ? 'hidden' : 'visible' }}
+        className="absolute inset-0 z-0"
+        style={{ visibility: isPortfolioView || viewMode === '2d' ? 'hidden' : 'visible' }}
       >
         <Constellation
           projects={projects}
@@ -130,12 +132,24 @@ export default function App() {
           recentChange={recentChange}
           showConnections={showConnections}
           groupBy={groupBy}
-          paused={isPortfolioView || isProjectDashOpen}
+          paused={isPortfolioView || isProjectDashOpen || viewMode === '2d'}
           onSelect={handleSelect}
           onDeselect={handleDeselect}
           onResetCamera={(fn) => { resetCameraRef.current = fn }}
         />
       </div>
+
+      {/* 2D Chalkboard org chart */}
+      <AnimatePresence>
+        {!isPortfolioView && viewMode === '2d' && (
+          <Chalkboard
+            projects={projects}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+            onDeselect={handleDeselect}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Portfolio Overview */}
       <AnimatePresence>
@@ -190,11 +204,13 @@ export default function App() {
           projects={projects}
           activeView={activeView}
           onChangeView={setActiveView}
+          viewMode={viewMode}
+          onChangeViewMode={setViewMode}
         />
       )}
 
       {/* Sidebar */}
-      {!isProjectDashOpen && (
+      {!isProjectDashOpen && !isPortfolioView && (
         <Sidebar
           activeView={activeView}
           setView={setActiveView}
@@ -212,17 +228,22 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Group-by pill nav (top-left) */}
+      <AnimatePresence>
+        {!isPortfolioView && !isProjectDashOpen && !selectedId && viewMode === '3d' && (
+          <GroupByPills groupBy={groupBy} setGroupBy={handleGroupByChange} />
+        )}
+      </AnimatePresence>
+
       {/* Bottom controls strip */}
       <AnimatePresence>
-        {!isPortfolioView && !isProjectDashOpen && controlsOpen && (
+        {!isPortfolioView && !isProjectDashOpen && controlsOpen && viewMode === '3d' && (
           <BottomControls
             projects={projects}
             open={controlsOpen}
             setOpen={setControlsOpen}
             showConnections={showConnections}
             setShowConnections={setShowConnections}
-            groupBy={groupBy}
-            setGroupBy={handleGroupByChange}
             onResetCamera={() => resetCameraRef.current?.()}
           />
         )}
