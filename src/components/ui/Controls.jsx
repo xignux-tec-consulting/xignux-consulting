@@ -115,7 +115,7 @@ export function GroupByPills({ groupBy, setGroupBy }) {
       className="fixed z-20 flex items-center gap-0.5 p-1 rounded-full"
       style={{
         top: '72px',
-        left: '80px',
+        left: '88px',
         background: th.pillBg,
         border: `1px solid ${th.pillBorder}`,
         boxShadow: th.shadow,
@@ -168,7 +168,7 @@ export function BottomControls({
       transition={{ type: 'spring', stiffness: 320, damping: 26 }}
       className="fixed bottom-6 rounded-2xl p-1 flex items-center gap-0.5 z-20 max-w-[calc(100vw-2rem)]"
       style={{
-        left: 'calc(50% + 32px)',
+        left: 'calc(50% + 36px)',
         background: th.pillBg,
         border: `1px solid ${th.pillBorder}`,
         boxShadow: th.shadow,
@@ -217,7 +217,7 @@ export function ArchetypeLegend({ open, onClose }) {
       transition={{ type: 'spring', stiffness: 320, damping: 26 }}
       className="fixed z-30 rounded-2xl px-5 py-4 w-[260px]"
       style={{
-        left: '80px',
+        left: '88px',
         top: '50%',
         transform: 'translateY(-50%)',
         background: th.cardBg,
@@ -280,7 +280,7 @@ export function BackChip({ onClick }) {
       className="fixed rounded-xl flex items-center justify-center z-40"
       style={{
         top: '76px',
-        left: '80px',
+        left: '88px',
         width: 36,
         height: 36,
         background: th.cardBg,

@@ -2,6 +2,7 @@ import { useState, useRef, useMemo, useCallback, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { ARCHETYPES } from '../../data/projects'
 import { sroiColor } from '../../lib/sroi'
+import { useTheme } from '../../lib/theme'
 
 const ARC_KEYS = ['A', 'B', 'C', 'D', 'E']
 const CANVAS_W = 2200
@@ -19,12 +20,20 @@ function projY(idx, total) {
   return PROJ_CENTER - span / 2 + idx * PROJ_GAP
 }
 
-const POSTIT_COLORS = {
+const POSTIT_LIGHT = {
   A: { bg: '#DBEAFE', border: '#93C5FD', text: '#1E40AF' },
   B: { bg: '#FFEDD5', border: '#FDBA74', text: '#9A3412' },
   C: { bg: '#D1FAE5', border: '#6EE7B7', text: '#065F46' },
   D: { bg: '#ECFCCB', border: '#BEF264', text: '#3F6212' },
   E: { bg: '#FFE4E6', border: '#FDA4AF', text: '#9F1239' },
+}
+
+const POSTIT_DARK = {
+  A: { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.4)', text: '#93C5FD' },
+  B: { bg: 'rgba(251,146,60,0.15)', border: 'rgba(251,146,60,0.4)', text: '#FDBA74' },
+  C: { bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.4)', text: '#6EE7B7' },
+  D: { bg: 'rgba(163,230,53,0.15)', border: 'rgba(163,230,53,0.4)', text: '#BEF264' },
+  E: { bg: 'rgba(251,113,133,0.15)', border: 'rgba(251,113,133,0.4)', text: '#FDA4AF' },
 }
 
 function seededRandom(seed) {
@@ -54,11 +63,13 @@ function postitRotation(id) {
 }
 
 export default function Chalkboard({ projects, selectedId, onSelect, onDeselect }) {
+  const { dark, th } = useTheme()
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [zoom, setZoom] = useState(1)
   const viewRef = useRef()
   const dragging = useRef(false)
   const last = useRef({ x: 0, y: 0 })
+  const POSTIT_COLORS = dark ? POSTIT_DARK : POSTIT_LIGHT
 
   const groups = useMemo(() => {
     const g = {}
@@ -79,7 +90,16 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
     if (!el) return
     const onWheel = (e) => {
       e.preventDefault()
-      setZoom((z) => Math.min(2.5, Math.max(0.35, z * (e.deltaY > 0 ? 0.92 : 1.08))))
+      const rect = el.getBoundingClientRect()
+      const mx = e.clientX - rect.left - rect.width / 2
+      const my = e.clientY - rect.top - rect.height / 2
+      const factor = e.deltaY > 0 ? 0.92 : 1.08
+      setZoom((z) => {
+        const nz = Math.min(2.5, Math.max(0.35, z * factor))
+        const scale = 1 - nz / z
+        setPan((p) => ({ x: p.x + (mx - p.x) * scale, y: p.y + (my - p.y) * scale }))
+        return nz
+      })
     }
     const onPointerDown = (e) => {
       if (e.target.closest('button')) return
@@ -118,8 +138,8 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
     >
     <div
       ref={viewRef}
-      className="absolute inset-0 overflow-hidden org-viewport"
-      style={{ background: '#F8F6F3' }}
+      className="absolute inset-0 overflow-hidden org-viewport md:pl-[72px]"
+      style={{ background: th.pageBg }}
     >
       <div style={{
         position: 'absolute', left: '50%', top: '50%',
@@ -138,7 +158,7 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
           {ARC_KEYS.map((k, i) => (
             <path key={`r-${k}`}
               d={sketchyPath(ROOT.x, ROOT.y + 40, arcPos[i], ARC_Y - 28, i * 100)}
-              stroke="#C0B8AE"
+              stroke={dark ? 'rgba(255,255,255,0.2)' : '#C0B8AE'}
               strokeWidth="2.5"
               strokeLinecap="round"
               fill="none"
@@ -166,13 +186,13 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
             padding: '16px 32px',
-            background: '#FFFFFF',
-            border: '2px solid #E8520E',
+            background: th.cardBg,
+            border: `2px solid ${th.accent}`,
             borderRadius: 14,
-            boxShadow: '3px 4px 0 rgba(232,82,14,0.15)',
+            boxShadow: dark ? '3px 4px 0 rgba(232,82,14,0.25)' : '3px 4px 0 rgba(232,82,14,0.15)',
           }}>
-            <span className="text-[14px] font-semibold" style={{ color: '#1A1A1A' }}>Portafolio RSC</span>
-            <span className="text-[11px] font-medium" style={{ color: '#E8520E' }}>XIGNUX · {projects.length} proyectos</span>
+            <span className="text-[14px] font-semibold" style={{ color: th.textPrimary }}>Portafolio RSC</span>
+            <span className="text-[11px] font-medium" style={{ color: th.accent }}>XIGNUX · {projects.length} proyectos</span>
           </div>
         </div>
 
@@ -184,10 +204,10 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
               <div style={{
                 display: 'flex', alignItems: 'center', gap: 12,
                 padding: '14px 24px',
-                background: '#FFFFFF',
+                background: th.cardBg,
                 borderLeft: `4px solid ${arcColor}`,
                 borderRadius: '12px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                boxShadow: dark ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.06)',
                 whiteSpace: 'nowrap',
                 minWidth: 200,
               }}>
@@ -205,8 +225,8 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
                   }} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <span className="text-[13px] font-semibold" style={{ color: '#1A1A1A' }}>{ARCHETYPES[k].name}</span>
-                  <span className="mono text-[11px] font-medium" style={{ color: '#999999' }}>{groups[k].length} proyectos</span>
+                  <span className="text-[13px] font-semibold" style={{ color: th.textPrimary }}>{ARCHETYPES[k].name}</span>
+                  <span className="mono text-[11px] font-medium" style={{ color: th.textMuted }}>{groups[k].length} proyectos</span>
                 </div>
               </div>
             </div>
@@ -229,8 +249,8 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
                   style={{
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
                     padding: '14px 20px',
-                    background: sel ? '#FFF3E0' : pc.bg,
-                    border: `2px solid ${sel ? '#E8520E' : pc.border}`,
+                    background: sel ? (dark ? 'rgba(232,82,14,0.2)' : '#FFF3E0') : pc.bg,
+                    border: `2px solid ${sel ? th.accent : pc.border}`,
                     borderRadius: 4,
                     cursor: 'pointer',
                     textAlign: 'center',
@@ -239,12 +259,12 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
                     transform: `rotate(${sel ? 0 : rot}deg)`,
                     boxShadow: sel
                       ? '4px 5px 0 rgba(232,82,14,0.2), 0 8px 20px -6px rgba(232,82,14,0.15)'
-                      : '3px 4px 0 rgba(0,0,0,0.08)',
+                      : dark ? '3px 4px 0 rgba(0,0,0,0.3)' : '3px 4px 0 rgba(0,0,0,0.08)',
                     transition: 'transform 0.2s, box-shadow 0.2s, background 0.2s, border-color 0.2s',
                   }}
                 >
                   <span style={{
-                    fontSize: 12, fontWeight: 600, color: sel ? '#1A1A1A' : pc.text,
+                    fontSize: 12, fontWeight: 600, color: sel ? th.textPrimary : pc.text,
                     maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap', lineHeight: 1.3,
                   }}>{p.name}</span>
@@ -253,7 +273,7 @@ export default function Chalkboard({ projects, selectedId, onSelect, onDeselect 
                   }}>{p.sroi.toFixed(2)}x</span>
                   <span style={{
                     position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
-                    fontSize: 14, color: sel ? '#E8520E' : pc.border, fontWeight: 300,
+                    fontSize: 14, color: sel ? th.accent : pc.border, fontWeight: 300,
                   }}>›</span>
                 </button>
               </div>

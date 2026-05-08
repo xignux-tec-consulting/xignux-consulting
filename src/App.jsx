@@ -31,6 +31,7 @@ export default function App() {
   const [controlsOpen, setControlsOpen] = useState(true)
   const [nodeInfoVisible, setNodeInfoVisible] = useState(true)
   const [viewMode, setViewMode] = useState('3d')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const resetCameraRef = useRef(null)
   const transitionLockRef = useRef(false)
@@ -124,7 +125,7 @@ export default function App() {
     <div className="w-screen h-screen overflow-hidden relative" style={{ background: th.pageBg }}>
       {/* 3D Constellation (always mounted, hidden behind overlays or 2D mode) */}
       <div
-        className="absolute inset-0 z-0 pl-16"
+        className="absolute inset-0 z-0 md:pl-[72px]"
         style={{ visibility: isOverlayView || viewMode === '2d' ? 'hidden' : 'visible' }}
       >
         <Constellation
@@ -237,6 +238,8 @@ export default function App() {
             onChangeView={setActiveView}
             viewMode={viewMode}
             onChangeViewMode={setViewMode}
+            mobileMenuOpen={mobileMenuOpen}
+            setMobileMenuOpen={setMobileMenuOpen}
           />
           <Sidebar
             activeView={activeView}

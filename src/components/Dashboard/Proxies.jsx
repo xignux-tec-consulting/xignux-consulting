@@ -100,7 +100,7 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 overflow-y-auto pl-16"
+      className="absolute inset-0 overflow-y-auto md:pl-[72px]"
       style={{ background: th.pageBg }}
     >
       <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-20 pb-8">
