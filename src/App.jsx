@@ -90,8 +90,8 @@ export default function App() {
     setProjects((prev) =>
       prev.map((p) => {
         const opt = {
-          dw: Math.max(0, p.adjustments.dw - 0.05),
-          at: Math.max(0, p.adjustments.at - 0.03),
+          dw: Math.max(0, p.adjustments.dw - 0.03),
+          at: Math.max(0, p.adjustments.at - 0.02),
           dp: p.adjustments.dp,
           dr: Math.max(0, p.adjustments.dr - 0.02),
         }
