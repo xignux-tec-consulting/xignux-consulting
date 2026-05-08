@@ -1,15 +1,14 @@
 import { motion } from 'framer-motion'
 import {
-  Network, LayoutDashboard, Database, TrendingUp, Target, Settings, Info,
+  Network, LayoutDashboard, Database, TrendingUp, Target, Info,
 } from 'lucide-react'
 
 const NAV_ITEMS = [
   { id: 'graph',     icon: Network,        label: 'Constelación' },
-  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard portafolio' },
+  { id: 'portfolio', icon: LayoutDashboard, label: 'Dashboard portafolio' },
   { id: 'proxies',   icon: Database,        label: 'Base de proxies' },
   { id: 'bench',     icon: TrendingUp,      label: 'Benchmarks' },
   { id: 'optimize',  icon: Target,          label: 'Optimización' },
-  { id: 'settings',  icon: Settings,        label: 'Configuración' },
 ]
 
 const btnStyle = (active) => ({

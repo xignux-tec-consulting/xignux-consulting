@@ -77,7 +77,7 @@ function SceneInner({
 
       <OrbitControls
         ref={controlsRef}
-        enableRotate={!selectedId}
+        enabled={!selectedId}
         enableZoom
         enablePan={false}
         autoRotate={autoRotate && !selectedId}
@@ -91,13 +91,11 @@ function SceneInner({
 
       <EffectComposer multisampling={0}>
         <Bloom
-          intensity={0.3}
-          luminanceThreshold={0.6}
-          luminanceSmoothing={0.8}
-          kernelSize={KernelSize.SMALL}
-          mipmapBlur
+          intensity={0.25}
+          luminanceThreshold={0.7}
+          luminanceSmoothing={0.9}
+          kernelSize={KernelSize.VERY_SMALL}
         />
-        <Noise opacity={0.015} blendFunction={BlendFunction.OVERLAY} />
       </EffectComposer>
     </>
   )

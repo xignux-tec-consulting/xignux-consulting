@@ -9,7 +9,7 @@ import { ARCHETYPES } from '../../data/projects'
 function OrbitalRing({ radius, color, opacity, speed, thickness = 0.018 }) {
   const ringRef = useRef()
   const scaleRef = useRef(0)
-  const geometry = useMemo(() => new THREE.TorusGeometry(radius, thickness, 8, 64), [radius, thickness])
+  const geometry = useMemo(() => new THREE.TorusGeometry(radius, thickness, 6, 48), [radius, thickness])
   const material = useMemo(
     () => new THREE.MeshBasicMaterial({ color, transparent: true, opacity, toneMapped: false }),
     [color, opacity]
@@ -34,7 +34,7 @@ function DoubleSelectionRings({ radius }) {
 
 function NodeHaloRing({ radius, color }) {
   const ringRef = useRef()
-  const geometry = useMemo(() => new THREE.RingGeometry(radius * 1.15, radius * 1.22, 64), [radius])
+  const geometry = useMemo(() => new THREE.RingGeometry(radius * 1.15, radius * 1.22, 32), [radius])
   const material = useMemo(() => new THREE.MeshBasicMaterial({
     color, transparent: true, opacity: 0.25, side: THREE.DoubleSide, toneMapped: false,
   }), [color])
@@ -66,33 +66,29 @@ const NodeMesh = memo(function NodeMesh({
   const accentColor = useMemo(() => new THREE.Color('#E8520E'), [])
 
   const outerGeometry = useMemo(() => new THREE.IcosahedronGeometry(radius * 0.85, 1), [radius])
-  const coreGeometry = useMemo(() => new THREE.IcosahedronGeometry(radius * 0.5, 2), [radius])
+  const coreGeometry = useMemo(() => new THREE.IcosahedronGeometry(radius * 0.5, 1), [radius])
 
-  const material = useMemo(() => new THREE.MeshPhysicalMaterial({
+  const material = useMemo(() => new THREE.MeshStandardMaterial({
     color,
     emissive: new THREE.Color(color),
     emissiveIntensity: baseEmissive * 0.6,
     transparent: true,
     opacity: 0.35,
-    roughness: 0.1,
+    roughness: 0.15,
     metalness: 0.3,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.05,
     toneMapped: true,
     side: THREE.DoubleSide,
     wireframe: true,
   }), [color, baseEmissive])
 
-  const coreMaterial = useMemo(() => new THREE.MeshPhysicalMaterial({
+  const coreMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color,
     emissive: new THREE.Color(color),
     emissiveIntensity: baseEmissive * 1.0,
     transparent: true,
     opacity: 0.9,
-    roughness: 0.15,
+    roughness: 0.2,
     metalness: 0.2,
-    clearcoat: 0.9,
-    clearcoatRoughness: 0.1,
     toneMapped: true,
   }), [color, baseEmissive])
 
@@ -110,6 +106,23 @@ const NodeMesh = memo(function NodeMesh({
     }
 
     if (!meshRef.current) return
+
+    if (dimmed) {
+      meshRef.current.rotation.y += delta * 0.05
+      const s = THREE.MathUtils.lerp(meshRef.current.scale.x, 0.9, Math.min(1, delta * 4))
+      meshRef.current.scale.setScalar(s)
+      if (coreRef.current) coreRef.current.scale.setScalar(s)
+      material.opacity = THREE.MathUtils.lerp(material.opacity, 0.1, Math.min(1, delta * 3))
+      coreMaterial.opacity = THREE.MathUtils.lerp(coreMaterial.opacity, 0.2, Math.min(1, delta * 3))
+      material.emissiveIntensity = THREE.MathUtils.lerp(material.emissiveIntensity, baseEmissive * 0.1, Math.min(1, delta * 3))
+      coreMaterial.emissiveIntensity = THREE.MathUtils.lerp(coreMaterial.emissiveIntensity, baseEmissive * 0.15, Math.min(1, delta * 3))
+      material.color.lerp(baseColor, Math.min(1, delta * 4))
+      material.emissive.lerp(baseColor, Math.min(1, delta * 4))
+      coreMaterial.color.lerp(baseColor, Math.min(1, delta * 4))
+      coreMaterial.emissive.lerp(baseColor, Math.min(1, delta * 4))
+      return
+    }
+
     const t = state.clock.elapsedTime
 
     const colorSpeed = Math.min(1, delta * 4)
@@ -122,16 +135,6 @@ const NodeMesh = memo(function NodeMesh({
     meshRef.current.rotation.x += delta * 0.08
     if (coreRef.current) {
       coreRef.current.rotation.y -= delta * 0.1
-    }
-
-    if (dimmed) {
-      meshRef.current.scale.setScalar(THREE.MathUtils.lerp(meshRef.current.scale.x, 0.9, Math.min(1, delta * 4)))
-      if (coreRef.current) coreRef.current.scale.setScalar(meshRef.current.scale.x)
-      material.opacity = THREE.MathUtils.lerp(material.opacity, 0.1, Math.min(1, delta * 3))
-      coreMaterial.opacity = THREE.MathUtils.lerp(coreMaterial.opacity, 0.2, Math.min(1, delta * 3))
-      material.emissiveIntensity = THREE.MathUtils.lerp(material.emissiveIntensity, baseEmissive * 0.1, Math.min(1, delta * 3))
-      coreMaterial.emissiveIntensity = THREE.MathUtils.lerp(coreMaterial.emissiveIntensity, baseEmissive * 0.15, Math.min(1, delta * 3))
-      return
     }
 
     const breathe = 1 + Math.sin(t * 0.3 + phase) * 0.02
@@ -169,19 +172,18 @@ const NodeMesh = memo(function NodeMesh({
 
     const targetWireOpacity = selected ? 0.6 : hovered ? 0.5 : 0.35
     material.opacity = THREE.MathUtils.lerp(material.opacity, targetWireOpacity, Math.min(1, delta * 4))
-    const targetCoreOpacity = selected ? 1.0 : dimmed ? 0.4 : 0.9
+    const targetCoreOpacity = selected ? 1.0 : 0.9
     coreMaterial.opacity = THREE.MathUtils.lerp(coreMaterial.opacity, targetCoreOpacity, Math.min(1, delta * 4))
 
     if (labelRef.current) {
       const dist = state.camera.position.length()
       const fade = dist < 18 ? 0.7 : dist > 24 ? 0 : 0.7 * (1 - (dist - 18) / 6)
-      labelRef.current.style.opacity = String(dimmed ? 0 : fade)
+      labelRef.current.style.opacity = String(fade)
     }
   })
 
   return (
     <group ref={groupRef}>
-      {/* Outer wireframe icosahedron */}
       <mesh
         ref={meshRef}
         geometry={outerGeometry}
@@ -204,15 +206,13 @@ const NodeMesh = memo(function NodeMesh({
         }}
       />
 
-      {/* Inner solid core */}
       <mesh ref={coreRef} geometry={coreGeometry} material={coreMaterial} />
 
-      {/* Subtle equatorial ring */}
       {!dimmed && <NodeHaloRing radius={radius} color={arcColor} />}
 
       {selected && <DoubleSelectionRings radius={radius} />}
 
-      {hovered && !selected && (
+      {hovered && !selected && !dimmed && (
         <Html
           center
           position={[0, radius + 0.6, 0]}
@@ -235,7 +235,7 @@ const NodeMesh = memo(function NodeMesh({
         </Html>
       )}
 
-      {!selected && (
+      {!dimmed && !selected && (
         <Html
           center
           position={[0, -(radius + 0.5), 0]}

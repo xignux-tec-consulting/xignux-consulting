@@ -1,6 +1,14 @@
 import { motion } from 'framer-motion'
-import { Network, LayoutList } from 'lucide-react'
+import { Network, Database, TrendingUp, Target, LayoutList } from 'lucide-react'
 import { portfolioTotals, fmtMXN, sroiColor } from '../../lib/sroi'
+
+const NAV_ITEMS = [
+  { id: 'graph',     label: 'Explorar',     Icon: Network },
+  { id: 'proxies',   label: 'Proxies',      Icon: Database },
+  { id: 'bench',     label: 'Benchmarks',   Icon: TrendingUp },
+  { id: 'optimize',  label: 'Optimizar',    Icon: Target },
+  { id: 'portfolio', label: 'Portafolio',   Icon: LayoutList },
+]
 
 function StatChip({ label, value, color }) {
   return (
@@ -33,7 +41,7 @@ export default function Header({ projects, activeView, onChangeView, viewMode, o
         }}
       >
         {/* Left: Logo + Brand */}
-        <div className="flex items-center gap-3.5 min-w-0">
+        <div className="flex items-center gap-3.5 min-w-0 flex-shrink-0">
           <img
             src="/logo.png"
             alt="XIGNUX"
@@ -64,7 +72,7 @@ export default function Header({ projects, activeView, onChangeView, viewMode, o
           </div>
         </div>
 
-        {/* Center: Mode Toggle */}
+        {/* Center: Navigation */}
         <div className="flex-1 flex justify-center">
           <div
             className="flex items-center gap-0.5 p-1 rounded-full"
@@ -73,16 +81,13 @@ export default function Header({ projects, activeView, onChangeView, viewMode, o
               border: '1px solid #E5E0DA',
             }}
           >
-            {[
-              { id: 'graph',     label: 'Explorar', Icon: Network },
-              { id: 'portfolio', label: 'Decidir',  Icon: LayoutList },
-            ].map(({ id, label, Icon }) => {
+            {NAV_ITEMS.map(({ id, label, Icon }) => {
               const active = activeView === id
               return (
                 <motion.button
                   key={id}
                   onClick={() => onChangeView(id)}
-                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium relative"
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-medium relative"
                   style={{ color: active ? '#fff' : '#666666' }}
                   whileTap={{ scale: 0.96 }}
                 >
@@ -105,8 +110,8 @@ export default function Header({ projects, activeView, onChangeView, viewMode, o
           </div>
         </div>
 
-        {/* Right: Stats + Avatar */}
-        <div className="flex items-center gap-2.5">
+        {/* Right: Stats + View toggle + Avatar */}
+        <div className="flex items-center gap-2.5 flex-shrink-0">
           {activeView === 'graph' && (
             <div
               className="flex items-center gap-0.5 p-0.5 rounded-full"

@@ -2,12 +2,14 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Header from './components/Header'
 import Constellation from './components/Constellation'
-import Sidebar from './components/Sidebar'
 import ChatPanel from './components/ChatPanel'
 import NodePanel from './components/NodePanel'
 import { GroupByPills, BottomControls, ArchetypeLegend, BackChip } from './components/ui/Controls'
 import PortfolioDashboard from './components/Dashboard/Portfolio'
 import ProjectDashboard from './components/Dashboard/Project'
+import ProxiesDashboard from './components/Dashboard/Proxies'
+import BenchmarksDashboard from './components/Dashboard/Benchmarks'
+import OptimizeDashboard from './components/Dashboard/Optimize'
 import Chalkboard from './components/Chalkboard'
 import { PROJECTS } from './data/projects'
 import { recomputeProject } from './lib/sroi'
@@ -112,11 +114,8 @@ export default function App() {
     setOpenDashFor(null)
   }, [])
 
-  const sidebarExtras = activeView === 'graph' && selectedProject
-    ? [{ icon: 'dashboard', label: 'Dashboard', onClick: () => handleOpenProjectDash(selectedId) }]
-    : []
-
   const isPortfolioView = activeView === 'portfolio'
+  const isOverlayView = activeView !== 'graph'
   const isProjectDashOpen = !!openDashProject
 
   return (
@@ -124,7 +123,7 @@ export default function App() {
       {/* 3D Constellation (always mounted, hidden behind overlays or 2D mode) */}
       <div
         className="absolute inset-0 z-0"
-        style={{ visibility: isPortfolioView || viewMode === '2d' ? 'hidden' : 'visible' }}
+        style={{ visibility: isOverlayView || viewMode === '2d' ? 'hidden' : 'visible' }}
       >
         <Constellation
           projects={projects}
@@ -132,7 +131,7 @@ export default function App() {
           recentChange={recentChange}
           showConnections={showConnections}
           groupBy={groupBy}
-          paused={isPortfolioView || isProjectDashOpen || viewMode === '2d'}
+          paused={isOverlayView || isProjectDashOpen || viewMode === '2d'}
           onSelect={handleSelect}
           onDeselect={handleDeselect}
           onResetCamera={(fn) => { resetCameraRef.current = fn }}
@@ -166,6 +165,35 @@ export default function App() {
         )}
       </AnimatePresence>
 
+      {/* Proxies View */}
+      <AnimatePresence>
+        {activeView === 'proxies' && (
+          <ProxiesDashboard
+            projects={projects}
+            onBackToGraph={() => setActiveView('graph')}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Benchmarks View */}
+      <AnimatePresence>
+        {activeView === 'bench' && (
+          <BenchmarksDashboard
+            projects={projects}
+            onBackToGraph={() => setActiveView('graph')}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Optimization View */}
+      <AnimatePresence>
+        {activeView === 'optimize' && (
+          <OptimizeDashboard
+            onBackToGraph={() => setActiveView('graph')}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Project Drill-down */}
       <AnimatePresence>
         {isProjectDashOpen && (
@@ -179,7 +207,7 @@ export default function App() {
 
       {/* Node detail panel (shown in graph view when a node is selected) */}
       <AnimatePresence>
-        {!isPortfolioView && !isProjectDashOpen && selectedProject && nodeInfoVisible && (
+        {!isOverlayView && !isProjectDashOpen && selectedProject && nodeInfoVisible && (
           <NodePanel
             project={selectedProject}
             projects={projects}
@@ -193,7 +221,7 @@ export default function App() {
 
       {/* Back chip (graph view when node selected) */}
       <AnimatePresence>
-        {!isPortfolioView && !isProjectDashOpen && selectedProject && (
+        {!isOverlayView && !isProjectDashOpen && selectedProject && (
           <BackChip onClick={handleDeselect} />
         )}
       </AnimatePresence>
@@ -209,18 +237,6 @@ export default function App() {
         />
       )}
 
-      {/* Sidebar */}
-      {!isProjectDashOpen && !isPortfolioView && (
-        <Sidebar
-          activeView={activeView}
-          setView={setActiveView}
-          extras={sidebarExtras}
-          nodeSelected={!!selectedProject}
-          nodeInfoActive={nodeInfoVisible}
-          onToggleNodeInfo={() => setNodeInfoVisible((v) => !v)}
-        />
-      )}
-
       {/* Archetype legend popover */}
       <AnimatePresence>
         {legendOpen && !isProjectDashOpen && (
@@ -230,14 +246,14 @@ export default function App() {
 
       {/* Group-by pill nav (top-left) */}
       <AnimatePresence>
-        {!isPortfolioView && !isProjectDashOpen && !selectedId && viewMode === '3d' && (
+        {!isOverlayView && !isProjectDashOpen && !selectedId && viewMode === '3d' && (
           <GroupByPills groupBy={groupBy} setGroupBy={handleGroupByChange} />
         )}
       </AnimatePresence>
 
       {/* Bottom controls strip */}
       <AnimatePresence>
-        {!isPortfolioView && !isProjectDashOpen && controlsOpen && viewMode === '3d' && (
+        {!isOverlayView && !isProjectDashOpen && controlsOpen && viewMode === '3d' && (
           <BottomControls
             projects={projects}
             open={controlsOpen}

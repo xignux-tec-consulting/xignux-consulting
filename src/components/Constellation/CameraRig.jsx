@@ -63,13 +63,13 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
 
   useFrame((_, delta) => {
     if (returning.current) {
-      const speed = Math.min(1, delta * 5)
+      const speed = Math.min(1, delta * 3)
       camera.position.lerp(DEFAULT_POS, speed)
-      camera.lookAt(ORIGIN)
       if (controlsRef?.current) {
-        controlsRef.current.target.copy(ORIGIN)
+        controlsRef.current.target.lerp(ORIGIN, speed)
+        controlsRef.current.update()
       }
-      if (camera.position.distanceTo(DEFAULT_POS) < 0.2) {
+      if (camera.position.distanceTo(DEFAULT_POS) < 0.15) {
         returning.current = false
         camera.position.copy(DEFAULT_POS)
         if (controlsRef?.current) {
@@ -95,18 +95,18 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
 
     const speed = Math.min(1, delta * 4)
     camera.position.lerp(camTarget.current, speed)
-    camera.lookAt(lookAtTarget.current)
 
     if (controlsRef?.current) {
-      controlsRef.current.target.copy(lookAtTarget.current)
+      controlsRef.current.target.lerp(lookAtTarget.current, speed)
+      controlsRef.current.update()
     }
 
-    if (camera.position.distanceTo(camTarget.current) < 0.1) {
+    if (camera.position.distanceTo(camTarget.current) < 0.05) {
       settled.current = true
       camera.position.copy(camTarget.current)
-      camera.lookAt(lookAtTarget.current)
       if (controlsRef?.current) {
         controlsRef.current.target.copy(lookAtTarget.current)
+        controlsRef.current.update()
       }
     }
   })
