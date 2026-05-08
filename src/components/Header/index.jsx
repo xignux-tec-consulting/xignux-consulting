@@ -93,7 +93,7 @@ export default function Header({ projects, activeView, onChangeView, viewMode, o
           <div className="flex items-center gap-2 md:gap-2.5 flex-shrink-0">
             {activeView === 'graph' && (
               <div
-                className="hidden sm:flex items-center gap-0.5 p-0.5 rounded-full"
+                className="flex items-center gap-0.5 p-0.5 rounded-full"
                 style={{ background: th.pillBg, border: `1px solid ${th.pillBorder}` }}
               >
                 {['3d', '2d'].map((m) => {
