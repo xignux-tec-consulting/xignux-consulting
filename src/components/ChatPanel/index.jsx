@@ -161,7 +161,7 @@ export default function ChatPanel({
 
   const [messages, setMessages] = useState(() => [{
     role: 'bot',
-    content: 'Hola, soy **Impact AI**, tu asistente de portafolio RSC. Tengo contexto de los 16 proyectos de XIGNUX. Puedo:\n\n  • Consultar datos y métricas\n  • Comparar proyectos y arquetipos\n  • Asesoría estratégica\n  • Explicar conceptos SROI\n  • Modificar parámetros del modelo\n\nPrueba una pregunta o usa los chips rápidos.',
+    content: 'Hola, soy **Impact AI**, tu asistente de portafolio RSC. Tengo contexto de los 15 proyectos de XIGNUX. Puedo:\n\n  • Consultar datos y métricas\n  • Comparar proyectos y arquetipos\n  • Asesoría estratégica\n  • Explicar conceptos SROI\n  • Modificar parámetros del modelo\n\nPrueba una pregunta o usa los chips rápidos.',
   }])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
@@ -341,7 +341,7 @@ export default function ChatPanel({
             <div className="text-sm font-semibold leading-tight" style={{ color: th.titleText }}>Impact AI</div>
             <div className="flex items-center gap-1.5 text-[10px]" style={{ color: th.metaText }}>
               <span className="pulse-dot inline-block w-1.5 h-1.5 rounded-full" style={{ background: '#10B981' }} />
-              16 proyectos · {projects.length} activos
+              15 proyectos · {projects.length} activos
             </div>
           </div>
           <button

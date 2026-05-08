@@ -303,7 +303,7 @@ export function simulate(text, projects, selectedId) {
   if (/optimi|recomenda|como\s*optimizo|como\s*mejoro|mejorar\s*(el\s*)?portafolio/.test(t)) {
     return [{
       role: 'bot',
-      content: `5 acciones para subir tu SROI portafolio de ${tot.sroi.toFixed(2)}x a ~1.45x:\n\n  1. Aliarse con operador especializado para ${top.id} (reduce deadweight 10%→5%).\n  2. Consolidar reforestación: fusionar P12+P14 con P11.\n  3. Migrar P15 a un canal con menor displacement.\n  4. Discontinuar P08 — SROI 0.01x sin tracción.\n  5. Reasignar 30% del presupuesto de eventos comunitarios a P10.\n\n¿Quieres que aplique estas recomendaciones al modelo?`,
+      content: `5 acciones para subir tu SROI portafolio de ${tot.sroi.toFixed(2)}x a ~1.15x:\n\n  1. Escalar P10 Energía para Todos — replicar en más comunidades (DW 8%→4% con alianza Iluméxico).\n  2. Consolidar reforestación: fusionar P12+P14 bajo paraguas P11.\n  3. Redirigir presupuesto de P06 ($480K, SROI 0.22x) hacia P07 SumaRSE.\n  4. Rediseñar P08 ($400K, SROI 0.07x) — buscar escala o sunset.\n  5. Ampliar P15 con Red BAMX para multiplicar alcance alimentario.\n\n¿Quieres que aplique estas recomendaciones al modelo?`,
       actions: [
         { label: 'Aplicar todo', primary: true, payload: { kind: 'applyOpt' } },
         { label: 'Cancelar', payload: { kind: 'cancel' } },
