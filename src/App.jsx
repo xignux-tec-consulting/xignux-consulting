@@ -44,6 +44,7 @@ export default function App() {
     setNodeAnchor(anchor || null)
     setCameraTarget(id)
     setNodeInfoVisible(true)
+    setChatCollapsed(true)
   }, [])
 
   const handleDeselect = useCallback(() => {
