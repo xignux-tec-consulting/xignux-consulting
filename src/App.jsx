@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import Header from './components/Header'
+import Header, { Sidebar } from './components/Header'
 import Constellation from './components/Constellation'
 import ChatPanel from './components/ChatPanel'
 import NodePanel from './components/NodePanel'
@@ -13,8 +13,10 @@ import OptimizeDashboard from './components/Dashboard/Optimize'
 import Chalkboard from './components/Chalkboard'
 import { PROJECTS } from './data/projects'
 import { recomputeProject } from './lib/sroi'
+import { useTheme } from './lib/theme'
 
 export default function App() {
+  const { th } = useTheme()
   const [projects, setProjects] = useState(PROJECTS)
   const [selectedId, setSelectedId] = useState(null)
   const [nodeAnchor, setNodeAnchor] = useState(null)
@@ -119,10 +121,10 @@ export default function App() {
   const isProjectDashOpen = !!openDashProject
 
   return (
-    <div className="w-screen h-screen overflow-hidden relative" style={{ background: '#FFFFFF' }}>
+    <div className="w-screen h-screen overflow-hidden relative" style={{ background: th.pageBg }}>
       {/* 3D Constellation (always mounted, hidden behind overlays or 2D mode) */}
       <div
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-0 pl-16"
         style={{ visibility: isOverlayView || viewMode === '2d' ? 'hidden' : 'visible' }}
       >
         <Constellation
@@ -228,13 +230,19 @@ export default function App() {
 
       {/* Header — always visible except project drill-down */}
       {!isProjectDashOpen && (
-        <Header
-          projects={projects}
-          activeView={activeView}
-          onChangeView={setActiveView}
-          viewMode={viewMode}
-          onChangeViewMode={setViewMode}
-        />
+        <>
+          <Header
+            projects={projects}
+            activeView={activeView}
+            onChangeView={setActiveView}
+            viewMode={viewMode}
+            onChangeViewMode={setViewMode}
+          />
+          <Sidebar
+            activeView={activeView}
+            onChangeView={setActiveView}
+          />
+        </>
       )}
 
       {/* Archetype legend popover */}

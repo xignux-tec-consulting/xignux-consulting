@@ -8,10 +8,12 @@ import ConnectionsLayer from './Connections'
 import GroupRegions from './GroupRegions'
 import { CameraRig, NodeProjector, NodeZoomCamera } from './CameraRig'
 import { computePositions, getGroupRegions } from './utils'
+import { useTheme } from '../../lib/theme'
 
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
   showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
+  th,
 }) {
   const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
   const regions = useMemo(() => getGroupRegions(projects, positions, groupBy), [projects, positions, groupBy])
@@ -26,8 +28,8 @@ function SceneInner({
 
   return (
     <>
-      <fog attach="fog" args={['#F0EDE8', 40, 90]} />
-      <color attach="background" args={['#F0EDE8']} />
+      <fog attach="fog" args={[th.fogColor, 40, 90]} />
+      <color attach="background" args={[th.sceneBg]} />
 
       <ambientLight intensity={0.6} color="#FFFFFF" />
       <directionalLight position={[10, 12, 15]} intensity={0.8} color="#FFF8F0" />
@@ -106,6 +108,7 @@ export default function Constellation({
   showConnections = true, groupBy = 'sroi', recentChange, cameraTarget, onProjectAnchor,
   paused = false,
 }) {
+  const { th } = useTheme()
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
   const controlsRef = useRef()
@@ -151,6 +154,7 @@ export default function Constellation({
         recentChange={recentChange}
         cameraTarget={cameraTarget}
         groupBy={groupBy}
+        th={th}
       />
     </Canvas>
   )

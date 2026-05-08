@@ -4,12 +4,14 @@ import { motion } from 'framer-motion'
 import { ARCHETYPES } from '../../data/projects'
 import { EXTERNALIDADES_NEGATIVAS, EXTERNALIDADES_POSITIVAS } from '../../data/analysis'
 import { fmtMXN } from '../../lib/sroi'
+import { useTheme } from '../../lib/theme'
 
 function Card({ children, className = '', style = {} }) {
+  const { th } = useTheme()
   return (
     <div
       className={`rounded-2xl p-5 ${className}`}
-      style={{ background: '#FFFFFF', border: '1px solid #E5E0DA', boxShadow: '0 2px 12px -4px rgba(0,0,0,0.06)', ...style }}
+      style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}`, boxShadow: th.shadow, ...style }}
     >
       {children}
     </div>
@@ -17,21 +19,23 @@ function Card({ children, className = '', style = {} }) {
 }
 
 function KpiChip({ label, value, sub, color }) {
+  const { th } = useTheme()
   return (
     <Card className="flex flex-col gap-1">
-      <span className="text-[10px] mono uppercase tracking-widest" style={{ color: '#999999' }}>{label}</span>
-      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || '#1A1A1A' }}>{value}</span>
-      {sub && <span className="text-[11px]" style={{ color: '#666666' }}>{sub}</span>}
+      <span className="text-[10px] mono uppercase tracking-widest" style={{ color: th.textMuted }}>{label}</span>
+      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || th.textPrimary }}>{value}</span>
+      {sub && <span className="text-[11px]" style={{ color: th.textSecondary }}>{sub}</span>}
     </Card>
   )
 }
 
 function SortHeader({ label, sortKey, currentKey, currentDir, onSort }) {
+  const { th } = useTheme()
   return (
     <th
       onClick={() => onSort(sortKey)}
-      className="text-left py-2.5 px-2 font-medium cursor-pointer hover:text-black transition select-none"
-      style={{ color: '#999999' }}
+      className="text-left py-2.5 px-2 font-medium cursor-pointer transition select-none"
+      style={{ color: th.textMuted }}
     >
       <span className="inline-flex items-center gap-1">{label} <ArrowUpDown className="w-3 h-3 opacity-40" /></span>
     </th>
@@ -39,6 +43,7 @@ function SortHeader({ label, sortKey, currentKey, currentDir, onSort }) {
 }
 
 export default function ProxiesDashboard({ projects, onBackToGraph }) {
+  const { th } = useTheme()
   const [sortKey, setSortKey] = useState('gross')
   const [sortDir, setSortDir] = useState('desc')
 
@@ -95,19 +100,19 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="absolute inset-0 overflow-y-auto"
-      style={{ background: '#F8F6F3' }}
+      className="absolute inset-0 overflow-y-auto pl-16"
+      style={{ background: th.pageBg }}
     >
-      <div className="max-w-[1440px] mx-auto px-8 pt-20 pb-8">
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-20 pb-8">
 
         {/* Header */}
         <header className="mb-6">
-          <div className="text-[10px] mono uppercase tracking-[0.25em] mb-1" style={{ color: '#999999' }}>XIGNUX · Portafolio RSC · 2024</div>
-          <h1 className="text-3xl font-semibold leading-tight" style={{ color: '#1A1A1A' }}>Base de Proxies</h1>
+          <div className="text-[10px] mono uppercase tracking-[0.25em] mb-1" style={{ color: th.textMuted }}>XIGNUX · Portafolio RSC · 2024</div>
+          <h1 className="text-3xl font-semibold leading-tight" style={{ color: th.textPrimary }}>Base de Proxies</h1>
         </header>
 
         {/* KPI row */}
-        <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <KpiChip label="Total proxies" value={allOutcomes.length} sub={`Across ${projects.length} proyectos`} />
           <KpiChip label="Valor bruto total" value={fmtMXN(totalVBruto)} sub="Suma de outcomes" color="#E8520E" />
           <KpiChip label="Valor ajustado total" value={fmtMXN(totalVAjustado)} sub="Post factores de ajuste" color="#10B981" />
@@ -116,18 +121,18 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
 
         {/* Full proxy table */}
         <Card className="mb-6">
-          <h2 className="text-sm font-semibold tracking-wide mb-4" style={{ color: '#1A1A1A' }}>Tabla completa de outcomes</h2>
+          <h2 className="text-sm font-semibold tracking-wide mb-4" style={{ color: th.textPrimary }}>Tabla completa de outcomes</h2>
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: '1px solid #E5E0DA' }}>
+                <tr style={{ borderBottom: `1px solid ${th.tableBorder}` }}>
                   <SortHeader label="Proyecto" sortKey="projectId" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
                   <SortHeader label="Outcome" sortKey="description" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
                   <SortHeader label="Qty" sortKey="qty" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
                   <SortHeader label="Proxy ($)" sortKey="proxy" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
                   <SortHeader label="PV Factor" sortKey="pvFactor" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
                   <SortHeader label="Valor Bruto ($)" sortKey="gross" currentKey={sortKey} currentDir={sortDir} onSort={toggleSort} />
-                  <th className="text-left py-2.5 px-2 font-medium" style={{ color: '#999999' }}>% del Total</th>
+                  <th className="text-left py-2.5 px-2 font-medium" style={{ color: th.textMuted }}>% del Total</th>
                 </tr>
               </thead>
               <tbody>
@@ -136,14 +141,14 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
                   const pct = totalVBruto !== 0 ? ((o.gross / totalVBruto) * 100) : 0
                   const isNeg = o.gross < 0
                   return (
-                    <tr key={`${o.projectId}-${i}`} style={{ borderBottom: '1px solid #E5E0DA', borderLeft: `3px solid ${arch.color}` }}>
-                      <td className="py-2.5 px-2 mono text-[11px]" style={{ color: '#999999' }}>{o.projectId}</td>
-                      <td className="py-2.5 px-2 max-w-[280px]" style={{ color: isNeg ? '#EF4444' : '#1A1A1A' }}>{o.description}</td>
-                      <td className="py-2.5 px-2 mono" style={{ color: isNeg ? '#EF4444' : '#1A1A1A' }}>{o.qty.toLocaleString('es-MX')}</td>
-                      <td className="py-2.5 px-2 mono" style={{ color: isNeg ? '#EF4444' : '#1A1A1A' }}>{fmtMXN(Math.abs(o.proxy))}</td>
-                      <td className="py-2.5 px-2 mono" style={{ color: '#666666' }}>{o.pvFactor.toFixed(2)}</td>
-                      <td className="py-2.5 px-2 mono font-semibold" style={{ color: isNeg ? '#EF4444' : '#1A1A1A' }}>{fmtMXN(o.gross)}</td>
-                      <td className="py-2.5 px-2 mono" style={{ color: isNeg ? '#EF4444' : '#666666' }}>{pct.toFixed(1)}%</td>
+                    <tr key={`${o.projectId}-${i}`} style={{ borderBottom: `1px solid ${th.tableBorder}`, borderLeft: `3px solid ${arch.color}` }}>
+                      <td className="py-2.5 px-2 mono text-[11px]" style={{ color: th.textMuted }}>{o.projectId}</td>
+                      <td className="py-2.5 px-2 max-w-[280px]" style={{ color: isNeg ? '#EF4444' : th.textPrimary }}>{o.description}</td>
+                      <td className="py-2.5 px-2 mono" style={{ color: isNeg ? '#EF4444' : th.textPrimary }}>{o.qty.toLocaleString('es-MX')}</td>
+                      <td className="py-2.5 px-2 mono" style={{ color: isNeg ? '#EF4444' : th.textPrimary }}>{fmtMXN(Math.abs(o.proxy))}</td>
+                      <td className="py-2.5 px-2 mono" style={{ color: th.textSecondary }}>{o.pvFactor.toFixed(2)}</td>
+                      <td className="py-2.5 px-2 mono font-semibold" style={{ color: isNeg ? '#EF4444' : th.textPrimary }}>{fmtMXN(o.gross)}</td>
+                      <td className="py-2.5 px-2 mono" style={{ color: isNeg ? '#EF4444' : th.textSecondary }}>{pct.toFixed(1)}%</td>
                     </tr>
                   )
                 })}
@@ -154,11 +159,12 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
 
         {/* Adjustments by Archetype */}
         <Card className="mb-6">
-          <h2 className="text-sm font-semibold tracking-wide mb-1" style={{ color: '#1A1A1A' }}>Factores de ajuste por arquetipo</h2>
-          <p className="text-[11px] mb-4" style={{ color: '#999999' }}>FR = (1-DW)(1-AT)(1-DP)(1-DR) — proporcion del valor bruto que se retiene</p>
+          <h2 className="text-sm font-semibold tracking-wide mb-1" style={{ color: th.textPrimary }}>Factores de ajuste por arquetipo</h2>
+          <p className="text-[11px] mb-4" style={{ color: th.textMuted }}>FR = (1-DW)(1-AT)(1-DP)(1-DR) — proporcion del valor bruto que se retiene</p>
+          <div className="overflow-x-auto">
           <table className="w-full text-xs">
             <thead>
-              <tr style={{ borderBottom: '1px solid #E5E0DA', color: '#999999' }}>
+              <tr style={{ borderBottom: `1px solid ${th.tableBorder}`, color: th.textMuted }}>
                 <th className="text-left py-2.5 px-2 font-medium">Arquetipo</th>
                 <th className="text-right py-2.5 px-2 font-medium">Deadweight</th>
                 <th className="text-right py-2.5 px-2 font-medium">Attribution</th>
@@ -171,16 +177,16 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
               {archetypeAdj.map((a, i) => {
                 const isBest = i === 0
                 return (
-                  <tr key={a.key} style={{ borderBottom: '1px solid #E5E0DA', borderLeft: `3px solid ${a.color}` }}>
-                    <td className="py-2.5 px-2 font-medium" style={{ color: '#1A1A1A' }}>
+                  <tr key={a.key} style={{ borderBottom: `1px solid ${th.tableBorder}`, borderLeft: `3px solid ${a.color}` }}>
+                    <td className="py-2.5 px-2 font-medium" style={{ color: th.textPrimary }}>
                       <span className="mono text-[10px] px-1.5 py-0.5 rounded-md mr-2" style={{ background: a.color + '22', color: a.color }}>{a.key}</span>
                       {a.name}
                     </td>
-                    <td className="py-2.5 px-2 mono text-right" style={{ color: '#666666' }}>{(a.dw * 100).toFixed(0)}%</td>
-                    <td className="py-2.5 px-2 mono text-right" style={{ color: '#666666' }}>{(a.at * 100).toFixed(0)}%</td>
-                    <td className="py-2.5 px-2 mono text-right" style={{ color: '#666666' }}>{(a.dp * 100).toFixed(0)}%</td>
-                    <td className="py-2.5 px-2 mono text-right" style={{ color: '#666666' }}>{(a.dr * 100).toFixed(0)}%</td>
-                    <td className="py-2.5 px-2 mono text-right font-semibold" style={{ color: isBest ? '#10B981' : '#1A1A1A' }}>
+                    <td className="py-2.5 px-2 mono text-right" style={{ color: th.textSecondary }}>{(a.dw * 100).toFixed(0)}%</td>
+                    <td className="py-2.5 px-2 mono text-right" style={{ color: th.textSecondary }}>{(a.at * 100).toFixed(0)}%</td>
+                    <td className="py-2.5 px-2 mono text-right" style={{ color: th.textSecondary }}>{(a.dp * 100).toFixed(0)}%</td>
+                    <td className="py-2.5 px-2 mono text-right" style={{ color: th.textSecondary }}>{(a.dr * 100).toFixed(0)}%</td>
+                    <td className="py-2.5 px-2 mono text-right font-semibold" style={{ color: isBest ? '#10B981' : th.textPrimary }}>
                       {(a.fr * 100).toFixed(1)}%{isBest ? ' (max)' : ''}
                     </td>
                   </tr>
@@ -188,15 +194,17 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
               })}
             </tbody>
           </table>
+          </div>
         </Card>
 
         {/* Externalidades */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Card>
             <h2 className="text-sm font-semibold tracking-wide mb-4" style={{ color: '#EF4444' }}>Externalidades negativas</h2>
+            <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: '1px solid #E5E0DA', color: '#999999' }}>
+                <tr style={{ borderBottom: `1px solid ${th.tableBorder}`, color: th.textMuted }}>
                   <th className="text-left py-2 px-2 font-medium">Proyecto</th>
                   <th className="text-left py-2 px-2 font-medium">Externalidad</th>
                   <th className="text-right py-2 px-2 font-medium">Valor</th>
@@ -204,25 +212,27 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
               </thead>
               <tbody>
                 {EXTERNALIDADES_NEGATIVAS.map((e, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #E5E0DA' }}>
-                    <td className="py-2 px-2 mono" style={{ color: '#999999' }}>{e.proyecto}</td>
-                    <td className="py-2 px-2" style={{ color: '#1A1A1A' }}>{e.externalidad}</td>
+                  <tr key={i} style={{ borderBottom: `1px solid ${th.tableBorder}` }}>
+                    <td className="py-2 px-2 mono" style={{ color: th.textMuted }}>{e.proyecto}</td>
+                    <td className="py-2 px-2" style={{ color: th.textPrimary }}>{e.externalidad}</td>
                     <td className="py-2 px-2 mono text-right font-semibold" style={{ color: '#EF4444' }}>{fmtMXN(e.valor)}</td>
                   </tr>
                 ))}
-                <tr style={{ borderTop: '2px solid #E5E0DA' }}>
-                  <td colSpan={2} className="py-2.5 px-2 font-semibold" style={{ color: '#1A1A1A' }}>Total</td>
+                <tr style={{ borderTop: `2px solid ${th.tableBorder}` }}>
+                  <td colSpan={2} className="py-2.5 px-2 font-semibold" style={{ color: th.textPrimary }}>Total</td>
                   <td className="py-2.5 px-2 mono text-right font-semibold" style={{ color: '#EF4444' }}>{fmtMXN(extNegTotal)}</td>
                 </tr>
               </tbody>
             </table>
+            </div>
           </Card>
 
           <Card>
             <h2 className="text-sm font-semibold tracking-wide mb-4" style={{ color: '#10B981' }}>Externalidades positivas</h2>
+            <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr style={{ borderBottom: '1px solid #E5E0DA', color: '#999999' }}>
+                <tr style={{ borderBottom: `1px solid ${th.tableBorder}`, color: th.textMuted }}>
                   <th className="text-left py-2 px-2 font-medium">Proyecto</th>
                   <th className="text-left py-2 px-2 font-medium">Externalidad</th>
                   <th className="text-right py-2 px-2 font-medium">Valor</th>
@@ -230,18 +240,19 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
               </thead>
               <tbody>
                 {EXTERNALIDADES_POSITIVAS.map((e, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #E5E0DA' }}>
-                    <td className="py-2 px-2 mono" style={{ color: '#999999' }}>{e.proyecto}</td>
-                    <td className="py-2 px-2" style={{ color: '#1A1A1A' }}>{e.externalidad}</td>
+                  <tr key={i} style={{ borderBottom: `1px solid ${th.tableBorder}` }}>
+                    <td className="py-2 px-2 mono" style={{ color: th.textMuted }}>{e.proyecto}</td>
+                    <td className="py-2 px-2" style={{ color: th.textPrimary }}>{e.externalidad}</td>
                     <td className="py-2 px-2 mono text-right font-semibold" style={{ color: '#10B981' }}>{fmtMXN(e.valor)}</td>
                   </tr>
                 ))}
-                <tr style={{ borderTop: '2px solid #E5E0DA' }}>
-                  <td colSpan={2} className="py-2.5 px-2 font-semibold" style={{ color: '#1A1A1A' }}>Total</td>
+                <tr style={{ borderTop: `2px solid ${th.tableBorder}` }}>
+                  <td colSpan={2} className="py-2.5 px-2 font-semibold" style={{ color: th.textPrimary }}>Total</td>
                   <td className="py-2.5 px-2 mono text-right font-semibold" style={{ color: '#10B981' }}>{fmtMXN(extPosTotal)}</td>
                 </tr>
               </tbody>
             </table>
+            </div>
           </Card>
         </div>
 

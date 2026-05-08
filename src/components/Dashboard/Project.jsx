@@ -7,28 +7,29 @@ import {
 } from 'recharts'
 import { ARCHETYPES } from '../../data/projects'
 import { fmtMXN, sroiColor, portfolioTotals } from '../../lib/sroi'
+import { useTheme } from '../../lib/theme'
 
 const entry = { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } }
 
-function mkTh() {
+function mkTh(globalTh) {
   return {
-    pageBg:       '#F8F6F3',
-    cardBg:       '#FFFFFF',
-    cardBorder:   '#E5E0DA',
-    textPrimary:  '#1A1A1A',
-    textSecondary:'#666666',
-    textMuted:    '#999999',
-    tableBorder:  '#E5E0DA',
-    trackBg:      '#E5E0DA',
-    chartGrid:    '#E5E0DA',
-    chartAxis:    '#666666',
-    tooltipBg:    '#FFFFFF',
-    tooltipBorder:'#E5E0DA',
-    tooltipText:  '#1A1A1A',
-    backBtn:      '#FFFFFF',
-    backBtnBorder:'#E5E0DA',
-    crumbText:    '#666666',
-    shadow:       '0 2px 12px -4px rgba(0,0,0,0.06)',
+    pageBg:       globalTh.pageBg,
+    cardBg:       globalTh.cardBg,
+    cardBorder:   globalTh.cardBorder,
+    textPrimary:  globalTh.textPrimary,
+    textSecondary:globalTh.textSecondary,
+    textMuted:    globalTh.textMuted,
+    tableBorder:  globalTh.tableBorder,
+    trackBg:      globalTh.trackBg,
+    chartGrid:    globalTh.chartGrid,
+    chartAxis:    globalTh.textSecondary,
+    tooltipBg:    globalTh.tooltipBg,
+    tooltipBorder:globalTh.tooltipBorder,
+    tooltipText:  globalTh.textPrimary,
+    backBtn:      globalTh.cardBg,
+    backBtnBorder:globalTh.cardBorder,
+    crumbText:    globalTh.textSecondary,
+    shadow:       globalTh.shadow,
   }
 }
 
@@ -107,7 +108,8 @@ function AdjustmentBar({ label, value, color, th, delay = 0 }) {
 }
 
 export default function ProjectDashboard({ project, projects, onBack, onBackToGraph, onBackToPortfolio, previousView }) {
-  const th = mkTh()
+  const { th: globalTh } = useTheme()
+  const th = mkTh(globalTh)
   const arch = ARCHETYPES[project.archetype]
 
   const portfolio = useMemo(() => portfolioTotals(projects), [projects])
@@ -169,7 +171,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
       className="absolute inset-0 overflow-y-auto z-40"
       style={{ background: th.pageBg }}
     >
-      <div className="max-w-[1400px] mx-auto px-8 py-8">
+      <div className="max-w-[1400px] mx-auto px-4 md:px-8 py-8">
 
         {/* ── Header ── */}
         <motion.header {...entry} transition={{ duration: 0.35 }} className="mb-8">
@@ -212,7 +214,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
         </motion.header>
 
         {/* ── KPI Cards ── */}
-        <div className="grid grid-cols-5 gap-3 mb-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-5">
           {kpis.map((k, i) => {
             const Icon = k.icon
             return (
@@ -235,12 +237,13 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
         </div>
 
         {/* ── Outcomes Table + Adjustment Factors ── */}
-        <div className="grid grid-cols-12 gap-4 mb-5">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-5">
 
           {/* Outcomes */}
-          <Card th={th} className="col-span-8" delay={0.28}>
+          <Card th={th} className="lg:col-span-8" delay={0.28}>
             <h3 className="text-sm font-semibold mb-1" style={{ color: th.textPrimary }}>Outcomes y proxies</h3>
             <p className="text-[11px] mb-4" style={{ color: th.textMuted }}>Resultados medidos y su valoración económica</p>
+            <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr style={{ borderBottom: `1px solid ${th.tableBorder}` }}>
@@ -302,10 +305,11 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                 </tr>
               </tfoot>
             </table>
+            </div>
           </Card>
 
           {/* Adjustment Factors */}
-          <Card th={th} className="col-span-4" delay={0.32}>
+          <Card th={th} className="lg:col-span-4" delay={0.32}>
             <h3 className="text-sm font-semibold mb-1" style={{ color: th.textPrimary }}>Factores de ajuste</h3>
             <p className="text-[11px] mb-5" style={{ color: th.textMuted }}>Descuentos aplicados al valor bruto</p>
 
@@ -331,10 +335,10 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
         </div>
 
         {/* ── Waterfall Chart + Portfolio Comparison ── */}
-        <div className="grid grid-cols-12 gap-4 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-8">
 
           {/* Waterfall */}
-          <Card th={th} className="col-span-8" delay={0.42}>
+          <Card th={th} className="lg:col-span-8" delay={0.42}>
             <h3 className="text-sm font-semibold mb-1" style={{ color: th.textPrimary }}>Cascada de valor</h3>
             <p className="text-[11px] mb-4" style={{ color: th.textMuted }}>
               Del valor bruto al valor ajustado — cómo cada factor reduce el impacto medido
@@ -385,7 +389,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
           </Card>
 
           {/* Portfolio Comparison */}
-          <Card th={th} className="col-span-4 flex flex-col" delay={0.46}>
+          <Card th={th} className="lg:col-span-4 flex flex-col" delay={0.46}>
             <h3 className="text-sm font-semibold mb-1" style={{ color: th.textPrimary }}>vs. Portafolio</h3>
             <p className="text-[11px] mb-5" style={{ color: th.textMuted }}>
               Comparación contra el promedio del portafolio completo

@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Brain, Send, X, MessageCircle } from 'lucide-react'
 import { simulate } from './simulate'
 import { recomputeProject, portfolioTotals, fmtMXNFull } from '../../lib/sroi'
+import { useTheme } from '../../lib/theme'
 
 const PLACEHOLDERS = [
   'Preguntame sobre tu portafolio...',
@@ -13,41 +14,18 @@ const PLACEHOLDERS = [
 ]
 const QUICK_CHIPS = ['Top 3 SROI', 'Resumen portafolio', 'Comparar arquetipos', 'Que escalar', 'Eficiencia', 'Riesgos']
 
-const th = {
-  panelBg:      'rgba(255,255,255,0.97)',
-  panelBorder:  '#E5E0DA',
-  botBubbleBg:  '#F8F6F3',
-  botBubbleText:'#1A1A1A',
-  inputBg:      '#F8F6F3',
-  inputBorder:  '#E5E0DA',
-  inputText:    '#1A1A1A',
-  placeholder:  '#999999',
-  headerBorder: '#E5E0DA',
-  metaText:     '#666666',
-  chipBg:       'rgba(0,0,0,0.03)',
-  chipBorder:   '#E5E0DA',
-  chipText:     '#666666',
-  tableBorder:  '#E5E0DA',
-  tableHeadBg:  'rgba(232,82,14,0.06)',
-  tableHeadText:'#666666',
-  actionAlt:    'rgba(0,0,0,0.04)',
-  actionAltBorder: '#E5E0DA',
-  actionAltText:'#1A1A1A',
-  titleText:    '#1A1A1A',
-}
-
-function TypingIndicator() {
+function TypingIndicator({ th }) {
   return (
     <div
       className="flex gap-1 items-center px-3 py-2 rounded-2xl rounded-bl-sm"
-      style={{ background: '#F8F6F3', width: 'fit-content' }}
+      style={{ background: th.botBubbleBg, width: 'fit-content' }}
     >
       <span className="typing-dot" /><span className="typing-dot" /><span className="typing-dot" />
     </div>
   )
 }
 
-function MiniTable({ rows, headers }) {
+function MiniTable({ rows, headers, th }) {
   return (
     <div className="mt-2 rounded-md overflow-hidden border" style={{ borderColor: th.tableBorder }}>
       <table className="w-full text-[11px]">
@@ -99,7 +77,7 @@ function formatContent(text, onProjectClick) {
   }).flat()
 }
 
-function ChatBubble({ msg, onAction, onProjectClick }) {
+function ChatBubble({ msg, onAction, onProjectClick, th }) {
   const isUser = msg.role === 'user'
   return (
     <motion.div
@@ -127,7 +105,7 @@ function ChatBubble({ msg, onAction, onProjectClick }) {
             {formatContent(msg.content, onProjectClick)}
           </div>
         )}
-        {msg.table && <MiniTable headers={msg.table.headers} rows={msg.table.rows} />}
+        {msg.table && <MiniTable headers={msg.table.headers} rows={msg.table.rows} th={th} />}
         {msg.actions && (
           <div className="flex gap-2 flex-wrap mt-3">
             {msg.actions.map((a, i) => (
@@ -155,6 +133,30 @@ export default function ChatPanel({
   collapsed, setCollapsed, projects, selectedId, onSelectProject,
   onOpenProject, applyAdjustment, applyOptimization,
 }) {
+  const { th: theme } = useTheme()
+  const th = {
+    panelBg:        theme.chatBg,
+    panelBorder:    theme.cardBorder,
+    botBubbleBg:    theme.bubbleBg,
+    botBubbleText:  theme.textPrimary,
+    inputBg:        theme.inputBg,
+    inputBorder:    theme.inputBorder,
+    inputText:      theme.textPrimary,
+    placeholder:    theme.textMuted,
+    headerBorder:   theme.cardBorder,
+    metaText:       theme.textSecondary,
+    chipBg:         theme.hoverBg,
+    chipBorder:     theme.cardBorder,
+    chipText:       theme.textSecondary,
+    tableBorder:    theme.tableBorder,
+    tableHeadBg:    theme.accentSoft,
+    tableHeadText:  theme.textSecondary,
+    actionAlt:      theme.hoverBg,
+    actionAltBorder:theme.cardBorder,
+    actionAltText:  theme.textPrimary,
+    titleText:      theme.textPrimary,
+  }
+
   const [messages, setMessages] = useState(() => [{
     role: 'bot',
     content: 'Hola, soy **Impact AI**, tu asistente de portafolio RSC. Tengo contexto de los 15 proyectos de XIGNUX. Puedo:\n\n  • Consultar datos y metricas\n  • Comparar proyectos y arquetipos\n  • Asesoria estrategica\n  • Explicar conceptos SROI\n  • Modificar parametros del modelo\n\nPrueba una pregunta o usa los chips rapidos.',
@@ -293,13 +295,13 @@ export default function ChatPanel({
         style={{
           background: '#E8520E',
           boxShadow: '0 8px 32px -4px rgba(232,82,14,0.4)',
-          outline: '2px solid #1A1A1A',
+          outline: `2px solid ${th.panelBorder}`,
         }}
         aria-label="Abrir chat IA"
       >
         <MessageCircle className="w-6 h-6 text-white" />
         <span className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2"
-          style={{ borderColor: '#FFFFFF' }} />
+          style={{ borderColor: th.panelBg }} />
       </motion.button>
     )
   }
@@ -311,7 +313,7 @@ export default function ChatPanel({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 40, scale: 0.95 }}
         transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="fixed right-5 bottom-5 w-[380px] z-[60] flex flex-col rounded-2xl overflow-hidden"
+        className="fixed bottom-5 right-2 left-2 sm:left-auto sm:right-5 w-auto sm:w-[380px] z-[60] flex flex-col rounded-2xl overflow-hidden"
         style={{
           height: 'min(620px, calc(100vh - 60px))',
           background: th.panelBg,
@@ -336,7 +338,7 @@ export default function ChatPanel({
           </div>
           <button
             onClick={() => setCollapsed(true)}
-            className="w-7 h-7 rounded-md flex items-center justify-center transition hover:bg-black/[0.04]"
+            className="w-7 h-7 rounded-md flex items-center justify-center transition"
             style={{ color: th.metaText }}
             aria-label="Cerrar chat"
           >
@@ -350,6 +352,7 @@ export default function ChatPanel({
               key={i} msg={m}
               onAction={handleAction}
               onProjectClick={handleProjectClick}
+              th={th}
             />
           ))}
           {typing && (
@@ -358,7 +361,7 @@ export default function ChatPanel({
                 style={{ background: 'rgba(232,82,14,0.1)' }}>
                 <Brain className="w-3 h-3" style={{ color: '#E8520E' }} />
               </div>
-              <TypingIndicator />
+              <TypingIndicator th={th} />
             </motion.div>
           )}
         </div>

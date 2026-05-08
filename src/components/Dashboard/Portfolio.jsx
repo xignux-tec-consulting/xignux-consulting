@@ -11,47 +11,50 @@ import {
 } from 'recharts'
 import { ARCHETYPES } from '../../data/projects'
 import { portfolioTotals, fmtMXN, fmtMXNFull, sroiColor } from '../../lib/sroi'
+import { useTheme } from '../../lib/theme'
 
 /* ─── primitives ─────────────────────────────────────────────────── */
-// Theme helper — centralizes all color decisions so light mode works
-function mkTh() {
+// Theme helper — sources values from global theme context
+function mkTh(globalTh) {
   return {
-    cardBg:       '#FFFFFF',
-    cardBorder:   '#E5E0DA',
-    pageBg:       '#F8F6F3',
-    tableBorder:  '#E5E0DA',
-    inputBg:      '#FFFFFF',
-    inputBorder:  '#E5E0DA',
-    chartGrid:    '#E5E0DA',
-    trackBg:      '#E5E0DA',
-    quadBg:       'rgba(248,246,243,0.8)',
-    quadDivider:  '#E5E0DA',
-    limItemBg:    '#F8F6F3',
-    limItemBorder:'#E5E0DA',
-    textPrimary:  '#1A1A1A',
-    textSecondary:'#666666',
-    textMuted:    '#999999',
-    textFaint:    '#999999',
-    tabBarBg:     '#FFFFFF',
-    tabBarBorder: '#E5E0DA',
-    tabActiveBg:  'rgba(232,82,14,0.08)',
-    tabActiveBorder: 'rgba(232,82,14,0.25)',
-    tabActiveColor:  '#E8520E',
-    tabInactiveColor: '#999999',
-    tooltipBg:    '#FFFFFF',
-    tooltipBorder:'#E5E0DA',
-    tooltipText:  '#1A1A1A',
+    cardBg:       globalTh.cardBg,
+    cardBorder:   globalTh.cardBorder,
+    pageBg:       globalTh.pageBg,
+    tableBorder:  globalTh.tableBorder,
+    inputBg:      globalTh.inputBg,
+    inputBorder:  globalTh.inputBorder,
+    chartGrid:    globalTh.chartGrid,
+    trackBg:      globalTh.trackBg,
+    quadBg:       globalTh.cardBg,
+    quadDivider:  globalTh.cardBorder,
+    limItemBg:    globalTh.pageBg,
+    limItemBorder:globalTh.cardBorder,
+    textPrimary:  globalTh.textPrimary,
+    textSecondary:globalTh.textSecondary,
+    textMuted:    globalTh.textMuted,
+    textFaint:    globalTh.textMuted,
+    tabBarBg:     globalTh.cardBg,
+    tabBarBorder: globalTh.cardBorder,
+    tabActiveBg:  globalTh.accentSoft,
+    tabActiveBorder: globalTh.accentBorder,
+    tabActiveColor:  globalTh.accent,
+    tabInactiveColor: globalTh.textMuted,
+    tooltipBg:    globalTh.tooltipBg,
+    tooltipBorder:globalTh.tooltipBorder,
+    tooltipText:  globalTh.textPrimary,
   }
 }
 
-function Card({ children, className = '', style = {}, noPad }) {
+function Card({ children, className = '', style = {}, noPad, th: cardTh }) {
+  const { th: globalTh } = useTheme()
+  const t = cardTh || globalTh
   return (
     <div
       className={`rounded-2xl ${noPad ? '' : 'p-5'} ${className}`}
       style={{
-        background: '#FFFFFF',
-        border: '1px solid #E5E0DA',
-        boxShadow: '0 2px 12px -4px rgba(0,0,0,0.06)',
+        background: t.cardBg,
+        border: `1px solid ${t.cardBorder}`,
+        boxShadow: t.shadow,
         ...style,
       }}
     >
@@ -70,11 +73,12 @@ function SectionTitle({ children, sub, th }) {
 }
 
 function KpiChip({ label, value, sub, color, delay }) {
+  const { th } = useTheme()
   return (
     <Card delay={delay} className="flex flex-col gap-1">
-      <span className="text-[10px] mono uppercase tracking-widest" style={{ color: '#999999' }}>{label}</span>
-      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || '#1A1A1A' }}>{value}</span>
-      {sub && <span className="text-[11px]" style={{ color: '#666666' }}>{sub}</span>}
+      <span className="text-[10px] mono uppercase tracking-widest" style={{ color: th.textMuted }}>{label}</span>
+      <span className="text-2xl font-semibold mono leading-tight" style={{ color: color || th.textPrimary }}>{value}</span>
+      {sub && <span className="text-[11px]" style={{ color: th.textSecondary }}>{sub}</span>}
     </Card>
   )
 }
@@ -154,7 +158,8 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
   const [filterArch, setFilterArch] = useState('ALL')
   const [activeTab, setActiveTab]   = useState('overview')
   const [expandedLim, setExpandedLim] = useState(null)
-  const th = useMemo(() => mkTh(), [])
+  const { th: globalTh } = useTheme()
+  const th = useMemo(() => mkTh(globalTh), [globalTh])
 
   const tabs = [
     { id: 'overview',     label: 'Resumen ejecutivo' },
@@ -228,8 +233,8 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
 
   /* ─── render ─────────────────────────────────────────────────── */
   return (
-    <div className="absolute inset-0 overflow-y-auto" style={{ background: th.pageBg, transition: 'background 0.3s' }}>
-      <div className="max-w-[1440px] mx-auto px-8 pt-16 pb-8">
+    <div className="absolute inset-0 overflow-y-auto pl-16" style={{ background: th.pageBg, transition: 'background 0.3s' }}>
+      <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-20 pb-8">
 
         {/* Header */}
         <header className="flex items-end justify-between mb-6">
@@ -271,7 +276,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
         {activeTab === 'overview' && (
           <div className="space-y-4">
             {/* KPI row */}
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <KpiChip delay={0.05} label="SROI Portafolio" value={`${tot.sroi.toFixed(2)}x`} color={sroiColor(tot.sroi)} sub="Valor ajustado / Inversión" />
               <KpiChip delay={0.10} label="Inversión total" value={fmtMXN(tot.inv)} sub="MXN · 2024" />
               <KpiChip delay={0.15} label="Valor social ajustado" value={fmtMXN(tot.adj)} sub={`${((tot.adj / tot.inv - 1) * 100).toFixed(0)}% sobre inversión`} color="#10B981" />
@@ -279,8 +284,8 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             </div>
 
             {/* Distribution + SROI trend by archetype */}
-            <div className="grid grid-cols-12 gap-4">
-              <Card delay={0.25} className="col-span-3">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <Card delay={0.25} className="lg:col-span-3">
                 <SectionTitle th={th}>Distribución de impacto</SectionTitle>
                 <div className="flex flex-col items-center">
                   <div className="w-32 h-32">
@@ -329,7 +334,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 </div>
               </Card>
 
-              <Card delay={0.3} className="col-span-5">
+              <Card delay={0.3} className="lg:col-span-5">
                 <SectionTitle th={th} sub="barra = portafolio · línea = benchmark medio sectorial">SROI por arquetipo vs. benchmark</SectionTitle>
                 <div className="h-[200px]">
                   <ResponsiveContainer>
@@ -354,7 +359,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 </p>
               </Card>
 
-              <Card delay={0.35} className="col-span-4">
+              <Card delay={0.35} className="lg:col-span-4">
                 <SectionTitle th={th}>Top 5 iniciativas por SROI</SectionTitle>
                 <div className="space-y-3">
                   {top5.map((p, i) => (
@@ -378,7 +383,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             {/* Insights box */}
             <Card delay={0.4}>
               <SectionTitle th={th}>Hallazgos principales del portafolio</SectionTitle>
-              <div className="grid grid-cols-3 gap-6 text-xs" style={{ color: th.textSecondary }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 text-xs" style={{ color: th.textSecondary }}>
                 <div>
                   <div className="flex items-center gap-1.5 mb-2 font-semibold text-[11px]" style={{ color: '#10B981' }}>
                     <TrendingUp className="w-3.5 h-3.5" /> Iniciativa flagship
@@ -422,6 +427,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 </select>
               </div>
             </div>
+            <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr style={{ color: th.textMuted, borderBottom: `1px solid ${th.tableBorder}` }}>
@@ -497,8 +503,9 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 })}
               </tbody>
             </table>
+            </div>
             <div className="mt-4 pt-4" style={{ borderTop: `1px solid ${th.tableBorder}` }}>
-              <div className="grid grid-cols-4 gap-4 text-[11px]" style={{ color: th.textMuted }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-[11px]" style={{ color: th.textMuted }}>
                 <div>
                   <span className="font-semibold" style={{ color: th.textSecondary }}>Inversión total: </span>
                   {fmtMXNFull(sortedProjects.reduce((a, p) => a + p.investment, 0))}
@@ -544,7 +551,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                           <span className="mono px-1.5 py-0.5 rounded text-[10px]" style={{ background: v.color + '22', color: v.color }}>Arq. {k}</span>
                           {v.name}
                         </span>
-                        <div className="flex items-center gap-3 mono text-[10px]" style={{ color: '#999999' }}>
+                        <div className="flex items-center gap-3 mono text-[10px]" style={{ color: th.textMuted }}>
                           <span>Portafolio: <strong style={{ color: sroiColor(archSroi) }}>{archSroi.toFixed(2)}x</strong></span>
                           <span>Bench. medio: <strong style={{ color: '#94A3B8' }}>{bench.mid}x</strong></span>
                         </div>
@@ -576,6 +583,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
 
             <Card delay={0.15}>
               <SectionTitle th={th} sub="Δ = SROI del proyecto menos benchmark medio del arquetipo">Posición de cada proyecto vs. benchmark medio</SectionTitle>
+              <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr style={{ color: th.textMuted, borderBottom: `1px solid ${th.tableBorder}` }}>
@@ -615,6 +623,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   })}
                 </tbody>
               </table>
+              </div>
             </Card>
           </div>
         )}
@@ -622,7 +631,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
         {/* ── TAB: quadrant ──────────────────────────────────────────── */}
         {activeTab === 'quadrant' && (
           <div className="space-y-4">
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {Object.entries(QUADRANT).map(([k, v]) => {
                 const count = projects.filter((p) => p.quadrant === k).length
                 return (
@@ -690,6 +699,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             {/* Action table */}
             <Card delay={0.3}>
               <SectionTitle th={th} sub="Basado en SROI, alineación estratégica, calidad de datos y escalabilidad">Decisiones estratégicas por proyecto</SectionTitle>
+              <div className="overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
                   <tr style={{ color: th.textMuted, borderBottom: `1px solid ${th.tableBorder}` }}>
@@ -724,6 +734,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   ))}
                 </tbody>
               </table>
+              </div>
             </Card>
           </div>
         )}
@@ -732,7 +743,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
         {activeTab === 'sensitivity' && (
           <div className="space-y-4">
             {/* 3 scenarios */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {SCENARIOS.map((s, i) => (
                 <Card key={s.label} delay={0.05 * (i + 1)} style={{ borderColor: s.color + '33' }}>
                   <div className="text-[10px] mono uppercase tracking-widest mb-1" style={{ color: s.color }}>Escenario {s.label}</div>
@@ -808,7 +819,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   return (
                     <div
                       key={i}
-                      className="flex gap-4 py-3 px-4 rounded-xl cursor-pointer transition-colors hover:bg-black/[0.02]"
+                      className="flex gap-4 py-3 px-4 rounded-xl cursor-pointer transition-colors"
                       style={{ background: th.limItemBg, border: `1px solid ${th.limItemBorder}` }}
                     >
                       <span className="mono text-[10px] px-2 py-0.5 h-fit rounded-md font-semibold flex-shrink-0 mt-0.5" style={{ background: catColor + '1a', color: catColor, border: `1px solid ${catColor}33` }}>
@@ -823,7 +834,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
 
             <Card delay={0.2}>
               <SectionTitle th={th} sub="Valores utilizados para el escenario central · Modificables para análisis de sensibilidad">Supuestos clave del modelo base</SectionTitle>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-3 text-xs">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-xs">
                 {[
                   ['Precio social del carbono (CSC)',    '$173 MXN/tCO₂',  'Mercado voluntario MX ($10 USD × $17.30)'],
                   ['Tipo de cambio USD/MXN',             '$17.30',          'Promedio Banxico 2024'],
