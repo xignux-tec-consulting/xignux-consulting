@@ -135,6 +135,7 @@ export default function Constellation({
       gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
       dpr={[1, Math.min(window.devicePixelRatio, 1.25)]}
       frameloop={paused ? 'never' : 'always'}
+      onPointerMissed={() => { if (selectedId) onDeselect() }}
     >
       {onProjectAnchor && (
         <NodeProjector
