@@ -146,7 +146,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
   const backLabel = previousView === 'portfolio' ? 'Volver al dashboard' : 'Volver al grafo'
 
   const kpis = [
-    { label: 'Inversión Total',     value: fmtMXN(project.investment),       sub: 'MXN · 2024',  icon: DollarSign, iconColor: '#E8520E' },
+    { label: 'Inversión Total',     value: fmtMXN(project.investment),       sub: 'MXN',  icon: DollarSign, iconColor: '#E8520E' },
     { label: 'SROI',                value: project.sroi.toFixed(2) + 'x',    sub: 'Retorno social', icon: TrendingUp, iconColor: sroiColor(project.sroi), valueColor: sroiColor(project.sroi) },
     { label: 'Valor Bruto',        value: fmtMXN(project.vBruto),           sub: 'Antes de ajustes', icon: BarChart3, iconColor: '#F0854A' },
     { label: 'Valor Ajustado',     value: fmtMXN(project.vAjustado),        sub: `${(project.vAjustado / project.vBruto * 100).toFixed(0)}% del bruto`, icon: Sparkles, iconColor: '#10B981' },

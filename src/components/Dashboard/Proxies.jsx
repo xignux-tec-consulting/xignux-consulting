@@ -107,7 +107,7 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
 
         {/* Header */}
         <header className="mb-6">
-          <div className="text-[10px] mono uppercase tracking-[0.25em] mb-1" style={{ color: th.textMuted }}>XIGNUX · Portafolio RSC · 2024</div>
+          <div className="text-[10px] mono uppercase tracking-[0.25em] mb-1" style={{ color: th.textMuted }}>XIGNUX · Portafolio RSC</div>
           <h1 className="text-3xl font-semibold leading-tight" style={{ color: th.textPrimary }}>Base de Proxies</h1>
         </header>
 

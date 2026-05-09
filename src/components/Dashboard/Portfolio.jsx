@@ -240,7 +240,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
         <header className="flex items-end justify-between mb-6">
           <div>
             <div className="text-[10px] mono uppercase tracking-[0.25em] mb-1" style={{ color: th.textFaint }}>
-              XIGNUX · Portafolio RSC · 2024
+              XIGNUX · Portafolio RSC
             </div>
             <h1 className="text-3xl font-semibold leading-tight" style={{ color: th.textPrimary }}>Análisis de Impacto Social</h1>
             <p className="text-sm mt-1" style={{ color: th.textMuted }}>
@@ -278,9 +278,9 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             {/* KPI row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <KpiChip delay={0.05} label="SROI Portafolio" value={`${tot.sroi.toFixed(2)}x`} color={sroiColor(tot.sroi)} sub="Valor ajustado / Inversión" />
-              <KpiChip delay={0.10} label="Inversión total" value={fmtMXN(tot.inv)} sub="MXN · 2024" />
+              <KpiChip delay={0.10} label="Inversión total" value={fmtMXN(tot.inv)} sub="MXN" />
               <KpiChip delay={0.15} label="Valor social ajustado" value={fmtMXN(tot.adj)} sub={`${((tot.adj / tot.inv - 1) * 100).toFixed(0)}% sobre inversión`} color="#10B981" />
-              <KpiChip delay={0.20} label="Beneficiarios directos" value={projects.reduce((a, p) => a + p.direct_beneficiaries, 0).toLocaleString('es-MX')} sub="personas · 2024" />
+              <KpiChip delay={0.20} label="Beneficiarios directos" value={projects.reduce((a, p) => a + p.direct_beneficiaries, 0).toLocaleString('es-MX')} sub="personas" />
             </div>
 
             {/* Distribution + SROI trend by archetype */}
