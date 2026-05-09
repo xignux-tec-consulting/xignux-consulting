@@ -58,9 +58,9 @@ export default function OptimizeDashboard({ onBackToGraph }) {
               Optimizacion del Portafolio
             </h1>
             <p className="text-sm mt-1.5" style={{ color: th.textSecondary }}>
-              SROI actual: <span className="mono font-semibold" style={{ color: '#7F1D1D' }}>0.97x</span>
+              SROI actual: <span className="mono font-semibold" style={{ color: '#F59E0B' }}>1.54x</span>
               {' '} &rarr; {' '}
-              Objetivo: <span className="mono font-semibold" style={{ color: '#10B981' }}>1.45-1.65x</span>
+              Objetivo: <span className="mono font-semibold" style={{ color: '#10B981' }}>2.00x+</span>
             </p>
           </div>
         </header>
@@ -156,7 +156,7 @@ export default function OptimizeDashboard({ onBackToGraph }) {
                   <span style={{ color: th.textMuted }}>SROI </span>
                   <span className="mono font-semibold" style={{ color: '#7F1D1D' }}>{plan.resumen.sroiActual}x</span>
                   <span style={{ color: th.textMuted }}> &rarr; </span>
-                  <span className="mono font-semibold" style={{ color: '#10B981' }}>{plan.resumen.sroiObjetivo}x</span>
+                  <span className="mono font-semibold" style={{ color: '#10B981' }}>{plan.resumen.sroiObjetivo}</span>
                 </div>
                 <div>
                   <span style={{ color: th.textMuted }}>Inversion: </span>

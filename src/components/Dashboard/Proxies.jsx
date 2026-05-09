@@ -58,7 +58,7 @@ export default function ProxiesDashboard({ projects, onBackToGraph }) {
   }, [projects])
 
   const totalVBruto = useMemo(() => projects.reduce((a, p) => a + p.vBruto, 0), [projects])
-  const totalVAjustado = useMemo(() => projects.reduce((a, p) => a + p.vAjustado, 0), [projects])
+  const totalVAjustado = useMemo(() => projects.reduce((a, p) => a + p.vTotal, 0), [projects])
 
   const uniqueProxies = useMemo(() => {
     const set = new Set()

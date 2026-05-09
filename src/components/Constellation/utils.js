@@ -11,8 +11,9 @@ export const projectPosition = (p) => {
   else if (p.sroi >= 1) R = 2.5
   else R = 4
 
-  const archIdx = 'ABCDE'.indexOf(p.archetype)
-  const sliceCenter = (archIdx / 5) * Math.PI * 2
+  const archKeys = ['A_STEM', 'A', 'B', 'C', 'D', 'E']
+  const archIdx = Math.max(0, archKeys.indexOf(p.archetype))
+  const sliceCenter = (archIdx / archKeys.length) * Math.PI * 2
   const s = seed(p)
   const theta = sliceCenter + ((s / 100) - 0.5) * 0.9
   const phi = Math.PI * (0.25 + ((s * 1.7) % 100) / 100 * 0.5)
@@ -26,11 +27,12 @@ export const projectPosition = (p) => {
 
 // Positions for all modes — deterministic (seed only from project id)
 const ARC_CENTERS = {
-  A: { angle: 0,              R: 4.5 },
-  B: { angle: Math.PI * 0.4,  R: 4.5 },
-  C: { angle: Math.PI * 0.8,  R: 4.5 },
-  D: { angle: Math.PI * 1.2,  R: 4.5 },
-  E: { angle: Math.PI * 1.6,  R: 4.5 },
+  A_STEM: { angle: 0,              R: 4.5 },
+  A:      { angle: Math.PI * 0.33, R: 4.5 },
+  B:      { angle: Math.PI * 0.67, R: 4.5 },
+  C:      { angle: Math.PI * 1.0,  R: 4.5 },
+  D:      { angle: Math.PI * 1.33, R: 4.5 },
+  E:      { angle: Math.PI * 1.67, R: 4.5 },
 }
 
 export const computePositions = (projects, groupBy) => {

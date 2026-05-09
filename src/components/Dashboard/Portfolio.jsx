@@ -103,51 +103,54 @@ const QUADRANT = {
 
 /* ─── benchmark data ─────────────────────────────────────────────── */
 const BENCHMARK_REFS = {
-  A: { ref: 'Cemex Patrimonio Hoy · FasterCapital', low: 0.50, mid: 1.50, high: 3.00 },
-  B: { ref: 'HACT UK Social Value Bank',            low: 0.30, mid: 1.00, high: 1.80 },
-  C: { ref: 'Iluméxico · UNAL Colombia',            low: 1.50, mid: 2.50, high: 4.00 },
-  D: { ref: 'Caso Metepec MX · CONAFOR',           low: 0.80, mid: 1.50, high: 2.50 },
-  E: { ref: 'BAMX · Fundraising Católico',          low: 2.00, mid: 3.50, high: 5.00 },
+  A_STEM: { ref: 'WSIPP Workforce · Sopact meta-analysis',  low: 0.50, mid: 1.50, high: 3.00 },
+  A:      { ref: 'Cemex Patrimonio Hoy · FasterCapital',     low: 0.50, mid: 1.50, high: 3.00 },
+  B:      { ref: 'HACT UK Social Value Bank',                low: 0.30, mid: 1.00, high: 1.80 },
+  C:      { ref: 'Iluméxico · WarmHomes UK (1.9:1)',         low: 1.50, mid: 2.50, high: 4.00 },
+  D:      { ref: 'World Vision FMNR · CONAFOR MX',          low: 0.80, mid: 1.50, high: 2.50 },
+  E:      { ref: 'BAMX · SecondBite SROI · Charity Intel.',  low: 2.00, mid: 3.50, high: 5.00 },
 }
 
 const SCENARIOS = [
-  { label: 'Conservador', sroi: 0.54, adj: 4786000,  color: '#EF4444', desc: 'CSC = IEPS $68/tCO₂, VB ×0.80, FR ×0.70' },
-  { label: 'Base v8',     sroi: 0.97, adj: 8552000,  color: '#F59E0B', desc: 'CSC = $173/tCO₂ ($10 USD vol. MX), supuestos Krlev 2013' },
-  { label: 'Optimista',   sroi: 1.40, adj: 12310000, color: '#10B981', desc: 'CSC = $345/tCO₂ ($20 USD forestry), VB ×1.20, FR ×1.20' },
+  { label: 'Conservador @10%', sroi: 1.32, adj: 11609424,  color: '#EF4444', desc: 'CSC = $100/tCO₂ (IEPS MX), VB ×0.70 + intangibles base' },
+  { label: 'Base v11 @10%',   sroi: 1.54, adj: 13600161,  color: '#F59E0B', desc: 'CSC = $200/tCO₂ (ANPs MX), VPN compuesto, Krlev+HACT + 7 cat. intangibles' },
+  { label: 'Optimista @10%',  sroi: 1.77, adj: 15590898,  color: '#10B981', desc: 'CSC = $400/tCO₂ ($20 USD forestry), VB ×1.30 + intangibles base' },
 ]
 
 const SENSITIVITY_VARS = [
-  { label: 'Factor Reclamable promedio',     base: 'Varía por arq.',   impact: '±40% SROI portafolio — variable más sensible del modelo',              magnitude: 'ALTA' },
-  { label: 'Tasa de descuento (3.5% vs 10%)', base: '3.5% UK Green Book', impact: '−35.3% SROI si se usa 10% SHCP México',                            magnitude: 'ALTA' },
-  { label: 'Ahorro solar/hogar (P10)',       base: '$6,000/año CFE',    impact: '±21.2% SROI — segundo driver más sensible',                            magnitude: 'ALTA' },
-  { label: 'Hogares con sistema solar (P10)', base: '130 viviendas',    impact: '±19.9% SROI — escalar a 500 viviendas triplicaría VA',                 magnitude: 'ALTA' },
-  { label: 'Valor tech-transfer',            base: '$150,000/proy.',    impact: '±3.0% SROI si cambia proxy de adopción tecnológica',                   magnitude: 'BAJA' },
-  { label: 'Valor porción alimentaria',      base: '$35 CONEVAL',       impact: '±1.3% SROI si cambia valoración de porciones P15',                     magnitude: 'BAJA' },
-  { label: 'Drop-off Eventos (Arq. B)',      base: '40%',               impact: '±1.1% SROI — alto drop-off pero bajo peso en portafolio',              magnitude: 'BAJA' },
-  { label: 'Carga energética liberada (P10)', base: '$3,960/hogar',     impact: '±0.6% SROI — beneficio indirecto de ahorro energético',                magnitude: 'BAJA' },
-  { label: 'Precio carbono voluntario',      base: '$173/tCO₂',        impact: '±0.2% SROI — bajo porque reforestación usa vol. MX $10 USD',           magnitude: 'BAJA' },
-  { label: 'Servicios hidrológicos i-Tree',  base: '$85/árbol',         impact: '±0.1% SROI — proxy USDA, no verificado localmente',                    magnitude: 'BAJA' },
+  { label: 'Factor Reclamable promedio',       base: 'Varía por arq.',   impact: '±40.0% SROI portafolio — variable más sensible del modelo',            magnitude: 'ALTA' },
+  { label: 'Proxy salud PX37 (v11 $1,174)',    base: '$1,174 IMSS DOF',  impact: '±16.0% SROI — outcomes de salud respiratoria P10',                     magnitude: 'ALTA' },
+  { label: 'Proxy energético P10',             base: '$2,400/año Tarifa 1', impact: '±11.5% SROI — Tarifa 1 CFE subsidiada ($200/mes)',                  magnitude: 'ALTA' },
+  { label: 'PX43 prevención juvenil',          base: '$2,500/persona',   impact: '±10.0% SROI — nuevo outcome en P06, P08, P09',                        magnitude: 'ALTA' },
+  { label: 'Tasa de descuento (10% vs 3.5%)',  base: '10% SHCP',         impact: '±9.3% SROI entre tasa SHCP y UK Green Book',                          magnitude: 'ALTA' },
+  { label: 'Recarga hídrica PXWATER',          base: '$18.9/m³ CONAGUA', impact: '±6.0% SROI — nuevo proxy agua infiltrada ANPs',                       magnitude: 'ALTA' },
+  { label: 'Proxy no-finalistas P01',          base: '$1,500/persona',   impact: '±3.7% SROI si cambia proxy de red profesional',                       magnitude: 'BAJA' },
+  { label: 'Proxy alimentario P15',            base: '$35 CONEVAL',      impact: '±3.4% SROI si cambia valoración de porciones',                        magnitude: 'BAJA' },
+  { label: 'DW Eventos (B)',                   base: '55%',              impact: '±1.3% SROI — alto DW pero bajo peso en portafolio',                   magnitude: 'BAJA' },
+  { label: 'Precio carbono $200/tCO₂',        base: '$200/tCO₂ ANPs',   impact: '±0.6% SROI — precio conservador vs co-beneficios verificados',        magnitude: 'BAJA' },
 ]
 
 const LIMITATIONS = [
   { cat: 'PROXIES',        text: 'Proxies de mercado aproximados: ante falta de precios directos para outcomes sociales, usamos proxies que pueden sobre- o sub-estimar el valor real.' },
   { cat: 'DATOS',          text: 'Horizonte temporal limitado: mayoría de proyectos analizados a 1 año. Subestima impactos de largo plazo (educación, reforestación).' },
-  { cat: 'METODOLOGÍA',    text: 'Ajustes basados en literatura: DW, Attr, Disp, Drop calibrados con Krlev et al. 2013 (114 estudios) y CONAFOR, no datos primarios de XIGNUX.' },
-  { cat: 'EXTERNALIDADES', text: 'Externalidades negativas parcialmente incorporadas: v8 incluye huella de carbono eventos (−$5K), rebound energético (−$649K) y desplazamiento comercio local (−$61K).' },
+  { cat: 'METODOLOGÍA',    text: 'Ajustes basados en literatura: DW, Attr, Disp, Drop calibrados con Krlev et al. 2013 (114 estudios), HACT y CONAFOR. No son mediciones primarias de XIGNUX, pero validados sectorialmente.' },
+  { cat: 'EXTERNALIDADES', text: 'Externalidades negativas parcialmente incorporadas: v11 incluye huella de carbono eventos (−$5K), rebound energético (−$259K) y desplazamiento alimentario (−$61K). Total: −$329K.' },
   { cat: 'METODOLOGÍA',    text: 'Doble conteo potencial: outcomes de educación y emprendimiento en P01–P05 podrían superponerse parcialmente.' },
-  { cat: 'PROXIES',        text: 'WTP de estudios internacionales: valores de willingness-to-pay para turismo y voluntariado provienen de estudios UK/US, no México.' },
-  { cat: 'DATOS',          text: 'Supervivencia de árboles asumida: 70% es optimista según CONAFOR (34–63% en programas nacionales).' },
+  { cat: 'PROXIES',        text: 'WTP de estudios internacionales: valores de willingness-to-pay para turismo y voluntariado provienen de estudios no mexicanos.' },
+  { cat: 'DATOS',          text: 'Supervivencia de árboles: v11 modela drop-off asimétrico (25%/año años 1-3, 2% años 4+) basado en CONAFOR (34-63% supervivencia). Aún podría ser optimista.' },
   { cat: 'PROXIES',        text: 'Outcomes difíciles de monetizar: P06 (gaming) y P08 (exploradores) tienen incertidumbre alta en la monetización.' },
-  { cat: 'METODOLOGÍA',    text: 'Multiplicadores parciales, no macro: v8 incluye alivio carga energética (+$515K) y servicios hidrológicos (+$60K) en modelo parcial, no en modelo macro.' },
+  { cat: 'METODOLOGÍA',    text: 'Multiplicadores parciales: v11 incluye alivio carga energética (+$206K) y servicios ecosistémicos (+$132K agua + $78K suelo) en Modelo. Externalidades positivas documentadas en hoja Externalidades.' },
   { cat: 'METODOLOGÍA',    text: 'Supuesto de linealidad: duplicar inversión ≠ duplicar impacto. Rendimientos decrecientes no modelados.' },
   { cat: 'VERIFICACIÓN',   text: 'Sin seguimiento post-proyecto: falta de datos de tracking para validar persistencia real de impacto.' },
-  { cat: 'DATOS',          text: 'Sin ajuste por tipo de cambio/inflación: todos los valores en MXN nominales sin ajuste por poder adquisitivo.' },
-  { cat: 'METODOLOGÍA',    text: 'Beneficios intangibles excluidos: orgullo comunitario, capital social, marca empleadora — excluidos del cálculo numérico.' },
+  { cat: 'DATOS',          text: 'Sin ajuste por tipo de cambio/inflación: todos los valores en MXN nominales. No se ajustan por poder adquisitivo.' },
+  { cat: 'METODOLOGÍA',    text: 'Intangibles INCLUIDOS en v11: 7 categorías ($6.96M MXN). El SROI reportado (1.54x) incluye tangibles e intangibles. Los intangibles tienen menor certeza causal que los tangibles.' },
   { cat: 'DATOS',          text: 'Sesgo de selección: los 15 proyectos fueron preseleccionados por XIGNUX; no representan todo el portafolio posible.' },
-  { cat: 'METODOLOGÍA',    text: 'Tasa de descuento: se usa 3.5% (UK Green Book) para comparabilidad SROI Network. SHCP México recomienda 10% — eso bajaría el SROI un 35%.' },
-  { cat: 'PROXIES',        text: 'Precio carbono voluntario México: v8 usa $173 MXN/tCO₂ ($10 USD). ARR promedio $26/tCO₂ multiplicaría por 2.6×, EPA $190/tCO₂ multiplicaría por 19×.' },
-  { cat: 'METODOLOGÍA',    text: 'Análisis Forecast, no Evaluative: análisis predictivo validado contra 8 fuentes externas (6/8 confirmadas).' },
-  { cat: 'PROXIES',        text: 'P12 proxy i-Tree no verificado localmente: el valor de $100/árbol/año viene de USDA (EE.UU.). Podría ser diferente en contexto México.' },
+  { cat: 'METODOLOGÍA',    text: 'Tasa de descuento: se usa 10% (SHCP México). UK Green Book recomienda 3.5%, lo que aumentaría PV de outcomes multi-año ~50%. Incluido en análisis tornado.' },
+  { cat: 'PROXIES',        text: 'Precio carbono ANPs México: v11 usa $200 MXN/tCO₂ (servicios ecosistémicos ANPs federales MX). Reporte completo indica $1,099/tCO₂ con co-beneficios. EPA $190 USD/tCO₂. Elección conservadora.' },
+  { cat: 'METODOLOGÍA',    text: 'Análisis Forecast, no Evaluative: análisis predictivo validado contra 8 fuentes externas (6/8 confirmadas). Conversión a evaluative requiere entrevistas y encuestas con beneficiarios.' },
+  { cat: 'PROXIES',        text: 'P12 proxy i-Tree no verificado localmente: el valor de $100/árbol/año viene de USDA (EE.UU.). Podría ser diferente en contexto urbano de Monterrey.' },
+  { cat: 'METODOLOGÍA',    text: 'Supuesto de linealidad (no modelado): rendimientos marginales decrecientes (saturación de beneficiarios, cuellos de botella logísticos) no están modelados. Recomendación v12: implementar curva de saturación logística.' },
+  { cat: 'DATOS',          text: 'Estacionariedad paramétrica: proxies en MXN nominales 2025 sin indexación inflacionaria. Con inflación 3.0-3.8% (Banxico, SHCP CGPE 2026), proxies de bienestar subestiman valor real a mediano plazo.' },
 ]
 
 /* ─── main component ─────────────────────────────────────────────── */
@@ -192,7 +195,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
       const pp = projects.filter((p) => p.archetype === k)
       if (!pp.length) return null
       const inv = pp.reduce((a, p) => a + p.investment, 0)
-      const adj = pp.reduce((a, p) => a + p.vAjustado, 0)
+      const adj = pp.reduce((a, p) => a + p.vTotal, 0)
       return { name: v.name.split(' ')[0], sroi: +(adj / inv).toFixed(2), inv: inv / 1e6, color: v.color, arch: k, mid: BENCHMARK_REFS[k].mid }
     }).filter(Boolean),
   [projects])
@@ -279,7 +282,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <KpiChip delay={0.05} label="SROI Portafolio" value={`${tot.sroi.toFixed(2)}x`} color={sroiColor(tot.sroi)} sub="Valor ajustado / Inversión" />
               <KpiChip delay={0.10} label="Inversión total" value={fmtMXN(tot.inv)} sub="MXN" />
-              <KpiChip delay={0.15} label="Valor social ajustado" value={fmtMXN(tot.adj)} sub={`${((tot.adj / tot.inv - 1) * 100).toFixed(0)}% sobre inversión`} color="#10B981" />
+              <KpiChip delay={0.15} label="Valor social total" value={fmtMXN(tot.adj)} sub={`Tangible + intangible`} color="#10B981" />
               <KpiChip delay={0.20} label="Beneficiarios directos" value={projects.reduce((a, p) => a + p.direct_beneficiaries, 0).toLocaleString('es-MX')} sub="personas" />
             </div>
 
@@ -388,19 +391,19 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <div className="flex items-center gap-1.5 mb-2 font-semibold text-[11px]" style={{ color: '#10B981' }}>
                     <TrendingUp className="w-3.5 h-3.5" /> Iniciativa flagship
                   </div>
-                  <p><strong style={{ color: th.textPrimary }}>Energía para Todos (P10)</strong> concentra el 53% del valor social ajustado del portafolio con SROI de 2.27x. Es el único proyecto en categoría ALTO y su escalabilidad con Iluméxico podría duplicar cobertura.</p>
+                  <p><strong style={{ color: th.textPrimary }}>Energía para Todos (P10)</strong> concentra $3.37M de valor total ($1.87M tangible + $1.49M intangible) con SROI 1.68x. Incluye SLO $600K y engagement $409K. Su escalabilidad con Iluméxico podría duplicar cobertura.</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5 mb-2 font-semibold text-[11px]" style={{ color: '#F59E0B' }}>
                     <AlertTriangle className="w-3.5 h-3.5" /> Sub-inversión visible
                   </div>
-                  <p><strong style={{ color: th.textPrimary }}>Red SumaRSE (P07)</strong> alcanza SROI 1.97x beneficiando a 3,000 niños con solo $250K — la asignación más eficiente del portafolio. Doblar la inversión generaría retornos marginales altos.</p>
+                  <p><strong style={{ color: th.textPrimary }}>Red SumaRSE (P07)</strong> alcanza SROI 3.57x beneficiando a 3,000 niños con solo $250K — la asignación más eficiente. Doblar la inversión generaría retornos marginales altos.</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5 mb-2 font-semibold text-[11px]" style={{ color: '#EF4444' }}>
                     <TrendingDown className="w-3.5 h-3.5" /> Sobre-inversión relativa
                   </div>
-                  <p><strong style={{ color: th.textPrimary }}>Academia Exploradores (P08)</strong> invierte $400K para impactar 40 niños ($10K/beneficiario), SROI 0.07x. <strong style={{ color: th.textPrimary }}>Reforestación Tepotzotlán (P14)</strong> gasta $650K para SROI de 0.15x. Ambos candidatos a consolidación.</p>
+                  <p><strong style={{ color: th.textPrimary }}>Academia Exploradores (P08)</strong> invierte $400K para impactar 40 niños ($10K/beneficiario), SROI 0.41x. <strong style={{ color: th.textPrimary }}>Reforestación Tepotzotlán (P14)</strong> gasta $650K para SROI 0.99x. Ambos candidatos a consolidación o insetting.</p>
                 </div>
               </div>
             </Card>
@@ -436,7 +439,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                     { k: 'name',                 l: 'Iniciativa'    },
                     { k: 'archetype',            l: 'Arq.'          },
                     { k: 'investment',           l: 'Inversión'     },
-                    { k: 'vAjustado',            l: 'Ajustado'      },
+                    { k: 'vTotal',               l: 'Valor Total'   },
                     { k: 'sroi',                 l: 'SROI'          },
                     { k: 'direct_beneficiaries', l: 'Beneficiarios' },
                     { k: 'category',             l: 'Categoría'     },
@@ -479,7 +482,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                         </span>
                       </td>
                       <td className="py-3 px-2 mono" style={{ color: th.textPrimary }}>{fmtMXN(p.investment)}</td>
-                      <td className="py-3 px-2 mono font-semibold" style={{ color: th.textPrimary }}>{fmtMXN(p.vAjustado)}</td>
+                      <td className="py-3 px-2 mono font-semibold" style={{ color: th.textPrimary }}>{fmtMXN(p.vTotal)}</td>
                       <td className="py-3 px-2">
                         <div className="flex items-center gap-2">
                           <div className="w-14 h-1.5 rounded-full overflow-hidden" style={{ background: th.trackBg }}>
@@ -511,8 +514,8 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   {fmtMXNFull(sortedProjects.reduce((a, p) => a + p.investment, 0))}
                 </div>
                 <div>
-                  <span className="font-semibold" style={{ color: th.textSecondary }}>Valor ajustado: </span>
-                  {fmtMXN(sortedProjects.reduce((a, p) => a + p.vAjustado, 0))}
+                  <span className="font-semibold" style={{ color: th.textSecondary }}>Valor total: </span>
+                  {fmtMXN(sortedProjects.reduce((a, p) => a + p.vTotal, 0))}
                 </div>
                 <div>
                   <span className="font-semibold" style={{ color: th.textSecondary }}>Beneficiarios: </span>
@@ -540,7 +543,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 {Object.entries(ARCHETYPES).map(([k, v]) => {
                   const bench = BENCHMARK_REFS[k]
                   const pp = projects.filter((p) => p.archetype === k)
-                  const archSroi = pp.length ? pp.reduce((a, p) => a + p.vAjustado, 0) / pp.reduce((a, p) => a + p.investment, 0) : 0
+                  const archSroi = pp.length ? pp.reduce((a, p) => a + p.vTotal, 0) / pp.reduce((a, p) => a + p.investment, 0) : 0
                   const pct = Math.min(100, (archSroi / bench.high) * 100)
                   const benchPctLow = (bench.low / bench.high) * 100
                   const benchPctMid = (bench.mid / bench.high) * 100
@@ -756,13 +759,13 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
 
             {/* Scenario comparison bar */}
             <Card delay={0.2}>
-              <SectionTitle th={th} sub="Conservador (CSC = IEPS $68/tCO₂) · Base v8 ($173/tCO₂) · Optimista ($345/tCO₂)">Rango de SROI portafolio según escenario</SectionTitle>
+              <SectionTitle th={th} sub="Todos los escenarios incluyen tangibles + intangibles · Conservador ($100/tCO₂) · Base ($200/tCO₂) · Optimista ($400/tCO₂)">Rango de SROI portafolio según escenario</SectionTitle>
               <div className="h-[200px]">
                 <ResponsiveContainer>
                   <BarChart data={SCENARIOS} margin={{ top: 8, right: 24, left: -16, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="2 4" stroke={th.chartGrid} />
                     <XAxis dataKey="label" tick={{ fill: th.textSecondary, fontSize: 11 }} stroke={th.chartGrid} />
-                    <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} domain={[0, 2]} />
+                    <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} domain={[0, 2.5]} />
                     <Tooltip {...ttBar} formatter={(v) => v.toFixed(2) + 'x'} />
                     <Bar dataKey="sroi" name="SROI portafolio" radius={[6, 6, 0, 0]}
                       activeBar={{ stroke: 'rgba(0,0,0,0.15)', strokeWidth: 2, fillOpacity: 1 }}
@@ -797,7 +800,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 })}
               </div>
               <p className="text-[11px] mt-4 pt-3" style={{ borderTop: `1px solid ${th.tableBorder}`, color: th.textFaint }}>
-                El Factor Reclamable tiene impacto ALTA porque P10 Energía para Todos concentra el 53% del valor ajustado del portafolio (SROI base 0.97x).
+                El Factor Reclamable tiene impacto ALTA porque determina qué fracción del VB es genuinamente atribuible (FR varía de 0.15 en Arq. B a 0.74 en Arq. C). SROI base 1.54x.
                 Recomendación: validar factores reclamables con datos primarios de XIGNUX para reducir incertidumbre del modelo.
               </p>
             </Card>
@@ -836,16 +839,16 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
               <SectionTitle th={th} sub="Valores utilizados para el escenario central · Modificables para análisis de sensibilidad">Supuestos clave del modelo base</SectionTitle>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3 text-xs">
                 {[
-                  ['Precio social del carbono (CSC)',    '$173 MXN/tCO₂',  'Mercado voluntario MX ($10 USD × $17.30)'],
+                  ['Precio carbono ANPs México',         '$200 MXN/tCO₂',  'Valoración servicios ecosistémicos ANPs federales MX'],
                   ['Tipo de cambio USD/MXN',             '$17.30',          'Promedio Banxico 2024'],
-                  ['Ahorro eléctrico hogar / año',       '$6,000 MXN',      'IMCO + CFE tarifa subsidiada'],
+                  ['Ahorro eléctrico hogar / año',       '$2,400 MXN',      'CFE Tarifa 1 subsidiada ($200/mes). Ilumexico valida $130/mes off-grid.'],
+                  ['Proxy salud respiratoria PX37',      '$1,174 MXN',      'IMSS DOF costos evitados IRA. v11 reemplaza $186 de v8.'],
                   ['Factor emisión red eléctrica CFE',   '0.435 tCO₂/MWh', 'CRE / SEMARNAT 2023'],
-                  ['Tasa supervivencia reforestación',   '70%',             'CONAFOR promedio nacional'],
-                  ['Valor servicios ecosistémicos árbol','$800 MXN/año',    'i-Tree Eco Texcoco (Madera y Bosques 2023)'],
-                  ['Costo social porción rescatada',     '$25 MXN/porción', 'BAMX + supuesto conservador'],
-                  ['Brecha salarial bachillerato/lic.',  '$6,500 MXN/mes',  'INEGI ENOE 2023'],
+                  ['Tasa de descuento',                  '10% SHCP',        'SHCP México. UK Green Book usa 3.5%. Ambas reportadas.'],
+                  ['Proxy prevención juvenil PX43',      '$2,500/persona',  'v11 nuevo. OECD Better Life, desviación conductual evitada.'],
+                  ['Recarga hídrica PXWATER',            '$18.9/m³',        'CONAGUA NL tarifas agua tratada ANPs'],
+                  ['Costo social porción rescatada',     '$35 MXN/porción', 'CONEVAL canasta básica ($40-60 MXN). Conservador.'],
                   ['Salario mínimo 2026',                '$315.04 MXN/día', 'CONASAMI DOF dic 2025'],
-                  ['Prob. éxito emprendimiento',         '20%',             'Global Entrepreneurship Monitor MX'],
                 ].map(([label, value, source]) => (
                   <div key={label} className="py-2" style={{ borderBottom: `1px solid ${th.tableBorder}` }}>
                     <div className="flex justify-between items-start">
@@ -865,7 +868,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <strong style={{ color: th.textPrimary }}>Principio rector del análisis: </strong>
                   "Un análisis SROI conservador, claro y defendible es siempre superior a uno alto pero cuestionable." — SROI Network Guide 2012.
                   Este modelo prioriza la transparencia sobre el número: cada supuesto está documentado, cada ajuste justificado con benchmarks externos verificables (CONEVAL, CEPAL, INEGI, SEMARNAT, CONAFOR, SHCP, CONASAMI, IMCO, BAMX).
-                  El SROI de portafolio resultante (0.97x) es conservador y defendible frente a Strategy&.
+                  El SROI del portafolio (1.54x) incluye tangibles ($6.64M, conservador con VPN compuesto y DW HACT) e intangibles verificables ($6.96M, 7 categorías SVI Principio 3). Cada supuesto está documentado y justificado con benchmarks externos.
                 </p>
               </div>
             </Card>

@@ -5,7 +5,7 @@ function archStats(projects) {
   const byArch = {}
   projects.forEach((p) => {
     const a = (byArch[p.archetype] = byArch[p.archetype] || { inv: 0, adj: 0, bruto: 0, n: 0, benef: 0 })
-    a.inv += p.investment; a.adj += p.vAjustado; a.bruto += p.vBruto; a.n += 1; a.benef += p.direct_beneficiaries
+    a.inv += p.investment; a.adj += p.vTotal; a.bruto += p.vBruto; a.n += 1; a.benef += p.direct_beneficiaries
   })
   return byArch
 }
@@ -26,7 +26,7 @@ export function simulate(text, projects, selectedId) {
       const arch = ARCHETYPES[p.archetype]
       return [{
         role: 'bot',
-        content: `${p.id} ${p.name}\n\nArquetipo ${p.archetype} (${arch.name}). Inversión: ${fmtMXNFull(p.investment)}. SROI: ${p.sroi.toFixed(2)}x (${p.category}). Genera ${fmtMXNFull(p.vAjustado)} de valor social ajustado a ${p.direct_beneficiaries.toLocaleString('es-MX')} beneficiarios directos.\n\nFactores de ajuste: DW ${Math.round(p.adjustments.dw * 100)}%, AT ${Math.round(p.adjustments.at * 100)}%, DP ${Math.round(p.adjustments.dp * 100)}%, DR ${Math.round(p.adjustments.dr * 100)}%.`,
+        content: `${p.id} ${p.name}\n\nArquetipo ${p.archetype} (${arch.name}). Inversión: ${fmtMXNFull(p.investment)}. SROI: ${p.sroi.toFixed(2)}x (${p.category}). Genera ${fmtMXNFull(p.vTotal)} de valor social total a ${p.direct_beneficiaries.toLocaleString('es-MX')} beneficiarios directos.\n\nFactores de ajuste: DW ${Math.round(p.adjustments.dw * 100)}%, AT ${Math.round(p.adjustments.at * 100)}%, DP ${Math.round(p.adjustments.dp * 100)}%, DR ${Math.round(p.adjustments.dr * 100)}%.`,
         actions: [
           { label: `Ver dashboard ${p.id}`, primary: true, payload: { kind: 'openDash', id: p.id } },
         ],
@@ -39,7 +39,7 @@ export function simulate(text, projects, selectedId) {
     const top3 = sorted.slice(0, 3)
     return [{
       role: 'bot',
-      content: `Tu top de SROI lo lidera ${top.id} ${top.name} con SROI ${top.sroi.toFixed(2)}x. Genera ${fmtMXNFull(top.vAjustado)} de valor social ajustado contra ${fmtMXNFull(top.investment)} de inversión.`,
+      content: `Tu top de SROI lo lidera ${top.id} ${top.name} con SROI ${top.sroi.toFixed(2)}x. Genera ${fmtMXNFull(top.vTotal)} de valor social total contra ${fmtMXNFull(top.investment)} de inversión.`,
       table: {
         headers: ['#', 'ID', 'SROI', 'Inversión'],
         rows: top3.map((p, i) => [
@@ -58,7 +58,7 @@ export function simulate(text, projects, selectedId) {
       const concentration = top.investment / tot.inv
       return [{
         role: 'bot',
-        content: `Identifico 3 riesgos en tu portafolio:\n\n  1. Concentración en ${top.id}: representa el ${(concentration * 100).toFixed(0)}% de la inversión total.\n  2. Fragmentación en reforestación: 4 proyectos del arquetipo D con SROI promedio bajo. Convendría consolidar.\n  3. Eventos comunitarios (arquetipo B) con SROI <0.25x — el formato actual no genera valor medible.`,
+        content: `Identifico 3 riesgos en tu portafolio:\n\n  1. Concentración en ${top.id}: representa el ${(concentration * 100).toFixed(0)}% de la inversión total.\n  2. Fragmentación en reforestación: 4 proyectos del arquetipo D con SROI promedio 1.56x. Podrían consolidarse vía insetting para mejorar eficiencia.\n  3. Eventos comunitarios (arquetipo B): FR bajo (0.15) por DW 55% y Drop 50%. Intangibles (marca, engagement) compensan parcialmente.`,
       }]
     }
     const bottom3 = sorted.slice(-3).reverse()
@@ -94,7 +94,7 @@ export function simulate(text, projects, selectedId) {
           rows: [
             ['SROI', { text: a.sroi.toFixed(2) + 'x', color: sroiColor(a.sroi) }, { text: b.sroi.toFixed(2) + 'x', color: sroiColor(b.sroi) }],
             ['Inversión', fmtMXN(a.investment), fmtMXN(b.investment)],
-            ['Valor ajust.', fmtMXN(a.vAjustado), fmtMXN(b.vAjustado)],
+            ['Valor total', fmtMXN(a.vTotal), fmtMXN(b.vTotal)],
             ['Beneficiarios', a.direct_beneficiaries.toLocaleString('es-MX'), b.direct_beneficiaries.toLocaleString('es-MX')],
             ['Arquetipo', ARCHETYPES[a.archetype].name, ARCHETYPES[b.archetype].name],
           ],
@@ -185,10 +185,10 @@ export function simulate(text, projects, selectedId) {
 
   // ── Efficiency by investment / cost-benefit ──
   if (/eficiencia|costo.beneficio|costo.*efectiv|rendimiento.*inversion|valor.*peso/.test(t)) {
-    const byEfficiency = [...projects].sort((a, b) => (b.vAjustado / b.investment) - (a.vAjustado / a.investment)).slice(0, 5)
+    const byEfficiency = [...projects].sort((a, b) => (b.vTotal / b.investment) - (a.vTotal / a.investment)).slice(0, 5)
     return [{
       role: 'bot',
-      content: `Top 5 por eficiencia (valor ajustado por peso invertido):`,
+      content: `Top 5 por eficiencia (valor total por peso invertido):`,
       table: {
         headers: ['ID', 'Proyecto', 'SROI', '$/$ invertido'],
         rows: byEfficiency.map((p) => [
@@ -257,7 +257,7 @@ export function simulate(text, projects, selectedId) {
         if (p.sroi < 1) {
           return [{
             role: 'bot',
-            content: `${p.id} ${p.name} tiene SROI ${p.sroi.toFixed(2)}x (bajo) por estas razones:\n\n  1. Ajuste combinado de −${Math.round(totalAdj * 100)}%: el factor más alto es ${adjNames[highestAdj[0]]} (${Math.round(highestAdj[1] * 100)}%).\n  2. Relación inversión/outcomes: invierte ${fmtMXNFull(p.investment)} pero genera ${fmtMXNFull(p.vBruto)} de valor bruto.\n  3. Su valor ajustado final es ${fmtMXNFull(p.vAjustado)}, un ${Math.round((p.vAjustado / p.investment) * 100)}% de la inversión.\n\nPara mejorarlo: reducir ${adjNames[highestAdj[0]]} mediante alianzas estratégicas o reformular los outcomes.`,
+            content: `${p.id} ${p.name} tiene SROI ${p.sroi.toFixed(2)}x (bajo) por estas razones:\n\n  1. Ajuste combinado de −${Math.round(totalAdj * 100)}%: el factor más alto es ${adjNames[highestAdj[0]]} (${Math.round(highestAdj[1] * 100)}%).\n  2. Relación inversión/outcomes: invierte ${fmtMXNFull(p.investment)} pero genera ${fmtMXNFull(p.vBruto)} de valor bruto.\n  3. Su valor total es ${fmtMXNFull(p.vTotal)}, un ${Math.round((p.vTotal / p.investment) * 100)}% de la inversión.\n\nPara mejorarlo: reducir ${adjNames[highestAdj[0]]} mediante alianzas estratégicas o reformular los outcomes.`,
             actions: [{ label: `Ver dashboard ${p.id}`, primary: true, payload: { kind: 'openDash', id: p.id } }],
           }]
         } else {
@@ -303,7 +303,7 @@ export function simulate(text, projects, selectedId) {
   if (/optimi|recomenda|como\s*optimizo|como\s*mejoro|mejorar\s*(el\s*)?portafolio/.test(t)) {
     return [{
       role: 'bot',
-      content: `5 acciones para subir tu SROI portafolio de ${tot.sroi.toFixed(2)}x a ~1.15x:\n\n  1. Escalar P10 Energía para Todos — replicar en más comunidades (DW 8%→4% con alianza Iluméxico).\n  2. Consolidar reforestación: fusionar P12+P14 bajo paraguas P11.\n  3. Redirigir presupuesto de P06 ($480K, SROI 0.22x) hacia P07 SumaRSE.\n  4. Rediseñar P08 ($400K, SROI 0.07x) — buscar escala o sunset.\n  5. Ampliar P15 con Red BAMX para multiplicar alcance alimentario.\n\n¿Quieres que aplique estas recomendaciones al modelo?`,
+      content: `5 acciones para subir tu SROI de ${tot.sroi.toFixed(2)}x:\n\n  1. Escalar P10 Energía para Todos — replicar en más comunidades con Iluméxico.\n  2. Consolidar reforestación: fusionar P12+P14 bajo insetting Viakable.\n  3. Redirigir presupuesto de P06 ($480K, SROI ${projects.find(p=>p.id==='P06')?.sroi.toFixed(2)||'0.21'}x) hacia P07 SumaRSE.\n  4. Rediseñar P08 ($400K, SROI ${projects.find(p=>p.id==='P08')?.sroi.toFixed(2)||'0.08'}x) — buscar escala o Hub STEM.\n  5. Ampliar P15 con Red BAMX + economía circular Qualtia.\n\n¿Quieres que aplique estas recomendaciones al modelo?`,
       actions: [
         { label: 'Aplicar todo', primary: true, payload: { kind: 'applyOpt' } },
         { label: 'Cancelar', payload: { kind: 'cancel' } },
@@ -368,7 +368,7 @@ export function simulate(text, projects, selectedId) {
     const totalBenef = projects.reduce((a, p) => a + p.direct_beneficiaries, 0)
     return [{
       role: 'bot',
-      content: `Resumen del portafolio XIGNUX:\n\n  • ${projects.length} proyectos activos en 5 arquetipos\n  • Inversión total: ${fmtMXNFull(tot.inv)}\n  • SROI portafolio: ${tot.sroi.toFixed(2)}x\n  • Valor social ajustado: ${fmtMXNFull(tot.adj)}\n  • Beneficiarios directos: ${totalBenef.toLocaleString('es-MX')}\n  • Distribución: ${tot.dist.ALTO || 0} ALTO, ${tot.dist.MEDIO || 0} MEDIO, ${tot.dist.BAJO || 0} BAJO`,
+      content: `Resumen del portafolio XIGNUX:\n\n  • ${projects.length} proyectos activos en 6 arquetipos\n  • Inversión total: ${fmtMXNFull(tot.inv)}\n  • SROI portafolio: ${tot.sroi.toFixed(2)}x (tangible + intangible)\n  • Valor social total: ${fmtMXNFull(tot.adj)}\n  • Beneficiarios directos: ${totalBenef.toLocaleString('es-MX')}\n  • Distribución: ${tot.dist.ALTO || 0} ALTO, ${tot.dist.MEDIO || 0} MEDIO, ${tot.dist.BAJO || 0} BAJO`,
     }]
   }
 

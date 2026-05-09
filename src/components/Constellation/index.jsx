@@ -13,7 +13,7 @@ import { useTheme } from '../../lib/theme'
 function SceneInner({
   projects, hoveredId, setHoveredId, selectedId, onSelect, onDeselect,
   showConnections, autoRotate, controlsRef, recentChange, cameraTarget, groupBy,
-  th,
+  th, onCameraAnimating, cameraAnimating,
 }) {
   const positions = useMemo(() => computePositions(projects, groupBy), [projects, groupBy])
   const regions = useMemo(() => getGroupRegions(projects, positions, groupBy), [projects, positions, groupBy])
@@ -75,19 +75,20 @@ function SceneInner({
         projects={projects}
         positions={positions}
         controlsRef={controlsRef}
+        onAnimating={onCameraAnimating}
       />
 
       <OrbitControls
         ref={controlsRef}
-        enabled={!selectedId}
+        enabled={!cameraAnimating}
         enableZoom
         enablePan={false}
-        autoRotate={autoRotate && !selectedId}
+        autoRotate={autoRotate && !selectedId && !cameraAnimating}
         autoRotateSpeed={0.15}
         zoomSpeed={0.6}
         enableDamping
         dampingFactor={0.05}
-        minDistance={8}
+        minDistance={selectedId ? 2 : 8}
         maxDistance={45}
       />
 
@@ -111,6 +112,7 @@ export default function Constellation({
   const { th } = useTheme()
   const [hoveredId, setHoveredId] = useState(null)
   const [autoRotate, setAutoRotate] = useState(true)
+  const [cameraAnimating, setCameraAnimating] = useState(false)
   const controlsRef = useRef()
   const idleTimer = useRef(null)
 
@@ -155,6 +157,8 @@ export default function Constellation({
         cameraTarget={cameraTarget}
         groupBy={groupBy}
         th={th}
+        onCameraAnimating={setCameraAnimating}
+        cameraAnimating={cameraAnimating}
       />
     </Canvas>
   )

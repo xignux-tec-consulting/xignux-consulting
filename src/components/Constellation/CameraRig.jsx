@@ -40,7 +40,7 @@ const DEFAULT_POS = new THREE.Vector3(0, 4, 18)
 const ORIGIN = new THREE.Vector3(0, 0, 0)
 const PANEL_OFFSET_X = 1.5
 
-export function NodeZoomCamera({ selectedId, projects, positions, controlsRef }) {
+export function NodeZoomCamera({ selectedId, projects, positions, controlsRef, onAnimating }) {
   const { camera } = useThree()
   const nodePos = useRef(new THREE.Vector3())
   const camTarget = useRef(new THREE.Vector3())
@@ -54,9 +54,11 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
     if (selectedId) {
       returning.current = false
       settled.current = false
+      onAnimating?.(true)
     } else if (prevSelectedId.current) {
       returning.current = true
       settled.current = false
+      onAnimating?.(true)
     }
     prevSelectedId.current = selectedId
   }, [selectedId])
@@ -71,6 +73,7 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
       }
       if (camera.position.distanceTo(DEFAULT_POS) < 0.15) {
         returning.current = false
+        onAnimating?.(false)
         camera.position.copy(DEFAULT_POS)
         if (controlsRef?.current) {
           controlsRef.current.target.copy(ORIGIN)
@@ -103,6 +106,7 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef })
 
     if (camera.position.distanceTo(camTarget.current) < 0.05) {
       settled.current = true
+      onAnimating?.(false)
       camera.position.copy(camTarget.current)
       if (controlsRef?.current) {
         controlsRef.current.target.copy(lookAtTarget.current)

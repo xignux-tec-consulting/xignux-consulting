@@ -232,7 +232,7 @@ export default function ChatPanel({
         setTimeout(() => {
           setMessages((m) => [...m, {
             role: 'bot',
-            content: `${proj.id} ${proj.name} tiene SROI ${proj.sroi.toFixed(2)}x con inversion ${fmtMXNFull(proj.investment)}. Genera ${fmtMXNFull(proj.vAjustado)} de valor social ajustado a ${proj.direct_beneficiaries.toLocaleString('es-MX')} beneficiarios directos. Categoria: ${proj.category}.`,
+            content: `${proj.id} ${proj.name} tiene SROI ${proj.sroi.toFixed(2)}x con inversion ${fmtMXNFull(proj.investment)}. Genera ${fmtMXNFull(proj.vTotal)} de valor social total a ${proj.direct_beneficiaries.toLocaleString('es-MX')} beneficiarios directos. Categoria: ${proj.category}.`,
             actions: [{ label: `Ver dashboard ${proj.id}`, primary: true, payload: { kind: 'openDash', id: proj.id } }],
           }])
           setTyping(false)

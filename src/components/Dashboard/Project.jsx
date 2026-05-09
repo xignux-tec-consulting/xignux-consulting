@@ -149,7 +149,7 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
     { label: 'Inversión Total',     value: fmtMXN(project.investment),       sub: 'MXN',  icon: DollarSign, iconColor: '#E8520E' },
     { label: 'SROI',                value: project.sroi.toFixed(2) + 'x',    sub: 'Retorno social', icon: TrendingUp, iconColor: sroiColor(project.sroi), valueColor: sroiColor(project.sroi) },
     { label: 'Valor Bruto',        value: fmtMXN(project.vBruto),           sub: 'Antes de ajustes', icon: BarChart3, iconColor: '#F0854A' },
-    { label: 'Valor Ajustado',     value: fmtMXN(project.vAjustado),        sub: `${(project.vAjustado / project.vBruto * 100).toFixed(0)}% del bruto`, icon: Sparkles, iconColor: '#10B981' },
+    { label: 'Valor Total',        value: fmtMXN(project.vTotal),           sub: 'Tangible + intangible', icon: Sparkles, iconColor: '#10B981' },
     { label: 'Beneficiarios',       value: project.direct_beneficiaries.toLocaleString('es-MX'), sub: 'personas directas', icon: Users, iconColor: '#F59E0B' },
   ]
 
@@ -327,8 +327,8 @@ export default function ProjectDashboard({ project, projects, onBack, onBackToGr
                 </span>
               </div>
               <p className="text-[10px] mt-2 leading-relaxed" style={{ color: th.textMuted }}>
-                Del valor bruto de {fmtMXN(project.vBruto)}, se retiene el {Math.round((1 - combinedAdj) * 100)}%
-                como valor social ajustado: {fmtMXN(project.vAjustado)}.
+                Del valor bruto de {fmtMXN(project.vBruto)}, se retiene {fmtMXN(project.vAjustado)} tangible.
+                Con intangibles ({fmtMXN(project.vIntangible)}), valor total: {fmtMXN(project.vTotal)}.
               </p>
             </div>
           </Card>

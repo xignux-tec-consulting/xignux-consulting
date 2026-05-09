@@ -1,47 +1,48 @@
 export const CAUSA_RAIZ = [
-  { id: 1, driver: 'Factores de Retención (FR) conservadores', peso: 'ALTO',
-    explicacion: 'FR va de 0.2668 (Arq. B Eventos) a 0.6808 (Arq. C Energía). Para A, B y D, >65% del valor bruto se descuenta. Calibrado con Krlev et al. 2013 (114 estudios SROI).',
-    implicacion: 'Con FR uniforme de 0.40, el # de proyectos >1.0x baja de 4 a 3 — la variación refleja diferencias reales.' },
-  { id: 2, driver: 'Dificultad estructural de monetización (B, D)', peso: 'ALTO',
-    explicacion: 'Eventos generan bienestar subjetivo. Reforestación usa proxy carbono $10 USD/tCO₂ ($173 MXN) vs EPA $190 USD/tCO₂. Estos sectores tienen los outcomes más difíciles de monetizar.',
-    implicacion: 'No es un defecto del modelo — es una limitación inherente del SROI para estos sectores.' },
-  { id: 3, driver: 'Reducción del proxy de carbono ($465→$173 MXN/tCO₂)', peso: 'MEDIO-ALTO',
-    explicacion: 'Reducción del 62.8%. Impacta directamente P11-P14 (reforestación). Usamos mercado voluntario MX ($10 USD) vs ARR BBB $26/tCO₂ que multiplicaría por 2.6×.',
-    implicacion: 'Decisión conservadora deliberada. Con ARR BBB, P11 y P12 superarían 1.0×.' },
-  { id: 4, driver: 'Alta inversión relativa al alcance medible', peso: 'MEDIO',
-    explicacion: 'Varios proyectos tienen costos fijos altos (logística, plataforma, coordinación) que no escalan linealmente. P08 Academia Exploradores: $10,000/niño con SROI 0.07×.',
-    implicacion: 'Reasignar de bajo SROI a alto SROI genera mejora inmediata sin costo adicional.' },
-  { id: 5, driver: 'Outcomes intangibles excluidos sistemáticamente', peso: 'MEDIO',
-    explicacion: 'El modelo excluye beneficios corporativos (marca, engagement empleados, licencia social, goodwill regulatorio). Externalidades v8 identificaron +$13.8M MXN no capturados.',
-    implicacion: 'Si se incluyeran intangibles ($144M-$533M), SROI superaría 17:1.' },
+  { id: 1, driver: 'Fórmula VPN compuesta (v9)', peso: 'ALTO',
+    explicacion: 'v9 aplica Σ[(1-DO)^(t-1)/(1+r)^t] en lugar de PV_annuity×(1-Drop). Esto reduce outcomes multi-año: P10 PV factor 8.32→5.13. Basado en Muñoz-Mora 2026 meta-análisis (mediana Drop 21.5%).',
+    implicacion: 'Reduce SROI portafolio de 0.97 a 0.75 tangible solo por cambio de fórmula. Efecto más fuerte en P10 y arq. D.' },
+  { id: 2, driver: 'Proxy P10 reducido ($6,000→$2,400/año)', peso: 'ALTO',
+    explicacion: 'v9 usa Tarifa 1 CFE subsidiada ($200/mes) en lugar de tarifa completa. Hogares marginados pagan $200-350 bimestrales, no $500/mes. Validado por Ilumexico ($130/mes off-grid).',
+    implicacion: 'P10 era el proyecto ancla del portafolio. Con proxy realista, SROI P10 baja -60%.' },
+  { id: 3, driver: 'DW y Drop-off Eventos ajustados (HACT)', peso: 'MEDIO-ALTO',
+    explicacion: 'Arq. B: DW 35%→55% (alta sustituibilidad recreación MTY, HACT Wellbeing Valuation), Drop 40%→50% (bienestar hedónico efímero). FR baja de 0.2668 a 0.1539 (-42%). Afecta P06, P08, P09.',
+    implicacion: 'Eventos representan $1.23M de inversión pero solo $575K de VA tangible (8.7% del portafolio). Con intangibles (marca, engagement) sí aportan.' },
+  { id: 4, driver: 'Drop-off asimétrico reforestación (CONAFOR)', peso: 'MEDIO',
+    explicacion: 'v9 usa 25%/año mortalidad años 1-3 (plántulas) y 2%/año años 4+ (árboles arraigados). CONAFOR supervivencia 34-63%. PV_D10 baja de 8.32 a 3.20 con modelo asimétrico.',
+    implicacion: 'Más realista que drop-off plano. Arq. D SROI promedio 1.56x con modelo asimétrico.' },
+  { id: 5, driver: 'Outcomes intangibles AHORA INCLUIDOS (v11)', peso: 'RESUELTO',
+    explicacion: 'v11 incorpora 7 categorías de intangibles (engagement, marca, SLO, talent pipeline, innovación, co-beneficios ambientales, resiliencia). SROI intangible = 0.79. Total = 1.54. Metodología: SVI Principio 3, HACT, WELLBY, UK Green Book.',
+    implicacion: 'Intangibles aportan $6.96M de VA. El portafolio SUPERA 1.0 con intangibles. Gap tangible restante: $2.2M.' },
 ]
 
 export const SOLUCIONES_CREATIVAS = [
   { id: 'S1', nombre: 'Plataforma de Impacto Continuo con IA',
-    descripcion: 'Dashboard único para los 15 proyectos con tracking longitudinal de beneficiarios, NLP en español, alertas <0.5× SROI, reportes NIS automáticos.',
-    inversion: '$0.8M–$1.2M MXN', impacto: 'SROI de 0.97× a 1.15–1.30× en 12 meses. ROI plataforma: 3-5×.',
+    descripcion: 'Dashboard único para los 15 proyectos con tracking longitudinal de beneficiarios, NLP en español para análisis cualitativo, alertas <0.5× SROI, reportes NIS automáticos. Piloto con P10, P07, P15.',
+    inversion: '$0.8M–$1.2M MXN', impacto: 'SROI portafolio de 0.75× tangible a 1.50–1.80× total en 12 meses. ROI plataforma: 3-5×.',
     conexion: 'Aprovecha cultura de ingeniería de datos de Viakable. Cumple NIS/CINIF 30 indicadores obligatorios 2025.' },
   { id: 'S2', nombre: 'Insetting de Carbono vía Viakable',
-    descripcion: 'Transformar P14 (0.15×) de RSE aislada a insetting integrado en cadena de valor. Reforestación en zonas de cables.',
-    inversion: '$1.5M–$2.0M MXN', impacto: 'SROI de P14 de 0.15× a 0.80–1.20×. Reducción 500-800 tCO₂/año.',
-    conexion: 'Líneas de transmisión Viakable cruzan zonas rurales con riesgo de erosión. Ahorro de $2-5M/año en reparaciones evitadas.' },
+    descripcion: 'Transformar P14 (0.32×) de RSE aislada a insetting integrado en cadena de valor. Reforestación en zonas de cables para proteger infraestructura contra deslaves. Certificación Gold Standard o Plan Vivo.',
+    inversion: '$1.5M–$2.0M MXN', impacto: 'SROI de P14 de 0.32× tangible a 0.80–1.20× con insetting. Reducción 500-800 tCO₂/año. 20-30 empleos rurales.',
+    conexion: 'Líneas de transmisión Viakable cruzan zonas rurales con riesgo de erosión. Ahorro de $2-5M/año en reparaciones evitadas. Cumple NIS Scope 3.' },
   { id: 'S3', nombre: 'Co-Inversión con Bonos ODS Soberanos',
-    descripcion: 'Alinear proyectos con categorías de gasto del Marco de Financiamiento Sostenible de México ($7,090M USD en 2025).',
+    descripcion: 'Alinear proyectos con categorías de gasto del Marco de Financiamiento Sostenible de México ($7,090M USD en Bonos ODS 2025). Matching funds 1:1 con programas Bienestar.',
     inversion: '$0.5M MXN en consultoría', impacto: 'Inversión social de $8.8M a $17.6M sin costo adicional. SROI a 1.40–1.60×.',
     conexion: 'P10 se alinea con justicia energética (Programa Sectorial Energía 2025-2030).' },
   { id: 'S4', nombre: 'Economía Circular Qualtia',
-    descripcion: 'Donación ampliada a BAMX, nutrición laboral en plantas (ROI BCG 3.44×), Plan de Gestión Circular para cumplir LGEC 2026.',
-    inversion: '$1.0M–$1.5M MXN', impacto: 'SROI de P15 a 1.50–2.00×. Ahorro $0.5-1M/año en disposición de residuos.',
+    descripcion: 'Donación ampliada a BAMX, nutrición laboral en plantas (ROI BCG 3.44×), Plan de Gestión Circular para cumplir LGEC 2026. Medir impacto en productividad y ausentismo.',
+    inversion: '$1.0M–$1.5M MXN', impacto: 'SROI de P15 a 1.50–2.00×. Ahorro $0.5-1M/año en disposición de residuos. Reducción ausentismo 10-15%.',
     conexion: 'Qualtia produce harina, pan y botanas — residuos son directamente donables. LGEC 2026 exige Responsabilidad Extendida del Productor.' },
   { id: 'S5', nombre: 'Hub de Talento STEM Xignux-Tec',
-    descripcion: 'Fusionar P01-P05 y P08 en pipeline de talento. Prácticas en Viakable, servicio social instalando paneles (P10).',
-    inversion: '$0.6M–$0.9M MXN', impacto: 'SROI educativo de 0.07-0.50× a 0.80–1.50×. Pipeline 50-100 candidatos/año.',
+    descripcion: 'Fusionar P01-P05 y P08 en pipeline de talento. Prácticas profesionales en Viakable, servicio social instalando paneles (P10), tracking de conversión participante→empleado a 5 años.',
+    inversion: '$0.6M–$0.9M MXN', impacto: 'SROI educativo de 0.08–0.42× tangible a 0.80–1.50× tangible + intangibles. Pipeline 50-100 candidatos/año.',
     conexion: 'Viakable emplea 4,500+ y necesita ingenieros especializados. Talento homegrown tiene 40% menos rotación.' },
 ]
 
 export const PLAN_IMPLEMENTACION = {
   resumen: {
-    sroiActual: 0.97, sroiObjetivo: '1.45–1.65', mejora: '+49% a +70%',
+    sroiActual: 1.54,
+    sroiObjetivo: '2.00+', mejora: '+30% sobre SROI actual',
     inversionPlan: '$7.25M–$10.35M MXN', roiPlan: '3-5×',
   },
   fases: [
@@ -84,16 +85,17 @@ export const PLAN_IMPLEMENTACION = {
 
 export const MONTE_CARLO = {
   iteraciones: 1000,
-  variacion: { vb: 0.30, fr: 0.20 },
-  percentiles: { p5: 0.80, p10: 0.82, p25: 0.88, p50: 0.95, p75: 1.02, p90: 1.08, p95: 1.12 },
-  media: 0.95,
-  stdDev: 0.096,
-  probSroiMayor1: 0.295,
+  variacion: { vb: 0.30, fr: 0.20, intang: 0.15 },
+  percentiles: { p5: 1.28, p10: 1.34, p25: 1.43, p50: 1.53, p75: 1.63, p90: 1.72, p95: 1.78 },
+  media: 1.53,
+  stdDev: 0.15,
+  probSroiMayor1: 0.9995,
+  nota: 'Simulación sobre SROI total (tangible + intangible) @10% SHCP.',
 }
 
 export const EXTERNALIDADES_NEGATIVAS = [
   { proyecto: 'P09', externalidad: 'Huella de carbono evento (~25 tCO₂e)', valor: -5000, tipo: 'Ambiental' },
-  { proyecto: 'P10', externalidad: 'Efecto rebote energético (10%)', valor: -648695, tipo: 'Conductual' },
+  { proyecto: 'P10', externalidad: 'Efecto rebote energético (10%)', valor: -259478, tipo: 'Conductual' },
   { proyecto: 'P15', externalidad: 'Desplazamiento comercio local (7%)', valor: -61250, tipo: 'Económico' },
   { proyecto: 'P04', externalidad: 'Concentración de recursos', valor: -50000, tipo: 'Estructural' },
 ]
@@ -120,23 +122,32 @@ export const INTANGIBLES = [
   { categoria: 'Brand Preference Consumidor', rangoBajo: 30000000, rangoAlto: 100000000 },
 ]
 
+export const INTANGIBLES_POR_PROYECTO = {
+  totales: { engage: 1800000, brand: 2330000, talent: 235548, slo: 1575000, innov: 435000, envCo: 208824, resil: 380000 },
+  vaTotal: 6964372,
+  sroiIntangible: 0.7910,
+}
+
 export const PAYBACK = [
-  { id: 'P07', payback: 0.51, interpretacion: 'Recupera inversión en 6 meses' },
-  { id: 'P03', payback: 0.77, interpretacion: 'Recupera en menos de 1 año' },
-  { id: 'P15', payback: 1.25, interpretacion: 'Cercano al break-even en 1.25 años' },
-  { id: 'P02', payback: 1.30, interpretacion: 'Recupera en 1.3 años' },
-  { id: 'P01', payback: 1.34, interpretacion: 'Recupera en 1.3 años' },
-  { id: 'P04', payback: 1.74, interpretacion: 'Recupera en 1.7 años' },
-  { id: 'P11', payback: 1.74, interpretacion: 'Recupera en 1.7 años (post-corrección)' },
-  { id: 'P13', payback: 1.94, interpretacion: 'Recupera en ~2 años' },
-  { id: 'P12', payback: 2.00, interpretacion: 'Recupera en 2 años (validar proxy)' },
-  { id: 'P05', payback: 2.42, interpretacion: 'Recupera en 2.4 años' },
-  { id: 'P09', payback: 2.69, interpretacion: 'Recupera en 2.7 años' },
-  { id: 'P10', payback: 5.14, interpretacion: 'Recupera en 5 años (10 años de beneficio)' },
+  { id: 'P07', payback: 0.28, interpretacion: 'Recupera en 0.3 años (con intangibles)' },
+  { id: 'P03', payback: 0.47, interpretacion: 'Recupera en 0.5 años (con intangibles)' },
+  { id: 'P12', payback: 0.40, interpretacion: 'Recupera en 0.4 años (con intangibles)' },
+  { id: 'P15', payback: 0.54, interpretacion: 'Recupera en 0.5 años (con intangibles)' },
+  { id: 'P01', payback: 0.54, interpretacion: 'Recupera en 0.5 años (con intangibles)' },
+  { id: 'P02', payback: 0.57, interpretacion: 'Recupera en 0.6 años (con intangibles)' },
+  { id: 'P10', payback: 0.59, interpretacion: 'Recupera en 0.6 años (con intangibles)' },
+  { id: 'P11', payback: 0.54, interpretacion: 'Recupera en 0.5 años (con intangibles)' },
+  { id: 'P13', payback: 0.57, interpretacion: 'Recupera en 0.6 años (con intangibles)' },
+  { id: 'P09', payback: 0.43, interpretacion: 'Recupera en 0.4 años (con intangibles)' },
+  { id: 'P05', payback: 0.99, interpretacion: 'Recupera en ~1 año (con intangibles)' },
+  { id: 'P04', payback: 1.13, interpretacion: 'Recupera en 1.1 años (con intangibles)' },
+  { id: 'P06', payback: 1.07, interpretacion: 'Recupera en ~1 año (con intangibles)' },
+  { id: 'P14', payback: 1.01, interpretacion: 'Recupera en ~1 año (con intangibles)' },
+  { id: 'P08', payback: 2.44, interpretacion: 'Recupera en 2.4 años (con intangibles)' },
 ]
 
 export const CAPITAL_HUMANO = {
-  nota: 'Capa complementaria al SROI central. NO se suma al 0.97×.',
+  nota: 'Capa complementaria al SROI central. NO se suma al portafolio para evitar sobre-reclamación.',
   empleados: 31000,
   participacionesVoluntarias: 14103,
   horasVoluntariado: 25518,
@@ -146,3 +157,37 @@ export const CAPITAL_HUMANO = {
     { label: 'Optimista', empleadosExpuestos: 15000, rotacionBase: 0.35, reduccionAtribuible: 0.05, costoReemplazo: 210000, ahorro: 55125000 },
   ],
 }
+
+export const DOBLE_TASA = [
+  { id: 'P10', sroiUK: 0.91, sroiSHCP: 0.68, cambio: -0.248, nota: 'Mayor impacto: outcomes a 10 años con VPN compuesto' },
+  { id: 'P11', sroiUK: 0.38, sroiSHCP: 0.36, cambio: -0.068, nota: 'CO2 10 años con drop-off asimétrico' },
+  { id: 'P12', sroiUK: 0.78, sroiSHCP: 0.78, cambio: -0.008, nota: 'CO2 a 5 años con drop-off asimétrico' },
+  { id: 'P14', sroiUK: 0.17, sroiSHCP: 0.17, cambio: -0.004, nota: 'CO2 a 5 años con drop-off asimétrico' },
+  { id: 'PORTFOLIO', sroiUK: 0.65, sroiSHCP: 0.60, cambio: -0.08, nota: '3 proyectos siguen arriba de 1.0x en ambas tasas' },
+]
+
+export const MADUREZ_TEMPORAL = [
+  { id: 'P04', madurez: 'ALTA', anos: 51, hallazgo: '186 premios desde 1974. Ganadores publicados en Nature.', clasificacion: 'institutional_legacy' },
+  { id: 'P05', madurez: 'ALTA', anos: 10, hallazgo: '10 ediciones. Ganadores implementan en comunidades vulnerables.', clasificacion: 'proven_infrastructure' },
+  { id: 'P07', madurez: 'ALTA', anos: 15, hallazgo: '30K+ impactados, $40M MXN, 100+ empresas ESR. Fundada post-Huracán Alex.', clasificacion: 'network_effects' },
+  { id: 'P01', madurez: 'MEDIA', anos: 8, hallazgo: '1,245 proyectos, $6.5M MXN en 13 iniciativas.', clasificacion: 'scaling_pipeline' },
+  { id: 'P02', madurez: 'MEDIA', anos: 4, hallazgo: 'Formato Shark Tank UANL. Tracking limitado.', clasificacion: 'early_growth' },
+  { id: 'P03', madurez: 'MEDIA', anos: 6, hallazgo: 'Curso universitario desde 2020. Retención half-life 3-5 años.', clasificacion: 'education_decay' },
+  { id: 'P09', madurez: 'MEDIA', anos: 8, hallazgo: '1,000+ corredores. Beneficios comunitarios/salud recurrente.', clasificacion: 'recurring_event' },
+  { id: 'P06', madurez: 'BAJA', anos: 3, hallazgo: '3 ediciones. Evento efímero. Impacto restringido al año.', clasificacion: 'ephemeral_event' },
+  { id: 'P08', madurez: 'BAJA', anos: 1, hallazgo: 'Solo 2 excursiones. Etapa piloto. Sin datos de persistencia.', clasificacion: 'pilot_stage' },
+  { id: 'P10', madurez: 'BAJA/ALTA', anos: 3, hallazgo: 'Programa reciente PERO activo durable: paneles solares 20-25 años.', clasificacion: 'durable_asset' },
+  { id: 'P11', madurez: 'BAJA/ALTA', anos: 3, hallazgo: '10K de 140K árboles. Activo ecológico persiste décadas.', clasificacion: 'durable_asset' },
+  { id: 'P12', madurez: 'BAJA/ALTA', anos: 2, hallazgo: '4,200 árboles urbanos. Servicios ecosistémicos crecen con madurez.', clasificacion: 'durable_asset' },
+  { id: 'P14', madurez: 'BAJA/ALTA', anos: 2, hallazgo: 'Voluntariado corporativo (2,160 hrs). Árboles persisten.', clasificacion: 'durable_asset' },
+  { id: 'P15', madurez: 'BAJA', anos: 5, hallazgo: '25,000 porciones. Consumo inmediato. Sin proyección multi-año.', clasificacion: 'consumable_immediate' },
+]
+
+export const VALOR_COMPARTIDO = [
+  { unidad: 'Viakable (Cables)', programa: 'P10 Energía para Todos', beneficioNegocio: 'Comunidades electrificadas = futuros clientes de cableado.', beneficioSocial: 'Acceso a energía limpia para 400+ personas, -25 tCO2/año.', cuantificacion: '$1.65M–$3.3M MXN en demanda futura.' },
+  { unidad: 'Viakable (Cables)', programa: 'P14 Reforestación → Insetting', beneficioNegocio: 'Protección de infraestructura contra erosión/deslaves.', beneficioSocial: 'Empleo rural 20-30 empleos, biodiversidad, captura CO2.', cuantificacion: '$2-5M MXN/año en reparaciones evitadas.' },
+  { unidad: 'Viakable (Cables)', programa: 'P01-P05 Educación → Hub STEM', beneficioNegocio: 'Pipeline de ingenieros pre-calificados. 40% menos rotación.', beneficioSocial: 'Formación STEM, movilidad social, 500+ estudiantes/año.', cuantificacion: '$1.5-6M MXN/año en reclutamiento evitado.' },
+  { unidad: 'Qualtia (Alimentos)', programa: 'P15 Donativo + Economía Circular', beneficioNegocio: 'Ahorro en disposición de residuos. Cumplimiento LGEC 2026.', beneficioSocial: '25,000+ porciones/año para comunidades vulnerables.', cuantificacion: '$0.5-1M MXN/año en disposición + ROI 3.44× en nutrición laboral.' },
+  { unidad: 'BYDSA (botanas)', programa: 'P15 Donativo + eventos comunitarios', beneficioNegocio: 'Marca con impacto social. Participación voluntaria 7.8%.', beneficioSocial: 'Comunidades atendidas con eventos y donaciones.', cuantificacion: 'Impacto en marca y lealtad del consumidor.' },
+  { unidad: 'Voltway (electromovilidad)', programa: 'P10 Energía + transición energética', beneficioNegocio: 'Soluciones integrales de electromovilidad sustentable.', beneficioSocial: 'Movilidad limpia, reducción de emisiones en transporte.', cuantificacion: 'Conexión con justicia energética y P10.' },
+]

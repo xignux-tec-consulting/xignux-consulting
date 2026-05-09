@@ -86,7 +86,7 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
           <div className="grid grid-cols-3 gap-2">
             {[
               { label: 'Valor bruto',    val: fmtMXN(project.vBruto) },
-              { label: 'Valor ajustado', val: fmtMXN(project.vAjustado) },
+              { label: 'Valor total', val: fmtMXN(project.vTotal) },
               { label: 'Beneficiarios',  val: project.direct_beneficiaries.toLocaleString('es-MX') },
             ].map((k) => (
               <div key={k.label} className="rounded-lg p-3" style={{ background: th.pillBg, border: `1px solid ${th.cardBorder}` }}>
