@@ -112,9 +112,9 @@ const BENCHMARK_REFS = {
 }
 
 const SCENARIOS = [
-  { label: 'Conservador @10%', sroi: 1.32, adj: 11609424,  color: '#EF4444', desc: 'CSC = $100/tCO₂ (IEPS MX), VB ×0.70 + intangibles base' },
-  { label: 'Base v11 @10%',   sroi: 1.54, adj: 13600161,  color: '#F59E0B', desc: 'CSC = $200/tCO₂ (ANPs MX), VPN compuesto, Krlev+HACT + 7 cat. intangibles' },
-  { label: 'Optimista @10%',  sroi: 1.77, adj: 15590898,  color: '#10B981', desc: 'CSC = $400/tCO₂ ($20 USD forestry), VB ×1.30 + intangibles base' },
+  { label: 'Conservador @10%', sroi: 1.83, adj: 16130407,  color: '#EF4444', desc: 'CSC = $100/tCO₂ (IEPS MX), VB tangible ×0.70 + intangibles base' },
+  { label: 'Base v12 @10%',   sroi: 2.28, adj: 20058707,  color: '#F59E0B', desc: 'CSC = $200/tCO₂ (ANPs MX), VPN compuesto, PX_RC + PX44 + PX46 + 7 cat. intangibles' },
+  { label: 'Optimista @10%',  sroi: 2.72, adj: 23987008,  color: '#10B981', desc: 'CSC = $400/tCO₂ ($20 USD forestry), VB tangible ×1.30 + intangibles base' },
 ]
 
 const SENSITIVITY_VARS = [
@@ -143,7 +143,7 @@ const LIMITATIONS = [
   { cat: 'METODOLOGÍA',    text: 'Supuesto de linealidad: duplicar inversión ≠ duplicar impacto. Rendimientos decrecientes no modelados.' },
   { cat: 'VERIFICACIÓN',   text: 'Sin seguimiento post-proyecto: falta de datos de tracking para validar persistencia real de impacto.' },
   { cat: 'DATOS',          text: 'Sin ajuste por tipo de cambio/inflación: todos los valores en MXN nominales. No se ajustan por poder adquisitivo.' },
-  { cat: 'METODOLOGÍA',    text: 'Intangibles INCLUIDOS en v11: 7 categorías ($6.96M MXN). El SROI reportado (1.54x) incluye tangibles e intangibles. Los intangibles tienen menor certeza causal que los tangibles.' },
+  { cat: 'METODOLOGÍA',    text: 'Intangibles INCLUIDOS en v11: 7 categorías ($6.96M MXN). El SROI reportado (2.28x) incluye tangibles e intangibles. Los intangibles tienen menor certeza causal que los tangibles.' },
   { cat: 'DATOS',          text: 'Sesgo de selección: los 15 proyectos fueron preseleccionados por XIGNUX; no representan todo el portafolio posible.' },
   { cat: 'METODOLOGÍA',    text: 'Tasa de descuento: se usa 10% (SHCP México). UK Green Book recomienda 3.5%, lo que aumentaría PV de outcomes multi-año ~50%. Incluido en análisis tornado.' },
   { cat: 'PROXIES',        text: 'Precio carbono ANPs México: v11 usa $200 MXN/tCO₂ (servicios ecosistémicos ANPs federales MX). Reporte completo indica $1,099/tCO₂ con co-beneficios. EPA $190 USD/tCO₂. Elección conservadora.' },
@@ -391,7 +391,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <div className="flex items-center gap-1.5 mb-2 font-semibold text-[11px]" style={{ color: '#10B981' }}>
                     <TrendingUp className="w-3.5 h-3.5" /> Iniciativa flagship
                   </div>
-                  <p><strong style={{ color: th.textPrimary }}>Energía para Todos (P10)</strong> concentra $3.37M de valor total ($1.87M tangible + $1.49M intangible) con SROI 1.68x. Incluye SLO $600K y engagement $409K. Su escalabilidad con Iluméxico podría duplicar cobertura.</p>
+                  <p><strong style={{ color: th.textPrimary }}>Energía para Todos (P10)</strong> concentra $8.03M de valor total ($6.54M tangible + $1.49M intangible) con SROI 4.02x. v12 incorpora ahorro erario CFE ($7,500/hogar/año) que quintuplica el valor tangible. Su escalabilidad con Iluméxico podría duplicar cobertura.</p>
                 </div>
                 <div>
                   <div className="flex items-center gap-1.5 mb-2 font-semibold text-[11px]" style={{ color: '#F59E0B' }}>
@@ -403,7 +403,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <div className="flex items-center gap-1.5 mb-2 font-semibold text-[11px]" style={{ color: '#EF4444' }}>
                     <TrendingDown className="w-3.5 h-3.5" /> Sobre-inversión relativa
                   </div>
-                  <p><strong style={{ color: th.textPrimary }}>Academia Exploradores (P08)</strong> invierte $400K para impactar 40 niños ($10K/beneficiario), SROI 0.41x. <strong style={{ color: th.textPrimary }}>Reforestación Tepotzotlán (P14)</strong> gasta $650K para SROI 0.99x. Ambos candidatos a consolidación o insetting.</p>
+                  <p><strong style={{ color: th.textPrimary }}>Academia Exploradores (P08)</strong> invierte $400K para impactar 40 niños ($10K/beneficiario), SROI 0.41x. <strong style={{ color: th.textPrimary }}>Gamer con Causa (P06)</strong> gasta $480K para SROI 0.22x. Ambos candidatos a rediseño o consolidación en Hub STEM.</p>
                 </div>
               </div>
             </Card>
@@ -765,7 +765,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <BarChart data={SCENARIOS} margin={{ top: 8, right: 24, left: -16, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="2 4" stroke={th.chartGrid} />
                     <XAxis dataKey="label" tick={{ fill: th.textSecondary, fontSize: 11 }} stroke={th.chartGrid} />
-                    <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} domain={[0, 2.5]} />
+                    <YAxis tick={{ fill: th.textSecondary, fontSize: 10 }} stroke={th.chartGrid} domain={[0, 3.5]} />
                     <Tooltip {...ttBar} formatter={(v) => v.toFixed(2) + 'x'} />
                     <Bar dataKey="sroi" name="SROI portafolio" radius={[6, 6, 0, 0]}
                       activeBar={{ stroke: 'rgba(0,0,0,0.15)', strokeWidth: 2, fillOpacity: 1 }}
@@ -800,7 +800,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                 })}
               </div>
               <p className="text-[11px] mt-4 pt-3" style={{ borderTop: `1px solid ${th.tableBorder}`, color: th.textFaint }}>
-                El Factor Reclamable tiene impacto ALTA porque determina qué fracción del VB es genuinamente atribuible (FR varía de 0.15 en Arq. B a 0.74 en Arq. C). SROI base 1.54x.
+                El Factor Reclamable tiene impacto ALTA porque determina qué fracción del VB es genuinamente atribuible (FR varía de 0.15 en Arq. B a 0.74 en Arq. C). SROI base 2.28x.
                 Recomendación: validar factores reclamables con datos primarios de XIGNUX para reducir incertidumbre del modelo.
               </p>
             </Card>
@@ -868,7 +868,7 @@ export default function PortfolioDashboard({ projects, onOpenProject, onBackToGr
                   <strong style={{ color: th.textPrimary }}>Principio rector del análisis: </strong>
                   "Un análisis SROI conservador, claro y defendible es siempre superior a uno alto pero cuestionable." — SROI Network Guide 2012.
                   Este modelo prioriza la transparencia sobre el número: cada supuesto está documentado, cada ajuste justificado con benchmarks externos verificables (CONEVAL, CEPAL, INEGI, SEMARNAT, CONAFOR, SHCP, CONASAMI, IMCO, BAMX).
-                  El SROI del portafolio (1.54x) incluye tangibles ($6.64M, conservador con VPN compuesto y DW HACT) e intangibles verificables ($6.96M, 7 categorías SVI Principio 3). Cada supuesto está documentado y justificado con benchmarks externos.
+                  El SROI del portafolio (2.28x) incluye tangibles ($13.09M, conservador con VPN compuesto y DW HACT) e intangibles verificables ($6.96M, 7 categorías SVI Principio 3). Cada supuesto está documentado y justificado con benchmarks externos.
                 </p>
               </div>
             </Card>

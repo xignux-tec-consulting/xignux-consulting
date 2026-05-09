@@ -58,9 +58,9 @@ export default function OptimizeDashboard({ onBackToGraph }) {
               Optimizacion del Portafolio
             </h1>
             <p className="text-sm mt-1.5" style={{ color: th.textSecondary }}>
-              SROI actual: <span className="mono font-semibold" style={{ color: '#F59E0B' }}>1.54x</span>
+              SROI actual: <span className="mono font-semibold" style={{ color: '#F59E0B' }}>2.28x</span>
               {' '} &rarr; {' '}
-              Objetivo: <span className="mono font-semibold" style={{ color: '#10B981' }}>2.00x+</span>
+              Objetivo: <span className="mono font-semibold" style={{ color: '#10B981' }}>3.00x+</span>
             </p>
           </div>
         </header>

@@ -1,48 +1,48 @@
 export const CAUSA_RAIZ = [
-  { id: 1, driver: 'Fórmula VPN compuesta (v9)', peso: 'ALTO',
-    explicacion: 'v9 aplica Σ[(1-DO)^(t-1)/(1+r)^t] en lugar de PV_annuity×(1-Drop). Esto reduce outcomes multi-año: P10 PV factor 8.32→5.13. Basado en Muñoz-Mora 2026 meta-análisis (mediana Drop 21.5%).',
-    implicacion: 'Reduce SROI portafolio de 0.97 a 0.75 tangible solo por cambio de fórmula. Efecto más fuerte en P10 y arq. D.' },
-  { id: 2, driver: 'Proxy P10 reducido ($6,000→$2,400/año)', peso: 'ALTO',
-    explicacion: 'v9 usa Tarifa 1 CFE subsidiada ($200/mes) en lugar de tarifa completa. Hogares marginados pagan $200-350 bimestrales, no $500/mes. Validado por Ilumexico ($130/mes off-grid).',
-    implicacion: 'P10 era el proyecto ancla del portafolio. Con proxy realista, SROI P10 baja -60%.' },
+  { id: 1, driver: 'Nuevos proxies tangibles v12 (PX_RC, PX44, PX46)', peso: 'ALTO',
+    explicacion: 'v12 incorpora 3 proxies que aumentan significativamente el VA tangible: Replacement Cost PX_RC ($4,000/persona, P01-P02), ahorro erario CFE PX44 ($7,500/hogar/año, P10), y restauración ANP PX46 ($63,715/ha, P11/P13/P14). Estos proxies están respaldados por CONEVAL, CFE y CONANP.',
+    implicacion: 'VA tangible sube de $6.64M a $13.09M. SROI tangible de 0.75x a 1.49x. P10 cuadruplica su SROI (1.68→4.02x) y P11 se convierte en el proyecto de mayor SROI (6.83x).' },
+  { id: 2, driver: 'Fórmula VPN compuesta con drop-off (v9+)', peso: 'ALTO',
+    explicacion: 'v9 aplica Σ[(1-DO)^(t-1)/(1+r)^t] en lugar de PV_annuity×(1-Drop). Esto reduce outcomes multi-año: P10 PV factor 8.32→6.14. Basado en Muñoz-Mora 2026 meta-análisis (mediana Drop 21.5%).',
+    implicacion: 'Efecto más fuerte en P10 y arq. D. Compensado parcialmente por nuevos proxies v12.' },
   { id: 3, driver: 'DW y Drop-off Eventos ajustados (HACT)', peso: 'MEDIO-ALTO',
     explicacion: 'Arq. B: DW 35%→55% (alta sustituibilidad recreación MTY, HACT Wellbeing Valuation), Drop 40%→50% (bienestar hedónico efímero). FR baja de 0.2668 a 0.1539 (-42%). Afecta P06, P08, P09.',
-    implicacion: 'Eventos representan $1.23M de inversión pero solo $575K de VA tangible (8.7% del portafolio). Con intangibles (marca, engagement) sí aportan.' },
+    implicacion: 'Eventos representan $1.23M de inversión pero solo $575K de VA tangible (4.4% del portafolio). Con intangibles (marca, engagement) sí aportan.' },
   { id: 4, driver: 'Drop-off asimétrico reforestación (CONAFOR)', peso: 'MEDIO',
-    explicacion: 'v9 usa 25%/año mortalidad años 1-3 (plántulas) y 2%/año años 4+ (árboles arraigados). CONAFOR supervivencia 34-63%. PV_D10 baja de 8.32 a 3.20 con modelo asimétrico.',
-    implicacion: 'Más realista que drop-off plano. Arq. D SROI promedio 1.56x con modelo asimétrico.' },
-  { id: 5, driver: 'Outcomes intangibles AHORA INCLUIDOS (v11)', peso: 'RESUELTO',
-    explicacion: 'v11 incorpora 7 categorías de intangibles (engagement, marca, SLO, talent pipeline, innovación, co-beneficios ambientales, resiliencia). SROI intangible = 0.79. Total = 1.54. Metodología: SVI Principio 3, HACT, WELLBY, UK Green Book.',
-    implicacion: 'Intangibles aportan $6.96M de VA. El portafolio SUPERA 1.0 con intangibles. Gap tangible restante: $2.2M.' },
+    explicacion: 'v9 usa 25%/año mortalidad años 1-3 (plántulas) y 2%/año años 4+ (árboles arraigados). CONAFOR supervivencia 34-63%. PV_D10 baja de 8.32 a 3.79 con modelo asimétrico.',
+    implicacion: 'Más realista que drop-off plano. Arq. D SROI promedio 3.00x con v12 (incluye proxy ANP PX46).' },
+  { id: 5, driver: 'Outcomes intangibles incluidos (v11+)', peso: 'RESUELTO',
+    explicacion: 'v11 incorpora 7 categorías de intangibles (engagement, marca, SLO, talent pipeline, innovación, co-beneficios ambientales, resiliencia). SROI intangible = 0.79. Total = 2.28. Metodología: SVI Principio 3, HACT, WELLBY, UK Green Book.',
+    implicacion: 'Intangibles aportan $6.96M de VA. SROI total 2.28x con tangibles v12 + intangibles v11.' },
 ]
 
 export const SOLUCIONES_CREATIVAS = [
   { id: 'S1', nombre: 'Plataforma de Impacto Continuo con IA',
     descripcion: 'Dashboard único para los 15 proyectos con tracking longitudinal de beneficiarios, NLP en español para análisis cualitativo, alertas <0.5× SROI, reportes NIS automáticos. Piloto con P10, P07, P15.',
-    inversion: '$0.8M–$1.2M MXN', impacto: 'SROI portafolio de 0.75× tangible a 1.50–1.80× total en 12 meses. ROI plataforma: 3-5×.',
+    inversion: '$0.8M–$1.2M MXN', impacto: 'SROI portafolio de 1.49× tangible a 2.50–3.00× total en 12 meses. ROI plataforma: 3-5×.',
     conexion: 'Aprovecha cultura de ingeniería de datos de Viakable. Cumple NIS/CINIF 30 indicadores obligatorios 2025.' },
   { id: 'S2', nombre: 'Insetting de Carbono vía Viakable',
-    descripcion: 'Transformar P14 (0.32×) de RSE aislada a insetting integrado en cadena de valor. Reforestación en zonas de cables para proteger infraestructura contra deslaves. Certificación Gold Standard o Plan Vivo.',
-    inversion: '$1.5M–$2.0M MXN', impacto: 'SROI de P14 de 0.32× tangible a 0.80–1.20× con insetting. Reducción 500-800 tCO₂/año. 20-30 empleos rurales.',
+    descripcion: 'Transformar P14 (1.84×) de proyecto aislado a insetting integrado en cadena de valor. Reforestación en zonas de cables para proteger infraestructura contra deslaves. Certificación Gold Standard o Plan Vivo.',
+    inversion: '$1.5M–$2.0M MXN', impacto: 'SROI de P14 de 1.84× a 2.50–3.50× con insetting. Reducción 500-800 tCO₂/año. 20-30 empleos rurales.',
     conexion: 'Líneas de transmisión Viakable cruzan zonas rurales con riesgo de erosión. Ahorro de $2-5M/año en reparaciones evitadas. Cumple NIS Scope 3.' },
   { id: 'S3', nombre: 'Co-Inversión con Bonos ODS Soberanos',
     descripcion: 'Alinear proyectos con categorías de gasto del Marco de Financiamiento Sostenible de México ($7,090M USD en Bonos ODS 2025). Matching funds 1:1 con programas Bienestar.',
-    inversion: '$0.5M MXN en consultoría', impacto: 'Inversión social de $8.8M a $17.6M sin costo adicional. SROI a 1.40–1.60×.',
+    inversion: '$0.5M MXN en consultoría', impacto: 'Inversión social de $8.8M a $17.6M sin costo adicional. SROI a 3.00–4.00×.',
     conexion: 'P10 se alinea con justicia energética (Programa Sectorial Energía 2025-2030).' },
   { id: 'S4', nombre: 'Economía Circular Qualtia',
     descripcion: 'Donación ampliada a BAMX, nutrición laboral en plantas (ROI BCG 3.44×), Plan de Gestión Circular para cumplir LGEC 2026. Medir impacto en productividad y ausentismo.',
-    inversion: '$1.0M–$1.5M MXN', impacto: 'SROI de P15 a 1.50–2.00×. Ahorro $0.5-1M/año en disposición de residuos. Reducción ausentismo 10-15%.',
+    inversion: '$1.0M–$1.5M MXN', impacto: 'SROI de P15 a 2.00–3.00×. Ahorro $0.5-1M/año en disposición de residuos. Reducción ausentismo 10-15%.',
     conexion: 'Qualtia produce harina, pan y botanas — residuos son directamente donables. LGEC 2026 exige Responsabilidad Extendida del Productor.' },
   { id: 'S5', nombre: 'Hub de Talento STEM Xignux-Tec',
     descripcion: 'Fusionar P01-P05 y P08 en pipeline de talento. Prácticas profesionales en Viakable, servicio social instalando paneles (P10), tracking de conversión participante→empleado a 5 años.',
-    inversion: '$0.6M–$0.9M MXN', impacto: 'SROI educativo de 0.08–0.42× tangible a 0.80–1.50× tangible + intangibles. Pipeline 50-100 candidatos/año.',
+    inversion: '$0.6M–$0.9M MXN', impacto: 'SROI educativo de 0.41–1.53× tangible a 1.80–2.50× total. Pipeline 50-100 candidatos/año.',
     conexion: 'Viakable emplea 4,500+ y necesita ingenieros especializados. Talento homegrown tiene 40% menos rotación.' },
 ]
 
 export const PLAN_IMPLEMENTACION = {
   resumen: {
-    sroiActual: 1.54,
-    sroiObjetivo: '2.00+', mejora: '+30% sobre SROI actual',
+    sroiActual: 2.28,
+    sroiObjetivo: '3.00+', mejora: '+32% sobre SROI actual',
     inversionPlan: '$7.25M–$10.35M MXN', roiPlan: '3-5×',
   },
   fases: [
@@ -86,16 +86,16 @@ export const PLAN_IMPLEMENTACION = {
 export const MONTE_CARLO = {
   iteraciones: 1000,
   variacion: { vb: 0.30, fr: 0.20, intang: 0.15 },
-  percentiles: { p5: 1.28, p10: 1.34, p25: 1.43, p50: 1.53, p75: 1.63, p90: 1.72, p95: 1.78 },
-  media: 1.53,
-  stdDev: 0.15,
-  probSroiMayor1: 0.9995,
-  nota: 'Simulación sobre SROI total (tangible + intangible) @10% SHCP.',
+  percentiles: { p5: 1.90, p10: 1.99, p25: 2.13, p50: 2.28, p75: 2.43, p90: 2.56, p95: 2.65 },
+  media: 2.28,
+  stdDev: 0.22,
+  probSroiMayor1: 0.9999,
+  nota: 'Simulación sobre SROI total (tangible v12 + intangible v11) @10% SHCP.',
 }
 
 export const EXTERNALIDADES_NEGATIVAS = [
   { proyecto: 'P09', externalidad: 'Huella de carbono evento (~25 tCO₂e)', valor: -5000, tipo: 'Ambiental' },
-  { proyecto: 'P10', externalidad: 'Efecto rebote energético (10%)', valor: -259478, tipo: 'Conductual' },
+  { proyecto: 'P10', externalidad: 'Efecto rebote energético (10%)', valor: -648695, tipo: 'Conductual' },
   { proyecto: 'P15', externalidad: 'Desplazamiento comercio local (7%)', valor: -61250, tipo: 'Económico' },
   { proyecto: 'P04', externalidad: 'Concentración de recursos', valor: -50000, tipo: 'Estructural' },
 ]
@@ -159,11 +159,11 @@ export const CAPITAL_HUMANO = {
 }
 
 export const DOBLE_TASA = [
-  { id: 'P10', sroiUK: 0.91, sroiSHCP: 0.68, cambio: -0.248, nota: 'Mayor impacto: outcomes a 10 años con VPN compuesto' },
-  { id: 'P11', sroiUK: 0.38, sroiSHCP: 0.36, cambio: -0.068, nota: 'CO2 10 años con drop-off asimétrico' },
-  { id: 'P12', sroiUK: 0.78, sroiSHCP: 0.78, cambio: -0.008, nota: 'CO2 a 5 años con drop-off asimétrico' },
-  { id: 'P14', sroiUK: 0.17, sroiSHCP: 0.17, cambio: -0.004, nota: 'CO2 a 5 años con drop-off asimétrico' },
-  { id: 'PORTFOLIO', sroiUK: 0.65, sroiSHCP: 0.60, cambio: -0.08, nota: '3 proyectos siguen arriba de 1.0x en ambas tasas' },
+  { id: 'P10', sroiUK: 5.24, sroiSHCP: 4.02, cambio: -1.22, nota: 'Mayor impacto: outcomes a 10 años con VPN compuesto + CFE PX44' },
+  { id: 'P11', sroiUK: 8.90, sroiSHCP: 6.83, cambio: -2.07, nota: 'CO2 10 años con drop-off asimétrico + ANP PX46' },
+  { id: 'P12', sroiUK: 0.82, sroiSHCP: 0.79, cambio: -0.03, nota: 'CO2 a 5 años con drop-off asimétrico' },
+  { id: 'P14', sroiUK: 2.40, sroiSHCP: 1.84, cambio: -0.56, nota: 'CO2 a 5 años + ANP PX46' },
+  { id: 'PORTFOLIO', sroiUK: 1.94, sroiSHCP: 1.49, cambio: -0.45, nota: '10 de 15 proyectos arriba de 1.0x en ambas tasas' },
 ]
 
 export const MADUREZ_TEMPORAL = [

@@ -35,16 +35,15 @@ export function CameraRig({ targetPosition, targetLookAt, controlsRef }) {
   return null
 }
 
-const NODE_CAM_DIST = 4.5
+const NODE_CAM_DIST = 5
 const DEFAULT_POS = new THREE.Vector3(0, 4, 18)
 const ORIGIN = new THREE.Vector3(0, 0, 0)
-const PANEL_OFFSET_X = 1.5
+const PANEL_OFFSET = 1.5
 
 export function NodeZoomCamera({ selectedId, projects, positions, controlsRef, onAnimating }) {
   const { camera } = useThree()
   const nodePos = useRef(new THREE.Vector3())
   const camTarget = useRef(new THREE.Vector3())
-  const approachDir = useRef(new THREE.Vector3())
   const lookAtTarget = useRef(new THREE.Vector3())
   const prevSelectedId = useRef(null)
   const returning = useRef(false)
@@ -91,10 +90,17 @@ export function NodeZoomCamera({ selectedId, projects, positions, controlsRef, o
     const pos = positions[idx]
     nodePos.current.set(pos[0], pos[1], pos[2])
 
-    approachDir.current.copy(DEFAULT_POS).sub(nodePos.current).normalize()
-    camTarget.current.copy(nodePos.current).addScaledVector(approachDir.current, NODE_CAM_DIST)
+    const dxz = Math.sqrt(pos[0] * pos[0] + pos[2] * pos[2])
+    const dirX = dxz > 0.1 ? pos[0] / dxz : 0
+    const dirZ = dxz > 0.1 ? pos[2] / dxz : 1
+    camTarget.current.set(
+      pos[0] + dirX * NODE_CAM_DIST,
+      pos[1] + 1.2,
+      pos[2] + dirZ * NODE_CAM_DIST,
+    )
 
-    lookAtTarget.current.set(pos[0] + PANEL_OFFSET_X, pos[1], pos[2])
+    // Camera right direction = (dirZ, 0, -dirX); offset lookAt right so node appears left of center
+    lookAtTarget.current.set(pos[0] + dirZ * PANEL_OFFSET, pos[1], pos[2] - dirX * PANEL_OFFSET)
 
     const speed = Math.min(1, delta * 4)
     camera.position.lerp(camTarget.current, speed)

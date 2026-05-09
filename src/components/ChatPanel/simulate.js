@@ -58,7 +58,7 @@ export function simulate(text, projects, selectedId) {
       const concentration = top.investment / tot.inv
       return [{
         role: 'bot',
-        content: `Identifico 3 riesgos en tu portafolio:\n\n  1. Concentración en ${top.id}: representa el ${(concentration * 100).toFixed(0)}% de la inversión total.\n  2. Fragmentación en reforestación: 4 proyectos del arquetipo D con SROI promedio 1.56x. Podrían consolidarse vía insetting para mejorar eficiencia.\n  3. Eventos comunitarios (arquetipo B): FR bajo (0.15) por DW 55% y Drop 50%. Intangibles (marca, engagement) compensan parcialmente.`,
+        content: `Identifico 3 riesgos en tu portafolio:\n\n  1. Concentración en ${top.id}: representa el ${(concentration * 100).toFixed(0)}% de la inversión total.\n  2. Fragmentación en reforestación: 4 proyectos del arquetipo D con SROI promedio 3.00x. Podrían consolidarse vía insetting para mejorar eficiencia.\n  3. Eventos comunitarios (arquetipo B): FR bajo (0.15) por DW 55% y Drop 50%. Intangibles (marca, engagement) compensan parcialmente.`,
       }]
     }
     const bottom3 = sorted.slice(-3).reverse()
