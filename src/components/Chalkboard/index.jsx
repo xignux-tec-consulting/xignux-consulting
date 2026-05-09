@@ -4,7 +4,7 @@ import { ARCHETYPES } from '../../data/projects'
 import { sroiColor } from '../../lib/sroi'
 import { useTheme } from '../../lib/theme'
 
-const ARC_KEYS = ['A', 'B', 'C', 'D', 'E']
+const ARC_KEYS = ['A_STEM', 'A', 'B', 'C', 'D', 'E']
 const CANVAS_W = 2200
 const CANVAS_H = 1200
 const ROOT = { x: CANVAS_W / 2, y: 70 }
@@ -12,7 +12,7 @@ const ARC_Y = 250
 const PROJ_CENTER = 720
 const PROJ_GAP = 110
 
-const arcX = (i) => 220 + i * (CANVAS_W - 440) / 4
+const arcX = (i) => 180 + i * (CANVAS_W - 360) / (ARC_KEYS.length - 1)
 
 function projY(idx, total) {
   if (total === 1) return PROJ_CENTER
@@ -21,6 +21,7 @@ function projY(idx, total) {
 }
 
 const POSTIT_LIGHT = {
+  A_STEM: { bg: '#DBEAFE', border: '#60A5FA', text: '#1E40AF' },
   A: { bg: '#DBEAFE', border: '#93C5FD', text: '#1E40AF' },
   B: { bg: '#FFEDD5', border: '#FDBA74', text: '#9A3412' },
   C: { bg: '#D1FAE5', border: '#6EE7B7', text: '#065F46' },
@@ -29,6 +30,7 @@ const POSTIT_LIGHT = {
 }
 
 const POSTIT_DARK = {
+  A_STEM: { bg: 'rgba(59,130,246,0.18)', border: 'rgba(59,130,246,0.5)', text: '#60A5FA' },
   A: { bg: 'rgba(59,130,246,0.15)', border: 'rgba(59,130,246,0.4)', text: '#93C5FD' },
   B: { bg: 'rgba(251,146,60,0.15)', border: 'rgba(251,146,60,0.4)', text: '#FDBA74' },
   C: { bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.4)', text: '#6EE7B7' },

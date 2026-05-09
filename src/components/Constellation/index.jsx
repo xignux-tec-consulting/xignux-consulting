@@ -92,10 +92,10 @@ function SceneInner({
         maxDistance={45}
       />
 
-      <EffectComposer multisampling={0}>
+      <EffectComposer multisampling={0} enabled={!window.navigator.userAgent.includes('Mobile')}>
         <Bloom
-          intensity={0.25}
-          luminanceThreshold={0.7}
+          intensity={0.2}
+          luminanceThreshold={0.75}
           luminanceSmoothing={0.9}
           kernelSize={KernelSize.VERY_SMALL}
         />
@@ -133,7 +133,7 @@ export default function Constellation({
     <Canvas
       camera={{ position: [0, 4, 18], fov: 45, near: 0.1, far: 200 }}
       gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
-      dpr={[1, 1.5]}
+      dpr={[1, Math.min(window.devicePixelRatio, 1.25)]}
       frameloop={paused ? 'never' : 'always'}
     >
       {onProjectAnchor && (

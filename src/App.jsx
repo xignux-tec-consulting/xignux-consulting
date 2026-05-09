@@ -5,6 +5,7 @@ import Constellation from './components/Constellation'
 import ChatPanel from './components/ChatPanel'
 import NodePanel from './components/NodePanel'
 import { GroupByPills, BottomControls, ArchetypeLegend, BackChip } from './components/ui/Controls'
+import ProjectList from './components/ui/ProjectList'
 import PortfolioDashboard from './components/Dashboard/Portfolio'
 import ProjectDashboard from './components/Dashboard/Project'
 import ProxiesDashboard from './components/Dashboard/Proxies'
@@ -260,6 +261,13 @@ export default function App() {
       <AnimatePresence>
         {!isOverlayView && !isProjectDashOpen && !selectedId && viewMode === '3d' && (
           <GroupByPills groupBy={groupBy} setGroupBy={handleGroupByChange} />
+        )}
+      </AnimatePresence>
+
+      {/* Project navigation list (3D view) */}
+      <AnimatePresence>
+        {!isOverlayView && !isProjectDashOpen && viewMode === '3d' && (
+          <ProjectList projects={projects} selectedId={selectedId} onSelect={handleJumpTo} />
         )}
       </AnimatePresence>
 
