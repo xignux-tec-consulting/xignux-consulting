@@ -41,8 +41,8 @@ export const SOLUCIONES_CREATIVAS = [
 
 export const PLAN_IMPLEMENTACION = {
   resumen: {
-    sroiActual: 2.28,
-    sroiObjetivo: '3.00+', mejora: '+32% sobre SROI actual',
+    sroiActual: 2.25,
+    sroiObjetivo: '3.00+', mejora: '+33% sobre SROI actual (v12.16)',
     inversionPlan: '$7.25M–$10.35M MXN', roiPlan: '3-5×',
   },
   fases: [
@@ -86,15 +86,15 @@ export const PLAN_IMPLEMENTACION = {
 export const MONTE_CARLO = {
   iteraciones: 1000,
   variacion: { vb: 0.30, fr: 0.20, intang: 0.15 },
-  percentiles: { p5: 1.90, p10: 1.99, p25: 2.13, p50: 2.28, p75: 2.43, p90: 2.56, p95: 2.65 },
-  media: 2.28,
+  percentiles: { p5: 1.86, p10: 1.95, p25: 2.10, p50: 2.25, p75: 2.40, p90: 2.53, p95: 2.62 },
+  media: 2.25,
   stdDev: 0.22,
   probSroiMayor1: 0.9999,
-  nota: 'Simulación sobre SROI total (tangible v12 + intangible v11) @10% SHCP.',
+  nota: 'Simulación sobre SROI total (tangible v12.16 + intangible) @10% SHCP. SROI central: 2.249x.',
 }
 
 export const EXTERNALIDADES_NEGATIVAS = [
-  { proyecto: 'P09', externalidad: 'Huella de carbono evento (~25 tCO₂e)', valor: -5000, tipo: 'Ambiental' },
+  { proyecto: 'P09', externalidad: 'Huella de carbono evento (~50 tCO₂e, $173/tCO₂e)', valor: -8650, tipo: 'Ambiental' },
   { proyecto: 'P10', externalidad: 'Efecto rebote energético (10%)', valor: -648695, tipo: 'Conductual' },
   { proyecto: 'P15', externalidad: 'Desplazamiento comercio local (7%)', valor: -61250, tipo: 'Económico' },
   { proyecto: 'P04', externalidad: 'Concentración de recursos', valor: -50000, tipo: 'Estructural' },
@@ -123,6 +123,7 @@ export const INTANGIBLES = [
 ]
 
 export const INTANGIBLES_POR_PROYECTO = {
+  // Fuente: Modelo v12.16 hoja "Intangibles" fila 19 (PORTAFOLIO TOTAL)
   totales: { engage: 1800000, brand: 2330000, talent: 235548, slo: 1575000, innov: 435000, envCo: 208824, resil: 380000 },
   vaTotal: 6964372,
   sroiIntangible: 0.7910,
@@ -159,11 +160,11 @@ export const CAPITAL_HUMANO = {
 }
 
 export const DOBLE_TASA = [
-  { id: 'P10', sroiUK: 5.24, sroiSHCP: 4.02, cambio: -1.22, nota: 'Mayor impacto: outcomes a 10 años con VPN compuesto + CFE PX44' },
-  { id: 'P11', sroiUK: 8.90, sroiSHCP: 6.83, cambio: -2.07, nota: 'CO2 10 años con drop-off asimétrico + ANP PX46' },
-  { id: 'P12', sroiUK: 0.82, sroiSHCP: 0.79, cambio: -0.03, nota: 'CO2 a 5 años con drop-off asimétrico' },
-  { id: 'P14', sroiUK: 2.40, sroiSHCP: 1.84, cambio: -0.56, nota: 'CO2 a 5 años + ANP PX46' },
-  { id: 'PORTFOLIO', sroiUK: 1.94, sroiSHCP: 1.49, cambio: -0.45, nota: '10 de 15 proyectos arriba de 1.0x en ambas tasas' },
+  { id: 'P10', sroiUK: 5.27, sroiSHCP: 4.04, cambio: -1.23, nota: 'Mayor impacto: outcomes a 10 años con VPN compuesto + CFE PX44 ($7,500/hogar)' },
+  { id: 'P11', sroiUK: 8.93, sroiSHCP: 6.84, cambio: -2.09, nota: 'CO₂ $150/tCO₂ ANPs + ecoturismo PX13 $380 + ANP PX46 $63,715/ha' },
+  { id: 'P12', sroiUK: 3.04, sroiSHCP: 2.33, cambio: -0.71, nota: 'CO₂ $150 + i-Tree $79 (PX39 actualizado). Intangibles dominan (63%).' },
+  { id: 'P14', sroiUK: 2.43, sroiSHCP: 1.86, cambio: -0.57, nota: 'CO₂ $150 + voluntariado $169/hr (SMG 2026) + ANP PX46' },
+  { id: 'PORTFOLIO', sroiUK: 1.95, sroiSHCP: 1.46, cambio: -0.49, nota: '12 de 15 proyectos superan SROI Total ≥1.0. 3 bajo umbral: P04, P06, P08.' },
 ]
 
 export const MADUREZ_TEMPORAL = [
