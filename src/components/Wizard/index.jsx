@@ -3,6 +3,7 @@ import { useTheme } from '../../lib/theme'
 import Stepper from './Stepper'
 import NavBar from './NavBar'
 import Step1_Scope from './steps/Step1_Scope'
+import Step2_OutcomeMap from './steps/Step2_OutcomeMap'
 import AutoSaveBadge from './fields/AutoSaveBadge'
 import useWizardState from './useWizardState'
 
@@ -43,7 +44,16 @@ export default function SROIWizard({ onBackToGraph }) {
                 onSave={forceSave}
               />
             )}
-            {currentStep !== 1 && (
+            {currentStep === 2 && (
+              <Step2_OutcomeMap
+                value={state.step2}
+                onChange={(p) => updateStep('step2', p)}
+                stakeholders={state.step1.stakeholders}
+                onSave={forceSave}
+                onGoToStep1={() => updateStep('meta', { currentStep: 1 })}
+              />
+            )}
+            {currentStep > 2 && (
               <div
                 className="rounded-2xl p-8 min-h-[360px] flex items-center justify-center"
                 style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}`, boxShadow: th.shadow }}
