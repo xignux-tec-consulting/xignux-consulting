@@ -16,8 +16,8 @@ export function getInitialState() {
     step2: { inputs: [], activities: [], outputs: [], beneficiaryChanges: [] },
     step3: {
       outcomes: [],
-      // [{ id, beneficiaryChangeId, changeText, stakeholderName, outputName,
-      //    description, indicator:{name,value,unit,source}, proxy:{name,value,source} }]
+      // [{ id, sourceId, changeText, stakeholderName, outputName, description,
+      //    indicator:{name,value,unit,source}, proxy:{name,value,source}, vpnProfile }]
     },
     step4: { adjustments: {} },
     step5: { results: null },
