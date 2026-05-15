@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../lib/theme'
 import Stepper from './Stepper'
 import NavBar from './NavBar'
+import Step1_Scope from './steps/Step1_Scope'
 
 const TOTAL_STEPS = 6
 
@@ -33,24 +34,26 @@ export default function SROIWizard({ onBackToGraph }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="rounded-2xl p-8 min-h-[360px] flex items-center justify-center"
-            style={{
-              background: th.cardBg,
-              border: `1px solid ${th.cardBorder}`,
-              boxShadow: th.shadow,
-            }}
           >
-            <div className="text-center space-y-2">
-              <p className="text-[12px] font-medium uppercase tracking-widest" style={{ color: th.accent }}>
-                Paso {currentStep} de {TOTAL_STEPS}
-              </p>
-              <p className="text-[14px] font-semibold" style={{ color: th.textPrimary }}>
-                Contenido próximamente
-              </p>
-              <p className="text-[11px]" style={{ color: th.textMuted }}>
-                Este paso se implementará en la siguiente iteración.
-              </p>
-            </div>
+            {currentStep === 1 && <Step1_Scope />}
+            {currentStep !== 1 && (
+              <div
+                className="rounded-2xl p-8 min-h-[360px] flex items-center justify-center"
+                style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}`, boxShadow: th.shadow }}
+              >
+                <div className="text-center space-y-2">
+                  <p className="text-[12px] font-medium uppercase tracking-widest" style={{ color: th.accent }}>
+                    Paso {currentStep} de {TOTAL_STEPS}
+                  </p>
+                  <p className="text-[14px] font-semibold" style={{ color: th.textPrimary }}>
+                    Contenido próximamente
+                  </p>
+                  <p className="text-[11px]" style={{ color: th.textMuted }}>
+                    Este paso se implementará en la siguiente iteración.
+                  </p>
+                </div>
+              </div>
+            )}
           </motion.div>
         </AnimatePresence>
 
