@@ -1,0 +1,43 @@
+const STORAGE_KEY = 'xignux-wizard-v1'
+
+export function getInitialState() {
+  return {
+    meta: { lastSavedAt: null, version: 1, currentStep: 1 },
+    step1: {
+      projectName: '',
+      description: '',
+      startDate: '',
+      scopeAnswers: {
+        activity: '', audience: '', decision: '',
+        reliability: '', responder: '', evaluativeType: '',
+      },
+      stakeholders: [],
+    },
+    step2: { inputs: [], activities: [], outputs: [], beneficiaryChanges: [] },
+    step3: { outcomes: [] },
+    step4: { adjustments: {} },
+    step5: { results: null },
+    step6: { exported: false },
+  }
+}
+
+export function loadWizardState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return {}
+    return JSON.parse(raw)
+  } catch {
+    console.warn('[wizardStorage] Failed to parse saved state — starting fresh.')
+    return {}
+  }
+}
+
+export function saveWizardState(state) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+  } catch { /* silent fail — private browsing or storage quota exceeded */ }
+}
+
+export function clearWizardState() {
+  try { localStorage.removeItem(STORAGE_KEY) } catch {}
+}
