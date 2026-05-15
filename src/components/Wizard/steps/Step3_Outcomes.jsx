@@ -47,17 +47,19 @@ export default function Step3_Outcomes({
 
   const activeSourceIds = new Set(changeItems.map(c => c.sourceId))
 
-  const getOutcome = (srcId) => value.outcomes.find(o => getSrcId(o) === srcId)
+  const outcomes = value?.outcomes ?? []
+
+  const getOutcome = (srcId) => outcomes.find(o => getSrcId(o) === srcId)
 
   const upsertOutcome = (srcId, item, partial) => {
-    const exists = value.outcomes.some(o => getSrcId(o) === srcId)
+    const exists = outcomes.some(o => getSrcId(o) === srcId)
     if (exists) {
-      onChange({ outcomes: value.outcomes.map(o =>
+      onChange({ outcomes: outcomes.map(o =>
         getSrcId(o) === srcId ? { ...o, ...partial } : o
       )})
     } else {
       onChange({ outcomes: [
-        ...value.outcomes,
+        ...outcomes,
         {
           id:              crypto.randomUUID(),
           sourceId:        srcId,
@@ -75,7 +77,7 @@ export default function Step3_Outcomes({
   }
 
   const deleteOutcome = (srcId) => {
-    onChange({ outcomes: value.outcomes.filter(o => getSrcId(o) !== srcId) })
+    onChange({ outcomes: outcomes.filter(o => getSrcId(o) !== srcId) })
     if (expandedId === srcId) setExpandedId(null)
     if (creatingId === srcId) setCreatingId(null)
   }
@@ -96,7 +98,7 @@ export default function Step3_Outcomes({
     deleteOutcome(srcId)
   }
 
-  const orphans       = value.outcomes.filter(o => !activeSourceIds.has(getSrcId(o)))
+  const orphans       = outcomes.filter(o => !activeSourceIds.has(getSrcId(o)))
   const evidencedCount = changeItems.filter(c => isEvidenced(getOutcome(c.sourceId))).length
   const total         = changeItems.length
 
@@ -227,7 +229,7 @@ export default function Step3_Outcomes({
                         )}
                       </div>
                       <button
-                        onClick={() => onChange({ outcomes: value.outcomes.filter(x => x.id !== o.id) })}
+                        onClick={() => onChange({ outcomes: outcomes.filter(x => x.id !== o.id) })}
                         className="px-3 py-1.5 rounded-xl text-[11px] font-medium flex-shrink-0"
                         style={{ color: '#7F1D1D', border: '1px solid rgba(127,29,29,0.3)', background: 'transparent', cursor: 'pointer' }}>
                         Eliminar

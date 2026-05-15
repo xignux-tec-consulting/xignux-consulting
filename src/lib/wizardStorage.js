@@ -30,7 +30,11 @@ export function getInitialState() {
       intangibleSources: { ENGAGEMENT: '', BRAND: '', TALENT: '', SLO: '', INNOVATION: '', ENVCO: '', RESILIENCE: '' },
       results: null,
     },
-    step6: { exported: false },
+    step6: {
+      exportedAt:         null,
+      certificationNotes: '',
+      knownLimitations:   [],
+    },
   }
 }
 

@@ -7,6 +7,7 @@ import Step2_OutcomeMap from './steps/Step2_OutcomeMap'
 import Step3_Outcomes from './steps/Step3_Outcomes'
 import Step4_Impact from './steps/Step4_Impact'
 import Step5_Calculate from './steps/Step5_Calculate'
+import Step6_Report from './steps/Step6_Report'
 import AutoSaveBadge from './fields/AutoSaveBadge'
 import useWizardState from './useWizardState'
 
@@ -14,10 +15,16 @@ const TOTAL_STEPS = 6
 
 export default function SROIWizard({ onBackToGraph }) {
   const { th } = useTheme()
-  const { state, updateStep, lastSavedAt, forceSave } = useWizardState()
+  const { state, updateStep, resetWizard, lastSavedAt, forceSave } = useWizardState()
   const currentStep = state.meta.currentStep
 
-  const goNext = () => updateStep('meta', { currentStep: Math.min(currentStep + 1, TOTAL_STEPS) })
+  const goNext = () => {
+    if (currentStep === TOTAL_STEPS) {
+      document.getElementById('step6-export')?.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      updateStep('meta', { currentStep: Math.min(currentStep + 1, TOTAL_STEPS) })
+    }
+  }
   const goPrev = () => updateStep('meta', { currentStep: Math.max(currentStep - 1, 1) })
 
   const step4Valid = Boolean(state.step4.archetypeId) && state.step4.justification?.trim().length > 0
@@ -88,23 +95,14 @@ export default function SROIWizard({ onBackToGraph }) {
                 onGoToStep={(n) => updateStep('meta', { currentStep: n })}
               />
             )}
-            {currentStep > 5 && (
-              <div
-                className="rounded-2xl p-8 min-h-[360px] flex items-center justify-center"
-                style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}`, boxShadow: th.shadow }}
-              >
-                <div className="text-center space-y-2">
-                  <p className="text-[12px] font-medium uppercase tracking-widest" style={{ color: th.accent }}>
-                    Paso {currentStep} de {TOTAL_STEPS}
-                  </p>
-                  <p className="text-[14px] font-semibold" style={{ color: th.textPrimary }}>
-                    Contenido próximamente
-                  </p>
-                  <p className="text-[11px]" style={{ color: th.textMuted }}>
-                    Este paso se implementará en la siguiente iteración.
-                  </p>
-                </div>
-              </div>
+            {currentStep === 6 && (
+              <Step6_Report
+                value={state.step6}
+                onChange={(p) => updateStep('step6', p)}
+                fullState={state}
+                onReset={resetWizard}
+                onGoToStep={(n) => updateStep('meta', { currentStep: n })}
+              />
             )}
           </motion.div>
         </AnimatePresence>

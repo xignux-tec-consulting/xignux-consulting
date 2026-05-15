@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { AlertTriangle } from 'lucide-react'
 import { useTheme } from '../../../lib/theme'
@@ -59,6 +60,15 @@ export default function Step5_Calculate({ value, onChange, fullState, onGoToStep
     }
     try { result = computeProjectSROI(project) } catch { /* guard */ }
   }
+
+  const projectJsonRef = useRef(null)
+  useEffect(() => {
+    const key = project ? JSON.stringify(project) : null
+    if (key !== projectJsonRef.current) {
+      projectJsonRef.current = key
+      onChange({ results: result ?? null })
+    }
+  })
 
   if (missing.length > 0) {
     return (

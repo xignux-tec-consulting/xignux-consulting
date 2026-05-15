@@ -265,3 +265,31 @@ button:focus-visible {
   outline: 2px solid rgba(232, 82, 14, 0.4);
   outline-offset: 2px;
 }
+
+/* ── Vista imprimible del wizard ────────────── */
+.wizard-printable-report {
+  display: none;
+}
+
+@media print {
+  body * { visibility: hidden; }
+  .wizard-printable-report,
+  .wizard-printable-report * { visibility: visible; }
+  .wizard-printable-report {
+    display: block !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 32px 40px;
+    background: white;
+    color: #1A1A1A;
+    color-scheme: light;
+  }
+  .print-page-break { page-break-before: always; }
+  .print-no-break   { page-break-inside: avoid; }
+}
+
+body.wizard-printing {
+  background: white !important;
+}
