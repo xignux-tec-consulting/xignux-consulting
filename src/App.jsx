@@ -13,6 +13,7 @@ import BenchmarksDashboard from './components/Dashboard/Benchmarks'
 import OptimizeDashboard from './components/Dashboard/Optimize'
 import SROIWizard from './components/Wizard'
 import Chalkboard from './components/Chalkboard'
+import WizardFAB from './components/ui/WizardFAB'
 import { PROJECTS } from './data/projects'
 import { recomputeProject } from './lib/sroi'
 import { useTheme } from './lib/theme'
@@ -313,6 +314,12 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+
+      {/* Wizard FAB — bottom-left, only in graph view when no node selected and menu closed */}
+      <WizardFAB
+        onClick={() => setActiveView('wizard')}
+        visible={activeView === 'graph' && !selectedId && !mobileMenuOpen && viewMode === '3d'}
+      />
 
       {/* Chat panel — always accessible */}
       <ChatPanel
