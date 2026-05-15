@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Network, Database, TrendingUp, Target, LayoutList, Sun, Moon, Menu, X } from 'lucide-react'
+import { Network, Database, TrendingUp, Target, LayoutList, Calculator, Sun, Moon, Menu, X } from 'lucide-react'
 import { portfolioTotals, fmtMXN, sroiColor } from '../../lib/sroi'
 import { useTheme } from '../../lib/theme'
 
@@ -9,6 +9,7 @@ export const NAV_ITEMS = [
   { id: 'proxies',   label: 'Proxies',      Icon: Database },
   { id: 'bench',     label: 'Benchmarks',   Icon: TrendingUp },
   { id: 'optimize',  label: 'Optimizar',    Icon: Target },
+  { id: 'wizard',    label: 'Calcular',     Icon: Calculator },
   { id: 'portfolio', label: 'Portafolio',   Icon: LayoutList },
 ]
 

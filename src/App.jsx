@@ -11,6 +11,7 @@ import ProjectDashboard from './components/Dashboard/Project'
 import ProxiesDashboard from './components/Dashboard/Proxies'
 import BenchmarksDashboard from './components/Dashboard/Benchmarks'
 import OptimizeDashboard from './components/Dashboard/Optimize'
+import SROIWizard from './components/Wizard'
 import Chalkboard from './components/Chalkboard'
 import { PROJECTS } from './data/projects'
 import { recomputeProject } from './lib/sroi'
@@ -194,6 +195,15 @@ export default function App() {
       <AnimatePresence>
         {activeView === 'optimize' && (
           <OptimizeDashboard
+            onBackToGraph={() => setActiveView('graph')}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* SROI Wizard */}
+      <AnimatePresence>
+        {activeView === 'wizard' && (
+          <SROIWizard
             onBackToGraph={() => setActiveView('graph')}
           />
         )}

@@ -6,7 +6,7 @@ import NavBar from './NavBar'
 
 const TOTAL_STEPS = 6
 
-export default function SROIWizard() {
+export default function SROIWizard({ onBackToGraph }) {
   const { th } = useTheme()
   const [currentStep, setCurrentStep] = useState(1)
 
