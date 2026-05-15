@@ -3,10 +3,10 @@ import { useTheme } from '../../lib/theme'
 
 const TOTAL_STEPS = 6
 
-export default function NavBar({ step, onPrev, onNext, onSave }) {
+export default function NavBar({ step, onPrev, onNext, onSave, nextDisabled = false }) {
   const { th } = useTheme()
   const isFirst = step === 1
-  const isLast = step === TOTAL_STEPS
+  const isLast  = step === TOTAL_STEPS
 
   return (
     <div className="flex items-center justify-end gap-3 pt-2">
@@ -43,14 +43,17 @@ export default function NavBar({ step, onPrev, onNext, onSave }) {
       </motion.button>
 
       <motion.button
-        onClick={onNext}
-        whileTap={{ scale: 0.97 }}
+        onClick={!nextDisabled ? onNext : undefined}
+        disabled={nextDisabled}
+        whileTap={!nextDisabled ? { scale: 0.97 } : {}}
         className="px-5 py-2.5 rounded-xl text-[12px] font-semibold"
         style={{
-          background: th.accent,
-          color: '#fff',
-          boxShadow: '0 2px 10px -2px rgba(232,82,14,0.4)',
-          cursor: 'pointer',
+          background:  nextDisabled ? th.hoverBg : th.accent,
+          color:       nextDisabled ? th.textMuted : '#fff',
+          boxShadow:   nextDisabled ? 'none' : '0 2px 10px -2px rgba(232,82,14,0.4)',
+          cursor:      nextDisabled ? 'not-allowed' : 'pointer',
+          opacity:     nextDisabled ? 0.6 : 1,
+          border:      'none',
         }}
       >
         {isLast ? 'Finalizar' : 'Siguiente'}

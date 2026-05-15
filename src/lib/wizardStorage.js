@@ -19,7 +19,12 @@ export function getInitialState() {
       // [{ id, sourceId, changeText, stakeholderName, outputName, description,
       //    indicator:{name,value,unit,source}, proxy:{name,value,source}, vpnProfile }]
     },
-    step4: { adjustments: {} },
+    step4: {
+      archetypeId:   null,
+      expertMode:    false,
+      overrides:     { deadweight: null, attribution: null, displacement: null, dropOff: null },
+      justification: '',
+    },
     step5: { results: null },
     step6: { exported: false },
   }

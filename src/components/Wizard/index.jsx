@@ -5,6 +5,7 @@ import NavBar from './NavBar'
 import Step1_Scope from './steps/Step1_Scope'
 import Step2_OutcomeMap from './steps/Step2_OutcomeMap'
 import Step3_Outcomes from './steps/Step3_Outcomes'
+import Step4_Impact from './steps/Step4_Impact'
 import AutoSaveBadge from './fields/AutoSaveBadge'
 import useWizardState from './useWizardState'
 
@@ -17,6 +18,9 @@ export default function SROIWizard({ onBackToGraph }) {
 
   const goNext = () => updateStep('meta', { currentStep: Math.min(currentStep + 1, TOTAL_STEPS) })
   const goPrev = () => updateStep('meta', { currentStep: Math.max(currentStep - 1, 1) })
+
+  const step4Valid = Boolean(state.step4.archetypeId) && state.step4.justification?.trim().length > 0
+  const nextDisabled = currentStep === 4 && !step4Valid
 
   return (
     <motion.div
@@ -65,7 +69,16 @@ export default function SROIWizard({ onBackToGraph }) {
                 onGoToStep={(n) => updateStep('meta', { currentStep: n })}
               />
             )}
-            {currentStep > 3 && (
+            {currentStep === 4 && (
+              <Step4_Impact
+                value={state.step4}
+                onChange={(p) => updateStep('step4', p)}
+                outcomes={state.step3.outcomes}
+                inputs={state.step2.inputs}
+                onSave={forceSave}
+              />
+            )}
+            {currentStep > 4 && (
               <div
                 className="rounded-2xl p-8 min-h-[360px] flex items-center justify-center"
                 style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}`, boxShadow: th.shadow }}
@@ -91,6 +104,7 @@ export default function SROIWizard({ onBackToGraph }) {
           onPrev={goPrev}
           onNext={goNext}
           onSave={forceSave}
+          nextDisabled={nextDisabled}
         />
 
       </div>
