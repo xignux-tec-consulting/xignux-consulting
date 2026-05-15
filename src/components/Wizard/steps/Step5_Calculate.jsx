@@ -7,6 +7,7 @@ import HeadlineResults from './Step5/HeadlineResults'
 import OutcomesBreakdown from './Step5/OutcomesBreakdown'
 import IntangiblesCapture from './Step5/IntangiblesCapture'
 import FormulaPanel from './Step5/FormulaPanel'
+import SensitivityPanel from './Step5/SensitivityPanel'
 
 function mergeAdj(archetype, overrides) {
   return {
@@ -38,9 +39,10 @@ export default function Step5_Calculate({ value, onChange, fullState, onGoToStep
   if (investment <= 0)        missing.push({ step: 2, label: 'Agregar inversión en Inputs (Paso 2)' })
   if (calcOutcomes.length === 0) missing.push({ step: 3, label: 'Completar al menos un outcome calculable (Paso 3)' })
 
-  let result = null
+  let project = null
+  let result  = null
   if (missing.length === 0 && archetype) {
-    const project = {
+    project = {
       id: 'WIZARD',
       name: fullState.step1.projectName || 'Proyecto',
       investment,
@@ -123,6 +125,8 @@ export default function Step5_Calculate({ value, onChange, fullState, onGoToStep
       />
 
       <FormulaPanel result={result} />
+
+      <SensitivityPanel project={project} baseResult={result} />
     </motion.div>
   )
 }
