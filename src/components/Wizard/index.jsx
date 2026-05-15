@@ -6,6 +6,7 @@ import Step1_Scope from './steps/Step1_Scope'
 import Step2_OutcomeMap from './steps/Step2_OutcomeMap'
 import Step3_Outcomes from './steps/Step3_Outcomes'
 import Step4_Impact from './steps/Step4_Impact'
+import Step5_Calculate from './steps/Step5_Calculate'
 import AutoSaveBadge from './fields/AutoSaveBadge'
 import useWizardState from './useWizardState'
 
@@ -78,7 +79,16 @@ export default function SROIWizard({ onBackToGraph }) {
                 onSave={forceSave}
               />
             )}
-            {currentStep > 4 && (
+            {currentStep === 5 && (
+              <Step5_Calculate
+                value={state.step5}
+                onChange={(p) => updateStep('step5', p)}
+                fullState={state}
+                onSave={forceSave}
+                onGoToStep={(n) => updateStep('meta', { currentStep: n })}
+              />
+            )}
+            {currentStep > 5 && (
               <div
                 className="rounded-2xl p-8 min-h-[360px] flex items-center justify-center"
                 style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}`, boxShadow: th.shadow }}

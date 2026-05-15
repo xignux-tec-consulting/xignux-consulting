@@ -25,7 +25,11 @@ export function getInitialState() {
       overrides:     { deadweight: null, attribution: null, displacement: null, dropOff: null },
       justification: '',
     },
-    step5: { results: null },
+    step5: {
+      intangibles: { ENGAGEMENT: 0, BRAND: 0, TALENT: 0, SLO: 0, INNOVATION: 0, ENVCO: 0, RESILIENCE: 0 },
+      intangibleSources: { ENGAGEMENT: '', BRAND: '', TALENT: '', SLO: '', INNOVATION: '', ENVCO: '', RESILIENCE: '' },
+      results: null,
+    },
     step6: { exported: false },
   }
 }
