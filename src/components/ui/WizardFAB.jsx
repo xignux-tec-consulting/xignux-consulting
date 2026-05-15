@@ -17,7 +17,7 @@ export default function WizardFAB({ onClick, visible }) {
           whileHover={{ scale: 1.08 }}
           whileTap={{ scale: 0.95 }}
           onClick={onClick}
-          className="fixed left-5 bottom-5 z-[60] w-14 h-14 rounded-full flex items-center justify-center group"
+          className="fixed left-5 bottom-5 md:left-[88px] z-[60] w-14 h-14 rounded-full flex items-center justify-center group"
           style={{
             background: th.accent,
             boxShadow: '0 8px 32px -4px rgba(232,82,14,0.4)',
