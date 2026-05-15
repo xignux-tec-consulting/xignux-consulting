@@ -14,7 +14,11 @@ export function getInitialState() {
       stakeholders: [],
     },
     step2: { inputs: [], activities: [], outputs: [], beneficiaryChanges: [] },
-    step3: { outcomes: [] },
+    step3: {
+      outcomes: [],
+      // [{ id, beneficiaryChangeId, changeText, stakeholderName, outputName,
+      //    description, indicator:{name,value,unit,source}, proxy:{name,value,source} }]
+    },
     step4: { adjustments: {} },
     step5: { results: null },
     step6: { exported: false },
