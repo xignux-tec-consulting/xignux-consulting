@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { X, ChevronRight } from 'lucide-react'
+import { X, ChevronRight, Trash2 } from 'lucide-react'
 import { ARCHETYPES } from '../../data/projects'
 import { fmtMXN, fmtMXNFull, sroiColor } from '../../lib/sroi'
 import { useTheme } from '../../lib/theme'
@@ -18,7 +18,7 @@ function MiniBar({ value, max, color, label, th }) {
   )
 }
 
-export default function NodePanel({ project, projects, anchor, onClose, onJumpTo, onOpenDashboard }) {
+export default function NodePanel({ project, projects, anchor, onClose, onJumpTo, onOpenDashboard, onDeleteProject }) {
   const { th } = useTheme()
 
   if (!project) return null
@@ -178,7 +178,7 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
           )}
         </div>
 
-        <div className="p-3 border-t hairline">
+        <div className="p-3 border-t hairline space-y-2">
           <button
             onClick={onOpenDashboard}
             className="w-full py-2.5 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition"
@@ -187,6 +187,21 @@ export default function NodePanel({ project, projects, anchor, onClose, onJumpTo
             Ver dashboard completo
             <ChevronRight className="w-4 h-4" />
           </button>
+          {onDeleteProject && (
+            <button
+              onClick={() => {
+                if (window.confirm(`¿Eliminar "${project.name}"?\n\nEsta acción no se puede deshacer.`)) {
+                  onDeleteProject(project.id)
+                  onClose()
+                }
+              }}
+              className="w-full py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 transition"
+              style={{ background: 'transparent', color: '#7F1D1D', border: '1.5px solid rgba(127,29,29,0.40)' }}
+            >
+              <Trash2 className="w-4 h-4" />
+              Eliminar proyecto
+            </button>
+          )}
         </div>
       </motion.div>
     </>

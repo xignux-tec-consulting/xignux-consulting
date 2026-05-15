@@ -8,7 +8,7 @@ import LimitationsCapture from './Step6/LimitationsCapture'
 import ExportActions from './Step6/ExportActions'
 import PrintableReport from './Step6/PrintableReport'
 
-export default function Step6_Report({ value, onChange, fullState, onReset, onGoToStep }) {
+export default function Step6_Report({ value, onChange, fullState, onReset, onGoToStep, onSaveToPortfolio, onUpdateInPortfolio, loadedProjectId }) {
   const { th } = useTheme()
 
   const result     = fullState.step5?.results ?? null
@@ -106,6 +106,9 @@ export default function Step6_Report({ value, onChange, fullState, onReset, onGo
         onChange={onChange}
         onReset={onReset}
         onGoToStep={onGoToStep}
+        onSaveToPortfolio={onSaveToPortfolio}
+        onUpdateInPortfolio={onUpdateInPortfolio}
+        loadedProjectId={loadedProjectId}
       />
 
       {/* Versión imprimible (oculta excepto al imprimir) */}

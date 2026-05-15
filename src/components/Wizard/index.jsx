@@ -1,5 +1,7 @@
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTheme } from '../../lib/theme'
+import { wizardStateToProject, projectToWizardState } from '../../lib/wizardProjectMapper'
 import Stepper from './Stepper'
 import NavBar from './NavBar'
 import Step1_Scope from './steps/Step1_Scope'
@@ -13,10 +15,18 @@ import useWizardState from './useWizardState'
 
 const TOTAL_STEPS = 6
 
-export default function SROIWizard({ onBackToGraph }) {
+export default function SROIWizard({ onBackToGraph, projects = [], onAddProject, onUpdateProject }) {
   const { th } = useTheme()
-  const { state, updateStep, resetWizard, lastSavedAt, forceSave } = useWizardState()
+  const { state, updateStep, resetWizard, lastSavedAt, forceSave, loadFromState } = useWizardState()
   const currentStep = state.meta.currentStep
+
+  const [loadedProjectId, setLoadedProjectId] = useState(null)
+  const [toast, setToast] = useState(null)
+
+  const showToast = useCallback((msg) => {
+    setToast(msg)
+    setTimeout(() => setToast(null), 3000)
+  }, [])
 
   const goNext = () => {
     if (currentStep === TOTAL_STEPS) {
@@ -30,6 +40,34 @@ export default function SROIWizard({ onBackToGraph }) {
   const step4Valid = Boolean(state.step4.archetypeId) && state.step4.justification?.trim().length > 0
   const nextDisabled = currentStep === 4 && !step4Valid
 
+  const handleLoadProject = useCallback((project) => {
+    const wizState = projectToWizardState(project)
+    loadFromState(wizState)
+    setLoadedProjectId(project.id)
+  }, [loadFromState])
+
+  const handleClearLoad = useCallback(() => {
+    resetWizard()
+    setLoadedProjectId(null)
+  }, [resetWizard])
+
+  const handleSaveToPortfolio = useCallback(() => {
+    if (!onAddProject) return
+    const project = wizardStateToProject(state)
+    onAddProject(project)
+    setLoadedProjectId(project.id)
+    showToast('Proyecto guardado en el portafolio')
+  }, [state, onAddProject, showToast])
+
+  const handleUpdateInPortfolio = useCallback(() => {
+    if (!onUpdateProject) return
+    const project = wizardStateToProject(state, loadedProjectId)
+    onUpdateProject(project)
+    showToast('Proyecto actualizado en el portafolio')
+  }, [state, loadedProjectId, onUpdateProject, showToast])
+
+  const loadedProject = projects.find(p => p.id === loadedProjectId) || null
+
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -39,6 +77,43 @@ export default function SROIWizard({ onBackToGraph }) {
       <div className="max-w-[1440px] mx-auto px-4 md:px-8 pt-20 pb-8 space-y-6">
 
         <AutoSaveBadge lastSavedAt={lastSavedAt} />
+
+        {/* ── Cargar proyecto ───────────────────────────────────── */}
+        {projects.length > 0 && (
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl"
+            style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}` }}>
+            <span className="text-[12px] font-medium shrink-0" style={{ color: th.textSecondary }}>
+              Cargar proyecto:
+            </span>
+            <select
+              className="flex-1 text-[12px] rounded-lg px-3 py-1.5 outline-none"
+              style={{
+                background: th.pillBg, border: `1px solid ${th.cardBorder}`,
+                color: th.textPrimary, cursor: 'pointer',
+              }}
+              value={loadedProjectId || ''}
+              onChange={e => {
+                const pid = e.target.value
+                if (!pid) { handleClearLoad(); return }
+                const p = projects.find(x => x.id === pid)
+                if (p) handleLoadProject(p)
+              }}
+            >
+              <option value="">— Nuevo análisis —</option>
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>
+                  {p.id} · {p.name} ({p.sroi.toFixed(2)}x)
+                </option>
+              ))}
+            </select>
+            {loadedProject && (
+              <span className="text-[11px] px-2 py-1 rounded shrink-0"
+                style={{ background: '#10B98120', color: '#10B981', border: '1px solid #10B98133' }}>
+                cargado
+              </span>
+            )}
+          </div>
+        )}
 
         <Stepper currentStep={currentStep} />
 
@@ -102,6 +177,9 @@ export default function SROIWizard({ onBackToGraph }) {
                 fullState={state}
                 onReset={resetWizard}
                 onGoToStep={(n) => updateStep('meta', { currentStep: n })}
+                onSaveToPortfolio={onAddProject ? handleSaveToPortfolio : null}
+                onUpdateInPortfolio={onUpdateProject ? handleUpdateInPortfolio : null}
+                loadedProjectId={loadedProjectId}
               />
             )}
           </motion.div>
@@ -116,6 +194,23 @@ export default function SROIWizard({ onBackToGraph }) {
         />
 
       </div>
+
+      {/* ── Toast feedback ────────────────────────────────────── */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            key="toast"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ duration: 0.25 }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-xl text-sm font-medium z-50"
+            style={{ background: '#10B981', color: '#fff', boxShadow: '0 4px 20px -4px rgba(16,185,129,0.5)' }}
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

@@ -1,6 +1,6 @@
 import { useTheme } from '../../../../lib/theme'
 
-export default function ExportActions({ fullState, onChange, onReset, onGoToStep }) {
+export default function ExportActions({ fullState, onChange, onReset, onGoToStep, onSaveToPortfolio, onUpdateInPortfolio, loadedProjectId }) {
   const { th } = useTheme()
 
   const { step6 } = fullState
@@ -85,8 +85,48 @@ export default function ExportActions({ fullState, onChange, onReset, onGoToStep
     },
   ]
 
+  const portfolioAction = loadedProjectId
+    ? (onUpdateInPortfolio ? {
+        icon:    '↑',
+        title:   'Actualizar en portafolio',
+        helper:  'Reemplaza el nodo existente en la constelación con los resultados del análisis actual.',
+        btnText: 'Actualizar proyecto',
+        onClick: onUpdateInPortfolio,
+        btnStyle: { background: '#2E75B6', color: '#fff', border: 'none', boxShadow: '0 2px 10px -2px rgba(46,117,182,0.4)' },
+      } : null)
+    : (onSaveToPortfolio ? {
+        icon:    '+',
+        title:   'Guardar en portafolio',
+        helper:  'Agrega este análisis como un nuevo nodo en la constelación del portafolio.',
+        btnText: 'Guardar proyecto',
+        onClick: onSaveToPortfolio,
+        btnStyle: { background: '#10B981', color: '#fff', border: 'none', boxShadow: '0 2px 10px -2px rgba(16,185,129,0.4)' },
+      } : null)
+
   return (
     <div id="step6-export" className="space-y-4">
+      {portfolioAction && (
+        <div className="rounded-2xl p-5 flex flex-col gap-4"
+          style={{ background: th.cardBg, border: `1px solid ${th.cardBorder}`, boxShadow: th.shadow }}>
+          <div className="flex items-center gap-3">
+            <span className="text-[22px] font-bold" style={{ color: portfolioAction.btnStyle.background, lineHeight: 1 }}>
+              {portfolioAction.icon}
+            </span>
+            <div>
+              <p className="text-[13px] font-semibold" style={{ color: th.textPrimary }}>{portfolioAction.title}</p>
+              <p className="text-[12px] mt-0.5" style={{ color: th.textMuted }}>{portfolioAction.helper}</p>
+            </div>
+            <button
+              type="button"
+              onClick={portfolioAction.onClick}
+              className="ml-auto py-2 px-5 rounded-xl text-[12px] font-semibold shrink-0"
+              style={{ cursor: 'pointer', ...portfolioAction.btnStyle }}
+            >
+              {portfolioAction.btnText}
+            </button>
+          </div>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {actions.map(a => (
           <div key={a.id} className="rounded-2xl p-5 flex flex-col gap-4"

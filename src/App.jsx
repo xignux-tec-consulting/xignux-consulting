@@ -96,6 +96,21 @@ export default function App() {
     setTimeout(() => setRecentChange(null), 3000)
   }, [])
 
+  const handleAddProject = useCallback((project) => {
+    setProjects((prev) => [...prev, project])
+  }, [])
+
+  const handleUpdateProject = useCallback((project) => {
+    setProjects((prev) => prev.map((p) => (p.id === project.id ? project : p)))
+  }, [])
+
+  const handleDeleteProject = useCallback((id) => {
+    setProjects((prev) => prev.filter((p) => p.id !== id))
+    setSelectedId((prev) => (prev === id ? null : prev))
+    setNodeAnchor((prev) => (selectedId === id ? null : prev))
+    setCameraTarget((prev) => (prev === id ? null : prev))
+  }, [selectedId])
+
   const applyOptimization = useCallback(() => {
     setProjects((prev) =>
       prev.map((p) => {
@@ -205,6 +220,9 @@ export default function App() {
         {activeView === 'wizard' && (
           <SROIWizard
             onBackToGraph={() => setActiveView('graph')}
+            projects={projects}
+            onAddProject={handleAddProject}
+            onUpdateProject={handleUpdateProject}
           />
         )}
       </AnimatePresence>
@@ -230,6 +248,7 @@ export default function App() {
             onClose={handleDeselect}
             onJumpTo={handleJumpTo}
             onOpenDashboard={() => handleOpenProjectDash(selectedId)}
+            onDeleteProject={handleDeleteProject}
           />
         )}
       </AnimatePresence>

@@ -44,5 +44,12 @@ export default function useWizardState() {
     setLastSavedAt(null)
   }
 
-  return { state, setState, updateStep, resetWizard, lastSavedAt, forceSave }
+  const loadFromState = (newState) => {
+    const merged = deepMerge(getInitialState(), newState)
+    saveWizardState(merged)
+    setState(merged)
+    setLastSavedAt(merged.meta?.lastSavedAt ?? null)
+  }
+
+  return { state, setState, updateStep, resetWizard, lastSavedAt, forceSave, loadFromState }
 }
